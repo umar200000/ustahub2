@@ -1,0 +1,22 @@
+import 'package:get_it/get_it.dart';
+
+import '../../application2/auth_bloc_and_data/bloc/auth_bloc.dart';
+import '../../application2/auth_bloc_and_data/bloc/auth_pin_put_bloc.dart';
+import '../../infrastructure/services/shared_perf/shared_pref_service.dart';
+import '../common/network_provider.dart';
+
+final GetIt sl = GetIt.instance;
+
+Future<void> init() async {
+  final SharedPrefService prf = await SharedPrefService.initialize();
+  sl.registerLazySingleton<SharedPrefService>(() => prf);
+
+  /// dio
+  sl.registerFactory(() => createDio());
+
+  /// repositories
+  sl.registerLazySingleton<AuthBloc>(() => AuthBloc());
+
+  /// blocs
+  sl.registerFactory(() => AuthPinPutBloc());
+}

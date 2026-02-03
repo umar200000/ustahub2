@@ -9,7 +9,9 @@ class AuthButton extends StatelessWidget {
     this.icon,
     required this.color,
     required this.textColor,
+    this.child,
   });
+  final Widget? child;
   final String title;
   final Function() onTap;
   final IconData? icon;
@@ -22,6 +24,7 @@ class AuthButton extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.translucent,
       child: Container(
+        alignment: .center,
         margin: .only(bottom: 12.h),
         width: double.infinity,
         height: 50.h,
@@ -29,21 +32,26 @@ class AuthButton extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(8.r),
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            mainAxisAlignment: .spaceBetween,
-            children: [
-              if (icon != null) Icon(icon, color: textColor, size: 20),
-              if (icon == null) SizedBox(width: 20),
-              Text(
-                title,
-                style: TextStyle(fontWeight: FontWeight.w900, color: textColor),
+        child:
+            child ??
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                mainAxisAlignment: .spaceBetween,
+                children: [
+                  if (icon != null) Icon(icon, color: textColor, size: 20),
+                  if (icon == null) SizedBox(width: 20),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: textColor,
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                ],
               ),
-              SizedBox(width: 20),
-            ],
-          ),
-        ),
+            ),
       ),
     );
   }

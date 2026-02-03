@@ -1,10 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ustahub/application2/auth_bloc_and_data/bloc/auth_bloc.dart';
+import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/auth/widgets/pin_put_widget.dart';
+import 'package:ustahub/presentation/pages/auth/widgets/uz_phone_formatter.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
+import '../../../../infrastructure2/init/injection.dart';
 import 'auth_button.dart';
 
 class EnterPhoneNumberBox extends StatefulWidget {
@@ -16,7 +20,7 @@ class EnterPhoneNumberBox extends StatefulWidget {
 
 class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
   final TextEditingController _controller = TextEditingController();
-
+  final authBloc = sl<AuthBloc>();
   @override
   void dispose() {
     _controller.dispose();
@@ -28,190 +32,148 @@ class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
       isScrollControlled: true,
       context: context,
       builder: (context) {
-        return PinPutWidget();
+        return const PinPutWidget();
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return ThemeWrapper(
-      builder: (context, colors, fonts, icons, controller) => Container(
-        width: double.infinity,
-        padding: EdgeInsets.only(
-          left: 20.w,
-          right: 20.w,
-          top: 16.h,
-          bottom:
-              MediaQuery.of(context).viewInsets.bottom +
-              MediaQuery.of(context).padding.bottom,
-        ),
-        decoration: BoxDecoration(
-          color: colors.darkMode800,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
+    return BlocProvider.value(
+      value: authBloc,
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (ModalRoute.of(context)?.isCurrent != true) return;
+          if (state.phoneStatus == Status2.success) {
+            showPinPutWidget(context);
+          } else if (state.phoneStatus == Status2.error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage ?? "Xatolik"),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        child: ThemeWrapper(
+          builder: (context, colors, fonts, icons, controller) => Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              left: 20.w,
+              right: 20.w,
+              top: 16.h,
+              bottom:
+                  MediaQuery.of(context).viewInsets.bottom +
+                  MediaQuery.of(context).padding.bottom,
+            ),
+            decoration: BoxDecoration(
+              color: colors.darkMode800,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: colors.shade0.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                24.h.verticalSpace,
+                Text(
+                  'enter_phone_number'.tr(),
+                  style: fonts.subheadingRegular.copyWith(
+                    color: colors.shade0,
+                    fontSize: 22.sp,
+                  ),
+                ),
+                24.h.verticalSpace,
+                Container(
+                  decoration: BoxDecoration(
+                    color: colors.darkMode700,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: colors.shade0.withOpacity(0.1)),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Row(
+                    children: [
+                      Text(
+                        "+998 ",
+                        style: fonts.paragraphP2SemiBold.copyWith(
+                          color: colors.shade0,
+                          fontSize: 18.sp,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          autofocus: true,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [UzPhoneFormatter()],
+                          style: fonts.paragraphP2SemiBold.copyWith(
+                            color: colors.shade0,
+                            fontSize: 18.sp,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "(_ _) _ _ _  _ _  _ _",
+                            hintStyle: fonts.paragraphP2SemiBold.copyWith(
+                              color: colors.shade0.withOpacity(0.3),
+                            ),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                24.h.verticalSpace,
+                BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    final isLoading = state.phoneStatus == Status2.loading;
+                    return AuthButton(
+                      color: colors.blue500,
+                      onTap: isLoading
+                          ? () {}
+                          : () {
+                              final phoneNumber =
+                                  "+998${_controller.text.replaceAll(' ', '')}";
+
+                              if (phoneNumber.length == 13) {
+                                authBloc.add(
+                                  EnterPhoneNumberEvent(
+                                    phoneNumber: phoneNumber,
+                                  ),
+                                );
+                              }
+                            },
+                      textColor: colors.shade0,
+                      title: "continue".tr(),
+                      child: isLoading
+                          ? Center(
+                              child: SizedBox(
+                                width: 24.r,
+                                height: 24.r,
+                                child: CircularProgressIndicator(
+                                  color: colors.shade0,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            )
+                          : null,
+                    );
+                  },
+                ),
+                24.h.verticalSpace,
+              ],
+            ),
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40.w,
-              height: 4.h,
-              decoration: BoxDecoration(
-                color: colors.shade0.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            24.h.verticalSpace,
-            Text(
-              'enter_phone_number'.tr(),
-              style: fonts.subheadingRegular.copyWith(
-                color: colors.shade0,
-                fontSize: 22.sp,
-              ),
-            ),
-            24.h.verticalSpace,
-            Container(
-              decoration: BoxDecoration(
-                color: colors.darkMode700,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colors.shade0.withOpacity(0.1)),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Row(
-                children: [
-                  Text(
-                    "+998 ",
-                    style: fonts.paragraphP2SemiBold.copyWith(
-                      color: colors.shade0,
-                      fontSize: 18.sp,
-                    ),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      autofocus: true,
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [UzPhoneFormatter()],
-                      style: fonts.paragraphP2SemiBold.copyWith(
-                        color: colors.shade0,
-                        fontSize: 18.sp,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: "(_ _) _ _ _  _ _  _ _",
-                        hintStyle: fonts.paragraphP2SemiBold.copyWith(
-                          color: colors.shade0.withOpacity(0.3),
-                        ),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            24.h.verticalSpace,
-            AuthButton(
-              color: colors.blue500,
-              onTap: () {
-                showPinPutWidget(context);
-              },
-              textColor: colors.shade0,
-              title: "continue".tr(),
-            ),
-            24.h.verticalSpace,
-          ],
-        ),
       ),
-    );
-  }
-}
-
-class UzPhoneFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final oldText = oldValue.text;
-    final newText = newValue.text;
-
-    final oldDigits = oldText.replaceAll(RegExp(r'\D'), '');
-    var newDigits = newText.replaceAll(RegExp(r'\D'), '');
-
-    // 1. Overwrite mode: Agar raqamlar 9 tadan oshsa va bu qo'shish bo'lsa
-    if (newDigits.length > 9 && newDigits.length > oldDigits.length) {
-      final int selectionStart = oldValue.selection.start;
-      final int digitsBeforeCursor = oldText
-          .substring(0, selectionStart)
-          .replaceAll(RegExp(r'\D'), '')
-          .length;
-
-      if (digitsBeforeCursor < 9) {
-        final String addedDigit = newDigits[digitsBeforeCursor];
-        newDigits =
-            oldDigits.substring(0, digitsBeforeCursor) +
-            addedDigit +
-            oldDigits.substring(digitsBeforeCursor + 1);
-      } else {
-        return oldValue;
-      }
-    }
-
-    if (newDigits.length > 9) newDigits = newDigits.substring(0, 9);
-
-    // 2. Space Deletion fix: Agar foydalanuvchi bo'shliqni o'chirsa
-    bool forcefullyRemoved = false;
-    if (newText.length < oldText.length && oldDigits == newDigits) {
-      final int selectionEnd = newValue.selection.end;
-      final int digitsBeforeOldCursor = oldText
-          .substring(0, oldValue.selection.end)
-          .replaceAll(RegExp(r'\D'), '')
-          .length;
-
-      if (digitsBeforeOldCursor > 0) {
-        newDigits =
-            oldDigits.substring(0, digitsBeforeOldCursor - 1) +
-            oldDigits.substring(digitsBeforeOldCursor);
-        forcefullyRemoved = true;
-      }
-    }
-
-    // 3. Formatlash: XX XXX XX XX
-    final buffer = StringBuffer();
-    for (int i = 0; i < newDigits.length; i++) {
-      buffer.write(newDigits[i]);
-      if ((i == 1 || i == 4 || i == 6) && i != newDigits.length - 1) {
-        buffer.write(' ');
-      }
-    }
-
-    final String formatted = buffer.toString();
-
-    // 4. Kursorni hisoblash
-    int digitsBeforeCursor = newText
-        .substring(0, newValue.selection.end)
-        .replaceAll(RegExp(r'\D'), '')
-        .length;
-    if (forcefullyRemoved) digitsBeforeCursor--;
-
-    int selectionIndex = 0;
-    int currentDigits = 0;
-    for (
-      int i = 0;
-      i < formatted.length && currentDigits < digitsBeforeCursor;
-      i++
-    ) {
-      selectionIndex++;
-      if (RegExp(r'\d').hasMatch(formatted[i])) {
-        currentDigits++;
-      }
-    }
-
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: selectionIndex),
     );
   }
 }

@@ -15,6 +15,7 @@ import 'package:ustahub/presentation/pages/order/orders_page.dart';
 import 'package:ustahub/presentation/pages/splash/splash_screen.dart';
 
 import '../pages/auth/auth_options.dart';
+import '../pages/auth/register2_page.dart';
 
 // Cache repositories to avoid recreating them
 class _RepositoryCache {
@@ -94,6 +95,11 @@ class AppRoutes {
   // Main screen - third screen (after onboarding)
   static MaterialPageRoute main() {
     return MaterialPageRoute(builder: (_) => const MainPage());
+  }
+
+  // Main screen - third screen (after onboarding)
+  static MaterialPageRoute register2Page() {
+    return MaterialPageRoute(builder: (_) => const Register2Page());
   }
 
   static MaterialPageRoute orders() {

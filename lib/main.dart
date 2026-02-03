@@ -14,10 +14,12 @@ import 'package:ustahub/utils/constants.dart';
 import 'package:ustahub/utils/firebase_options.dart';
 import 'package:ustahub/utils/sms_helper.dart';
 
+import 'infrastructure2/init/injection.dart';
+
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-
+    await init();
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
