@@ -11,6 +11,7 @@ class CustomTextField extends StatelessWidget {
   final Widget? prefix;
   final bool readOnly;
   final VoidCallback? onTap;
+  final bool error;
 
   const CustomTextField({
     super.key,
@@ -21,6 +22,7 @@ class CustomTextField extends StatelessWidget {
     this.prefix,
     this.readOnly = false,
     this.onTap,
+    this.error = false,
   });
 
   @override
@@ -31,7 +33,10 @@ class CustomTextField extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.darkMode700,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: colors.shade0.withOpacity(0.1)),
+          border: Border.all(
+            color: error ? Colors.red : colors.shade0.withOpacity(0.1),
+            width: error ? 1.5 : 1,
+          ),
         ),
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         alignment: Alignment.center,

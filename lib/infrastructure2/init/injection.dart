@@ -1,7 +1,8 @@
 import 'package:get_it/get_it.dart';
+import 'package:ustahub/application2/auth_bloc_and_data/bloc/auth_pin_put_bloc.dart';
+import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 
 import '../../application2/auth_bloc_and_data/bloc/auth_bloc.dart';
-import '../../application2/auth_bloc_and_data/bloc/auth_pin_put_bloc.dart';
 import '../../infrastructure/services/shared_perf/shared_pref_service.dart';
 import '../common/network_provider.dart';
 
@@ -14,9 +15,11 @@ Future<void> init() async {
   /// dio
   sl.registerFactory(() => createDio());
 
-  /// repositories
-  sl.registerLazySingleton<AuthBloc>(() => AuthBloc());
-
-  /// blocs
-  sl.registerFactory(() => AuthPinPutBloc());
+  /// bloc
+  sl
+    ..registerLazySingleton<AuthBloc>(() => AuthBloc())
+    ..registerLazySingleton<RegisterBloc>(
+      () => RegisterBloc(sl<SharedPrefService>()),
+    )
+    ..registerLazySingleton<AuthPinPutBloc>(() => AuthPinPutBloc());
 }

@@ -6,7 +6,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/analytics/analytics_service.dart';
+import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/presentation/pages/core/app_init.dart';
 import 'package:ustahub/presentation/pages/core/app_widget.dart';
 import 'package:ustahub/utils/app_config.dart';
@@ -19,6 +23,7 @@ import 'infrastructure2/init/injection.dart';
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
+    final sharedPrefService = await SharedPrefService.initialize();
     await init();
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -54,8 +59,8 @@ Future<void> main() async {
       defaultLocale = languageCode == "ru"
           ? const Locale('ru', 'RU')
           : languageCode == "en"
-          ? const Locale('en', 'US')
-          : const Locale('uz', 'UZ');
+              ? const Locale('en', 'US')
+              : const Locale('uz', 'UZ');
     } catch (e) {
       defaultLocale = const Locale('uz', 'UZ');
     }
@@ -72,11 +77,20 @@ Future<void> main() async {
         useOnlyLangCode: false,
         useFallbackTranslations: true,
         assetLoader: const RootBundleAssetLoader(),
-        child: ClarityWidget(
-          clarityConfig: config,
-          app: MyApp(
-            dbService: AppInit.dbService!,
-            connectivityX: AppInit.connectivityX!,
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => RegisterBloc(sharedPrefService)
+                ..add(LoadUserFromSharedPrefsEvent()),
+            ),
+          ],
+          child: ClarityWidget(
+            clarityConfig: config,
+            app: MyApp(
+              dbService: AppInit.dbService!,
+              connectivityX: AppInit.connectivityX!,
+              sharedPrefService: sharedPrefService,
+            ),
           ),
         ),
       ),

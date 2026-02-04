@@ -167,61 +167,79 @@ class _PinPutWidgetState extends State<PinPutWidget> {
                   24.h.verticalSpace,
                   BlocBuilder<AuthPinPutBloc, AuthPinPutState>(
                     builder: (context, state) {
-                      return Pinput(
-                        autofocus: true,
-                        length: 6,
-                        defaultPinTheme: defaultPinTheme,
-                        focusedPinTheme: focusedPinTheme,
-                        separatorBuilder: (index) => SizedBox(width: 8.w),
-                        onCompleted: (pin) {
-                          pinPutBloc.add(
-                            VerifyOtpEvent(
-                              phoneNumber:
-                                  authBloc.state.authPhoneNumber!.data!.phone!,
-                              code: pin,
+                      return Column(
+                        children: [
+                          Pinput(
+                            autofocus: true,
+                            length: 6,
+                            defaultPinTheme: defaultPinTheme,
+                            focusedPinTheme: focusedPinTheme,
+                            separatorBuilder: (index) => SizedBox(width: 8.w),
+                            onCompleted: (pin) {
+                              pinPutBloc.add(
+                                VerifyOtpEvent(
+                                  phoneNumber: authBloc
+                                      .state
+                                      .authPhoneNumber!
+                                      .data!
+                                      .phone!,
+                                  code: pin,
+                                ),
+                              );
+                            },
+                          ),
+                          24.h.verticalSpace,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                _formatTime(_secondsRemaining),
+                                style: fonts.paragraphP3Medium.copyWith(
+                                  color: colors.shade0.withOpacity(0.7),
+                                ),
+                              ),
+                              12.w.horizontalSpace,
+                              GestureDetector(
+                                onTap: _canResend
+                                    ? () {
+                                        authBloc.add(
+                                          EnterPhoneNumberEvent(
+                                            phoneNumber: authBloc
+                                                .state
+                                                .authPhoneNumber!
+                                                .data!
+                                                .phone!,
+                                          ),
+                                        );
+                                      }
+                                    : null,
+                                child: Text(
+                                  'resend_code'.tr(),
+                                  style: fonts.paragraphP3SemiBold.copyWith(
+                                    color: _canResend
+                                        ? colors.blue500
+                                        : colors.shade0.withOpacity(0.3),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          16.h.verticalSpace,
+                          if (state.status == Status2.loading)
+                            Center(
+                              child: SizedBox(
+                                width: 24.r,
+                                height: 24.r,
+                                child: CircularProgressIndicator(
+                                  color: colors.shade0,
+                                  strokeWidth: 2,
+                                ),
+                              ),
                             ),
-                          );
-                        },
+                        ],
                       );
                     },
                   ),
-                  24.h.verticalSpace,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _formatTime(_secondsRemaining),
-                        style: fonts.paragraphP3Medium.copyWith(
-                          color: colors.shade0.withOpacity(0.7),
-                        ),
-                      ),
-                      12.w.horizontalSpace,
-                      GestureDetector(
-                        onTap: _canResend
-                            ? () {
-                                authBloc.add(
-                                  EnterPhoneNumberEvent(
-                                    phoneNumber: authBloc
-                                        .state
-                                        .authPhoneNumber!
-                                        .data!
-                                        .phone!,
-                                  ),
-                                );
-                              }
-                            : null,
-                        child: Text(
-                          'resend_code'.tr(),
-                          style: fonts.paragraphP3SemiBold.copyWith(
-                            color: _canResend
-                                ? colors.blue500
-                                : colors.shade0.withOpacity(0.3),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  16.h.verticalSpace,
                 ],
               ),
             );

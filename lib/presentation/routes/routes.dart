@@ -55,6 +55,7 @@ class AppRoutes {
     required BuildContext context,
     required bool notConnection,
     required bool isVerified,
+    required bool isLoggedIn,
     Uri? initLink,
   }) {
     ScreenUtil.init(context, designSize: const Size(402, 852));
@@ -62,8 +63,9 @@ class AppRoutes {
     if (notConnection) {
       return getNetworkNotFound();
     } else {
-      // main
-      // return main();
+      if (isLoggedIn) {
+        return main();
+      }
       // Boshlanishida OnboardingPage ga yo'naltiramiz
       return getOnboarding();
     }

@@ -7,6 +7,9 @@
   "khorazm": "Хорезм",
   "namangan": "Наманган",
   "navoiy": "Навоий",
+  "continue": "Продолжить",
+  "last_name": "Фамилия",
+  "first_name": "Имя",
   "kashkadaryo": "Кашкадарья",
   "login_or_create_account": "Войти или создать аккаунт UstaHub",
   "continue_with_apple": "Продолжить с Apple",
@@ -17,7 +20,7 @@
 
   "enter_phone_number": "Введите номер телефона",
   "enter_sms_code": "Введите SMS код",
-  "resend_code": "Отправить код повторно"
+  "resend_code": "Отправить код повторно",
 
   "sirdaryo": "Сирдарья",
   "surkhondaryo": "Сурхандарья",

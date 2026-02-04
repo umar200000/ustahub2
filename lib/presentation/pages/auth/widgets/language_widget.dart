@@ -2,6 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../infrastructure/services/shared_perf/shared_pref_service.dart';
+import '../../../../infrastructure2/init/injection.dart';
+
 class LanguageSelectorWidget extends StatelessWidget {
   final String selectedLang;
   final Function(String, Locale) onLanguageChanged;
@@ -43,7 +46,13 @@ class LanguageSelectorWidget extends StatelessWidget {
             children: languages.map((lang) {
               final isSelected = selectedLang == lang.$1;
               return GestureDetector(
-                onTap: () => onLanguageChanged(lang.$1, lang.$3),
+                onTap: () {
+                  // 1. Tanlangan tilni SharedPrefs'ga saqlash (kichik harflarda: uz, ru, en)
+                  sl<SharedPrefService>().setLanguage(lang.$1.toLowerCase());
+
+                  // 2. Tashqaridan kelgan callbackni chaqirish (UI'ni va Localen'ni o'zgartirish uchun)
+                  onLanguageChanged(lang.$1, lang.$3);
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,

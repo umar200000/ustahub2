@@ -58,6 +58,9 @@ Dio createDio() {
       connectTimeout: const Duration(minutes: 1), // serverga ulanish muddati
       receiveTimeout: const Duration(seconds: 40), // javobni kutish muddati
       sendTimeout: const Duration(seconds: 30), // request yuborish muddati
+      // 400, 401, 500 kabi xatolarda Exception tashlamasligi uchun:
+      validateStatus: (status) => status != null && status < 500,
+
       // Default headerlar
       headers: {
         HttpHeaders.acceptHeader:

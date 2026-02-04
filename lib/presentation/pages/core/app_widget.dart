@@ -2,13 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/infrastructure/core/interceptors.dart';
 import 'package:ustahub/infrastructure/services/alice/alice.dart';
 import 'package:ustahub/infrastructure/services/alice/model/alice_configuration.dart';
 import 'package:ustahub/infrastructure/services/local_database/db_service.dart';
+import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/presentation/components/un_focus_widget.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
@@ -25,12 +26,14 @@ final Alice alice = Alice(
 class MyApp extends StatelessWidget {
   final DBService dbService;
   final bool connectivityX;
+  final SharedPrefService sharedPrefService;
   final Function(BuildContext context)? onGetContext;
 
   const MyApp({
     super.key,
     required this.dbService,
     required this.connectivityX,
+    required this.sharedPrefService,
     this.onGetContext,
   });
 
@@ -66,6 +69,7 @@ class MyApp extends StatelessWidget {
               lazy: true, // Can be lazy loaded
             ),
             Provider<DBService>.value(value: dbService),
+            Provider<SharedPrefService>.value(value: sharedPrefService),
           ],
           child: OnUnFocusTap(
             child: MaterialApp(
@@ -77,7 +81,9 @@ class MyApp extends StatelessWidget {
                 // Apply text scaling for better readability
                 return MediaQuery(
                   data: MediaQuery.of(context).copyWith(
-                    textScaler: TextScaler.linear(1.0), // Prevent text scaling
+                    textScaler: const TextScaler.linear(
+                      1.0,
+                    ), // Prevent text scaling
                   ),
                   child: FlutterSmartDialog.init()(context, child),
                 );
@@ -94,6 +100,7 @@ class MyApp extends StatelessWidget {
                   context: context,
                   notConnection: !connectivityX,
                   isVerified: dbService.getVerified ?? true,
+                  isLoggedIn: sharedPrefService.getUser() != null,
                 );
               },
               // Performance optimizations

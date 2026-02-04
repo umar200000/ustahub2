@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
+import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/presentation/components/animation_effect.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 
@@ -77,18 +79,22 @@ class LanguageSelector extends StatelessWidget {
   }
 
   List<Widget> _buildLanguageOptions(BuildContext context) {
-    final languages = [
-      'English',
-      'Español',
-      'Français',
-      'Deutsch',
-      'Русский',
-      'O\'zbekcha',
-    ];
-    return languages.map((language) {
+    final languages = {'English': 'en', 'Русский': 'ru', 'O\'zbekcha': 'uz'};
+
+    return languages.entries.map((entry) {
+      final languageName = entry.key;
+      final languageCode = entry.value;
+      final isSelected = selectedLanguage == languageName;
+
       return AnimationButtonEffect(
         onTap: () {
-          onChanged(language);
+          // 1. Til kodini SharedPrefs'ga saqlash
+          sl<SharedPrefService>().setLanguage(languageCode);
+
+          // 2. UI'ni yangilash uchun callback chaqirish
+          onChanged(languageName);
+
+          // 3. Bottom sheet'ni yopish
           Navigator.pop(context);
         },
         child: Container(
@@ -96,15 +102,13 @@ class LanguageSelector extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                language,
+                languageName,
                 style: fonts.paragraphP1Regular.copyWith(
-                  color: selectedLanguage == language
-                      ? colors.blue500
-                      : colors.shade100,
+                  color: isSelected ? colors.blue500 : colors.shade100,
                 ),
               ),
               const Spacer(),
-              if (selectedLanguage == language)
+              if (isSelected)
                 Icon(Icons.check, color: colors.blue500, size: 24.sp),
             ],
           ),
