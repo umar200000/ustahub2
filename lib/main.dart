@@ -7,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/analytics/analytics_service.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
@@ -25,6 +24,7 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
     final sharedPrefService = await SharedPrefService.initialize();
     await init();
+
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -53,17 +53,30 @@ Future<void> main() async {
       logLevel: LogLevel.None,
     );
 
+    // Saqlangan tilni tekshirish mantiqi
+    final String savedLang = sharedPrefService.getLanguageCode();
     Locale defaultLocale;
-    try {
-      final String languageCode = Platform.localeName.split('_')[0];
-      defaultLocale = languageCode == "ru"
-          ? const Locale('ru', 'RU')
-          : languageCode == "en"
-              ? const Locale('en', 'US')
-              : const Locale('uz', 'UZ');
-    } catch (e) {
+
+    if (savedLang == "ru") {
+      defaultLocale = const Locale('ru', 'RU');
+    } else if (savedLang == "en") {
+      defaultLocale = const Locale('en', 'US');
+    } else if (savedLang == "uz") {
       defaultLocale = const Locale('uz', 'UZ');
+    } else {
+      // Agar hali tanlanmagan bo'lsa, tizim tilini olamiz
+      try {
+        final String languageCode = Platform.localeName.split('_')[0];
+        defaultLocale = languageCode == "ru"
+            ? const Locale('ru', 'RU')
+            : languageCode == "en"
+            ? const Locale('en', 'US')
+            : const Locale('uz', 'UZ');
+      } catch (e) {
+        defaultLocale = const Locale('uz', 'UZ');
+      }
     }
+
     runApp(
       EasyLocalization(
         supportedLocales: const [
@@ -80,8 +93,9 @@ Future<void> main() async {
         child: MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (context) => RegisterBloc(sharedPrefService)
-                ..add(LoadUserFromSharedPrefsEvent()),
+              create: (context) =>
+                  RegisterBloc(sharedPrefService)
+                    ..add(LoadUserFromSharedPrefsEvent()),
             ),
           ],
           child: ClarityWidget(

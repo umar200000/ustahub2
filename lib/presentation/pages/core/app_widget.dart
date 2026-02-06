@@ -100,7 +100,7 @@ class MyApp extends StatelessWidget {
                   context: context,
                   notConnection: !connectivityX,
                   isVerified: dbService.getVerified ?? true,
-                  isLoggedIn: sharedPrefService.getUser() != null,
+                  isLoggedIn: sharedPrefService.getTokenModel() != null,
                 );
               },
               // Performance optimizations

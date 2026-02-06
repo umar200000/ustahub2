@@ -21,6 +21,16 @@ class CompleteRegistrationEvent extends RegisterEvent {
   List<Object?> get props => [phone, firstName, lastName, dateOfBirth];
 }
 
+class GetUserProfileEvent extends RegisterEvent {
+  @override
+  List<Object?> get props => [];
+}
+
+class VisiteGuestEvent extends RegisterEvent {
+  @override
+  List<Object?> get props => [];
+}
+
 class LoadUserFromSharedPrefsEvent extends RegisterEvent {
   @override
   List<Object?> get props => [];
@@ -29,4 +39,11 @@ class LoadUserFromSharedPrefsEvent extends RegisterEvent {
 class LogoutEvent extends RegisterEvent {
   @override
   List<Object?> get props => [];
+}
+
+class UpdateTokenModelEvent extends RegisterEvent {
+  final TokenModel tokenModel;
+  const UpdateTokenModelEvent(this.tokenModel);
+  @override
+  List<Object?> get props => [tokenModel];
 }

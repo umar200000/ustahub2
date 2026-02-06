@@ -24,7 +24,8 @@ Dio createDio() {
       // 🔑 Token va Tilni qo‘shadigan interceptor
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          final token = sl<SharedPrefService>().getToken;
+          final token =
+              sl<SharedPrefService>().getTokenModel()?.accessToken ?? "";
 
           // Tilni headerga qo'shib yuboramiz. Keyinchalik sozlamalardan olinadigan qilish mumkin.
           options.headers['Accept-Language'] = sl<SharedPrefService>()

@@ -7,10 +7,10 @@ import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.d
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/auth/widgets/auth_button.dart';
 import 'package:ustahub/presentation/pages/auth/widgets/custom_text_field.dart';
-import 'package:ustahub/presentation/pages/auth/widgets/uz_phone_formatter.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
+import '../../../application2/auth_bloc_and_data/bloc/auth_bloc.dart';
 import '../../../infrastructure2/init/injection.dart';
 import '../../styles/theme.dart';
 
@@ -22,12 +22,12 @@ class Register2Page extends StatefulWidget {
 }
 
 class _Register2PageState extends State<Register2Page> {
-  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   DateTime _selectedDate = DateTime(1995, 5, 15);
   final registerBloc = sl<RegisterBloc>();
+  final authBloc = sl<AuthBloc>();
 
   bool _isPhoneError = false;
   bool _isFirstNameEmpty = false;
@@ -89,7 +89,9 @@ class _Register2PageState extends State<Register2Page> {
       value: registerBloc,
       child: BlocConsumer<RegisterBloc, RegisterState>(
         listener: (context, state) {
-          if (state.status == Status2.success) {
+          if (ModalRoute.of(context)?.isCurrent != true) return;
+          if (state.status == Status2.success &&
+              state.statusUser == Status2.success) {
             Navigator.pushAndRemoveUntil(
               context,
               AppRoutes.main(),
@@ -117,21 +119,6 @@ class _Register2PageState extends State<Register2Page> {
                 padding: EdgeInsets.all(20.w),
                 child: Column(
                   children: [
-                    CustomTextField(
-                      controller: _phoneController,
-                      hintText: "(_ _) _ _ _  _ _  _ _",
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [UzPhoneFormatter()],
-                      prefix: Text(
-                        "+998 ",
-                        style: fonts.paragraphP2SemiBold.copyWith(
-                          color: colors.shade0,
-                          fontSize: 16.sp,
-                        ),
-                      ),
-                      error: _isPhoneError,
-                    ),
-                    16.h.verticalSpace,
                     CustomTextField(
                       controller: _firstNameController,
                       hintText: "first_name".tr(),
@@ -165,12 +152,16 @@ class _Register2PageState extends State<Register2Page> {
                     AuthButton(
                       color: colors.blue500,
                       onTap: () {
-                        final phoneDigits = _phoneController.text.replaceAll(
-                          RegExp(r'\D'),
-                          '',
-                        );
+                        if (state.status == Status2.success &&
+                            state.statusUser == Status2.error) {
+                          if (state.statusUser == Status2.error) {
+                            registerBloc.add(GetUserProfileEvent());
+                          }
+                          return;
+                        }
+                        final String phoneDigits =
+                            authBloc.state.authPhoneNumber!.data!.phone!;
                         setState(() {
-                          _isPhoneError = phoneDigits.length != 9;
                           _isFirstNameEmpty = _firstNameController.text.isEmpty;
                           _isLastNameEmpty = _lastNameController.text.isEmpty;
                           _isDobEmpty = _dobController.text.isEmpty;
@@ -181,7 +172,7 @@ class _Register2PageState extends State<Register2Page> {
                             !_isDobEmpty) {
                           registerBloc.add(
                             CompleteRegistrationEvent(
-                              phone: "+998$phoneDigits",
+                              phone: phoneDigits,
                               firstName: _firstNameController.text,
                               lastName: _lastNameController.text,
                               dateOfBirth: DateFormat(
@@ -193,7 +184,9 @@ class _Register2PageState extends State<Register2Page> {
                       },
                       textColor: colors.shade0,
                       title: "continue".tr(),
-                      child: state.status == Status2.loading
+                      child:
+                          state.status == Status2.loading ||
+                              state.statusUser == Status2.loading
                           ? Center(
                               child: SizedBox(
                                 width: 24.r,

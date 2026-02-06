@@ -11,6 +11,7 @@ import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 import '../../../../application2/auth_bloc_and_data/bloc/auth_bloc.dart';
+import '../../../../application2/register_bloc_and_data/bloc/register_bloc.dart';
 import '../../../../infrastructure2/init/injection.dart';
 
 class PinPutWidget extends StatefulWidget {
@@ -22,6 +23,7 @@ class PinPutWidget extends StatefulWidget {
 
 class _PinPutWidgetState extends State<PinPutWidget> {
   final authBloc = sl<AuthBloc>();
+  final register = sl<RegisterBloc>();
   final pinPutBloc = sl<AuthPinPutBloc>();
   late Timer _timer;
   int _secondsRemaining = 0;
@@ -70,6 +72,7 @@ class _PinPutWidgetState extends State<PinPutWidget> {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: authBloc),
+        BlocProvider.value(value: register),
         BlocProvider.value(value: pinPutBloc),
       ],
       child: MultiBlocListener(
@@ -85,25 +88,28 @@ class _PinPutWidgetState extends State<PinPutWidget> {
           BlocListener<AuthPinPutBloc, AuthPinPutState>(
             listener: (context, state) {
               if (state.status == Status2.success) {
-                final data = state.verifyResponse?.data;
-                if (data?.isExistingUser == true) {
-                  // Foydalanuvchi mavjud bo'lsa - Asosiy sahifaga yoki login token olishga
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    AppRoutes.main(),
-                    (route) => false,
-                  );
+                if (state.isExistingUser == true) {
+                  // RegisterBloc orqali GetUserProfileEvent allaqachon AuthPinPutBloc'da chaqirilgan bo'lishi kerak
+                  // yoki bu yerda chaqirish mumkin:
+                  // register.add(GetUserProfileEvent());
                 } else {
-                  // Yangi foydalanuvchi bo'lsa - Registratsiya 2-sahifasiga
                   Navigator.pushReplacement(context, AppRoutes.register2Page());
                 }
-              } else if (state.status == Status2.error) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.errorMessage ?? "Xatolik"),
-                    backgroundColor: Colors.red,
-                  ),
+              }
+            },
+          ),
+          BlocListener<RegisterBloc, RegisterState>(
+            listener: (context, state) {
+              if (ModalRoute.of(context)?.isCurrent != true) return;
+
+              if (state.statusUser == Status2.success) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  AppRoutes.main(),
+                  (route) => false,
                 );
+              } else if (state.statusUser == Status2.error) {
+                register.add(GetUserProfileEvent());
               }
             },
           ),
@@ -165,78 +171,84 @@ class _PinPutWidgetState extends State<PinPutWidget> {
                     ),
                   ),
                   24.h.verticalSpace,
-                  BlocBuilder<AuthPinPutBloc, AuthPinPutState>(
-                    builder: (context, state) {
-                      return Column(
-                        children: [
-                          Pinput(
-                            autofocus: true,
-                            length: 6,
-                            defaultPinTheme: defaultPinTheme,
-                            focusedPinTheme: focusedPinTheme,
-                            separatorBuilder: (index) => SizedBox(width: 8.w),
-                            onCompleted: (pin) {
-                              pinPutBloc.add(
-                                VerifyOtpEvent(
-                                  phoneNumber: authBloc
-                                      .state
-                                      .authPhoneNumber!
-                                      .data!
-                                      .phone!,
-                                  code: pin,
-                                ),
-                              );
-                            },
-                          ),
-                          24.h.verticalSpace,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                  BlocBuilder<RegisterBloc, RegisterState>(
+                    builder: (context, state1) {
+                      return BlocBuilder<AuthPinPutBloc, AuthPinPutState>(
+                        builder: (context, state) {
+                          return Column(
                             children: [
-                              Text(
-                                _formatTime(_secondsRemaining),
-                                style: fonts.paragraphP3Medium.copyWith(
-                                  color: colors.shade0.withOpacity(0.7),
-                                ),
+                              Pinput(
+                                autofocus: true,
+                                length: 6,
+                                defaultPinTheme: defaultPinTheme,
+                                focusedPinTheme: focusedPinTheme,
+                                separatorBuilder: (index) =>
+                                    SizedBox(width: 8.w),
+                                onCompleted: (pin) {
+                                  pinPutBloc.add(
+                                    VerifyOtpEvent(
+                                      phoneNumber: authBloc
+                                          .state
+                                          .authPhoneNumber!
+                                          .data!
+                                          .phone!,
+                                      code: pin,
+                                    ),
+                                  );
+                                },
                               ),
-                              12.w.horizontalSpace,
-                              GestureDetector(
-                                onTap: _canResend
-                                    ? () {
-                                        authBloc.add(
-                                          EnterPhoneNumberEvent(
-                                            phoneNumber: authBloc
-                                                .state
-                                                .authPhoneNumber!
-                                                .data!
-                                                .phone!,
-                                          ),
-                                        );
-                                      }
-                                    : null,
-                                child: Text(
-                                  'resend_code'.tr(),
-                                  style: fonts.paragraphP3SemiBold.copyWith(
-                                    color: _canResend
-                                        ? colors.blue500
-                                        : colors.shade0.withOpacity(0.3),
+                              24.h.verticalSpace,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    _formatTime(_secondsRemaining),
+                                    style: fonts.paragraphP3Medium.copyWith(
+                                      color: colors.shade0.withOpacity(0.7),
+                                    ),
+                                  ),
+                                  12.w.horizontalSpace,
+                                  GestureDetector(
+                                    onTap: _canResend
+                                        ? () {
+                                            authBloc.add(
+                                              EnterPhoneNumberEvent(
+                                                phoneNumber: authBloc
+                                                    .state
+                                                    .authPhoneNumber!
+                                                    .data!
+                                                    .phone!,
+                                              ),
+                                            );
+                                          }
+                                        : null,
+                                    child: Text(
+                                      'resend_code'.tr(),
+                                      style: fonts.paragraphP3SemiBold.copyWith(
+                                        color: _canResend
+                                            ? colors.blue500
+                                            : colors.shade0.withOpacity(0.3),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              16.h.verticalSpace,
+                              if (state.status == Status2.loading ||
+                                  state1.statusUser == Status2.loading)
+                                Center(
+                                  child: SizedBox(
+                                    width: 24.r,
+                                    height: 24.r,
+                                    child: CircularProgressIndicator(
+                                      color: colors.shade0,
+                                      strokeWidth: 2,
+                                    ),
                                   ),
                                 ),
-                              ),
                             ],
-                          ),
-                          16.h.verticalSpace,
-                          if (state.status == Status2.loading)
-                            Center(
-                              child: SizedBox(
-                                width: 24.r,
-                                height: 24.r,
-                                child: CircularProgressIndicator(
-                                  color: colors.shade0,
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            ),
-                        ],
+                          );
+                        },
                       );
                     },
                   ),

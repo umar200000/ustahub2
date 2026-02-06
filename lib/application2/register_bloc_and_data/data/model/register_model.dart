@@ -1,8 +1,6 @@
-import 'package:easy_localization/easy_localization.dart';
-
 class RegistrationModel {
   final bool? success;
-  final User? data;
+  final TokenModel? data;
 
   final String? message;
 
@@ -11,7 +9,7 @@ class RegistrationModel {
   factory RegistrationModel.fromJson(Map<String, dynamic> json) =>
       RegistrationModel(
         success: json["success"],
-        data: json["data"] == null ? null : User.fromJson(json["data"]),
+        data: json["data"] == null ? null : TokenModel.fromJson(json["data"]),
 
         message: json["message"],
       );
@@ -24,38 +22,24 @@ class RegistrationModel {
   };
 }
 
-class User {
+class TokenModel {
   final String? accessToken;
   final String? refreshToken;
   final String? tokenType;
   final String? userType;
-  final String? phone;
-  final String? firstName;
-  final String? lastName;
-  final DateTime? dateOfBirth;
 
-  User({
+  TokenModel({
     this.accessToken,
     this.refreshToken,
     this.tokenType,
     this.userType,
-    this.phone,
-    this.firstName,
-    this.lastName,
-    this.dateOfBirth,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
+  factory TokenModel.fromJson(Map<String, dynamic> json) => TokenModel(
     accessToken: json["access_token"],
     refreshToken: json["refresh_token"],
     tokenType: json["token_type"],
     userType: json["user_type"],
-    phone: json["phone"],
-    firstName: json["first_name"],
-    lastName: json["last_name"],
-    dateOfBirth: json["date_of_birth"] == null
-        ? null
-        : DateFormat("yyyy-MM-dd").parse(json["date_of_birth"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -63,11 +47,5 @@ class User {
     "refresh_token": refreshToken,
     "token_type": tokenType,
     "user_type": userType,
-    "phone": phone,
-    "first_name": firstName,
-    "last_name": lastName,
-    "date_of_birth": dateOfBirth == null
-        ? null
-        : DateFormat('yyyy-MM-dd').format(dateOfBirth!),
   };
 }

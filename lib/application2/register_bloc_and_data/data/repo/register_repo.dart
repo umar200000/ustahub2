@@ -1,8 +1,19 @@
 import 'package:dio/dio.dart';
+
 import '../../../../infrastructure2/init/injection.dart';
 
 class RegisterRepo {
   final _dio = sl<Dio>();
+
+  Future<Map<String, dynamic>> visiteGuest() async {
+    final response = await _dio.post("api/v1/client/auth/guest/");
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> getUserProfile() async {
+    final response = await _dio.get("api/v1/client/auth/me/");
+    return response.data;
+  }
 
   Future<Map<String, dynamic>> completeRegistration({
     required String phone,

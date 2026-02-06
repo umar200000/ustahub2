@@ -280,21 +280,23 @@ class _ProfilePageState extends State<ProfilePage> {
                         fonts: fonts,
                         colors: colors,
                       ),
-                      _SettingsCard(
-                        colors: colors,
-                        children: [
-                          SettingsMenuItem(
-                            icon: Icons.delete_outline,
-                            title: 'delete_account'.tr(),
-                            onTap: () {},
-                            showTrailing: true,
-                            fonts: fonts,
-                            colors: colors,
-                            iconColor: colors.red500,
-                            titleColor: colors.red500,
-                          ),
-                        ],
-                      ),
+
+                      /// later we use this widget
+                      // _SettingsCard(
+                      //   colors: colors,
+                      //   children: [
+                      //     SettingsMenuItem(
+                      //       icon: Icons.delete_outline,
+                      //       title: 'delete_account'.tr(),
+                      //       onTap: () {},
+                      //       showTrailing: true,
+                      //       fonts: fonts,
+                      //       colors: colors,
+                      //       iconColor: colors.red500,
+                      //       titleColor: colors.red500,
+                      //     ),
+                      //   ],
+                      // ),
                       Padding(
                         padding: EdgeInsets.all(16.w),
                         child: LogoutButton(
@@ -304,7 +306,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           colors: colors,
                         ),
                       ),
-                      40.h.verticalSpace,
+                      56.h.verticalSpace,
                     ],
                   ),
                 ),

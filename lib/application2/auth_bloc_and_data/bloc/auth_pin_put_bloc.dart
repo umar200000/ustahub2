@@ -3,8 +3,11 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:ustahub/application2/auth_bloc_and_data/data/model/verify_otp_response.dart';
 import 'package:ustahub/application2/auth_bloc_and_data/data/repo/auth_repo.dart';
+import 'package:ustahub/application2/register_bloc_and_data/data/model/register_model.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
+import '../../../infrastructure2/init/injection.dart';
+import '../../register_bloc_and_data/bloc/register_bloc.dart';
 
 // Events
 abstract class AuthPinPutEvent extends Equatable {
@@ -26,19 +29,23 @@ class AuthPinPutState extends Equatable {
   final Status2 status;
   final VerifyOtpResponse? verifyResponse;
   final String? errorMessage;
+  final bool? isExistingUser;
 
   const AuthPinPutState({
+    this.isExistingUser,
     this.status = Status2.initial,
     this.verifyResponse,
     this.errorMessage,
   });
 
   AuthPinPutState copyWith({
+    bool? isExistingUser,
     Status2? status,
     VerifyOtpResponse? verifyResponse,
     String? errorMessage,
   }) {
     return AuthPinPutState(
+      isExistingUser: isExistingUser ?? this.isExistingUser,
       status: status ?? this.status,
       verifyResponse: verifyResponse ?? this.verifyResponse,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -46,7 +53,12 @@ class AuthPinPutState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, verifyResponse, errorMessage];
+  List<Object?> get props => [
+    isExistingUser,
+    status,
+    verifyResponse,
+    errorMessage,
+  ];
 }
 
 // Bloc
@@ -64,22 +76,37 @@ class AuthPinPutBloc extends Bloc<AuthPinPutEvent, AuthPinPutState> {
         );
 
         if (response.statusCode == 200) {
-          final verifyData = VerifyOtpResponse.fromJson(response.data);
-
-          if (verifyData.success == true) {
-            emit(
-              state.copyWith(
-                status: Status2.success,
-                verifyResponse: verifyData,
-              ),
-            );
+          if (response.data["data"]["is_existing_user"] != null &&
+              !response.data["data"]["is_existing_user"]) {
+            final verifyData = VerifyOtpResponse.fromJson(response.data);
+            if (verifyData.success == true) {
+              emit(
+                state.copyWith(
+                  status: Status2.success,
+                  verifyResponse: verifyData,
+                  isExistingUser: false,
+                ),
+              );
+            } else {
+              emit(
+                state.copyWith(
+                  status: Status2.error,
+                  errorMessage:
+                      verifyData.error?.message ?? "Kod xato kiritildi",
+                ),
+              );
+            }
           } else {
-            emit(
-              state.copyWith(
-                status: Status2.error,
-                errorMessage: verifyData.error?.message ?? "Kod xato kiritildi",
-              ),
-            );
+            final registrationModel = RegistrationModel.fromJson(response.data);
+            if (registrationModel.success == true) {
+              sl<RegisterBloc>().add(GetUserProfileEvent());
+              sl<RegisterBloc>().add(
+                UpdateTokenModelEvent(registrationModel.data!),
+              );
+              emit(
+                state.copyWith(status: Status2.success, isExistingUser: true),
+              );
+            }
           }
         }
       } on DioException catch (e) {
