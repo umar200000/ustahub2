@@ -24,6 +24,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool notificationsEnabled = true;
   String selectedLanguage = 'English';
 
+
+
   void _showLogoutDialog(
     BuildContext context,
     CustomColorSet colors,

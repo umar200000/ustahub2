@@ -21,6 +21,7 @@ class _UserInformationPageState extends State<UserInformationPage> {
   late TextEditingController lastNameController;
   late TextEditingController emailController;
   late TextEditingController phoneController;
+
   @override
   void initState() {
     super.initState();
@@ -100,6 +101,7 @@ class _UserInformationPageState extends State<UserInformationPage> {
               title: "Muvaffaqiyatli",
               description: "Ma'lumotlar saqlandi!",
             );
+            Navigator.pop(context);
           }
           if (state.statusUser == Status2.error) {
             ToastService.error(
@@ -111,7 +113,6 @@ class _UserInformationPageState extends State<UserInformationPage> {
         },
         builder: (context, state) {
           return Scaffold(
-            //resizeToAvoidBottomInset: false,
             backgroundColor: const Color(0xFFF8F9FB),
             appBar: AppBar(
               scrolledUnderElevation: 0,
@@ -135,29 +136,29 @@ class _UserInformationPageState extends State<UserInformationPage> {
               ),
               centerTitle: true,
             ),
-            body: SafeArea(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 10.h),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 16.h),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+            body: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 10.h),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Stack(
+                          child: Column(
                             children: [
                               Container(
                                 width: 100.w,
@@ -176,112 +177,132 @@ class _UserInformationPageState extends State<UserInformationPage> {
                                   color: Colors.blue.shade600,
                                 ),
                               ),
+                              SizedBox(height: 12.h),
+                              Text(
+                                '${state.userProfile?.firstName ?? ''} ${state.userProfile?.lastName ?? ''}',
+                                style: TextStyle(
+                                  fontSize: 19.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
                             ],
                           ),
-                          SizedBox(height: 12.h),
-                          Text(
-                            '${state.userProfile?.firstName ?? ''} ${state.userProfile?.lastName ?? ''}',
-                            style: TextStyle(
-                              fontSize: 19.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
 
-                    SizedBox(height: 16.h),
-                    Container(
-                      padding: EdgeInsets.all(20.r),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                        SizedBox(height: 16.h),
+                        Container(
+                          padding: EdgeInsets.all(20.r),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildEditableField(
-                            label: 'Ism',
-                            controller: firstNameController,
-                            icon: Icons.person_outline,
-                            enabled: state.statusUser != Status2.loading,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildEditableField(
+                                label: 'Ism',
+                                controller: firstNameController,
+                                icon: Icons.person_outline,
+                                enabled: state.statusUser != Status2.loading,
+                              ),
+                              SizedBox(height: 16.h),
+                              _buildEditableField(
+                                label: 'Familiya',
+                                controller: lastNameController,
+                                icon: Icons.person_outline,
+                                enabled: state.statusUser != Status2.loading,
+                              ),
+                              SizedBox(height: 16.h),
+                              _buildEditableField(
+                                label: 'Email manzili',
+                                controller: emailController,
+                                icon: Icons.alternate_email_rounded,
+                                enabled: state.statusUser != Status2.loading,
+                                keyboardType: TextInputType.emailAddress,
+                              ),
+                              SizedBox(height: 16.h),
+                              _buildEditableField(
+                                label: 'Telefon raqam',
+                                controller: phoneController,
+                                icon: Icons.phone_android_rounded,
+                                enabled: false,
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 16.h),
-                          _buildEditableField(
-                            label: 'Familiya',
-                            controller: lastNameController,
-                            icon: Icons.person_outline,
-                            enabled: state.statusUser != Status2.loading,
-                          ),
-                          SizedBox(height: 16.h),
-                          _buildEditableField(
-                            label: 'Email manzili',
-                            controller: emailController,
-                            icon: Icons.alternate_email_rounded,
-                            enabled: state.statusUser != Status2.loading,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          SizedBox(height: 16.h),
-                          _buildEditableField(
-                            label: 'Telefon raqam',
-                            controller: phoneController,
-                            icon: Icons.phone_android_rounded,
-                            enabled: false,
-                          ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(height: 100.h),
+                      ],
                     ),
-                    SizedBox(height: 16.h),
-                    SizedBox(
+                  ),
+                ),
+
+
+                Container(
+                  padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 20.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: SizedBox(
                       width: double.infinity,
                       height: 54.h,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15.w),
-                        child: ElevatedButton(
-                          onPressed: state.statusUser == Status2.loading
-                              ? null
-                              : _saveChanges,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade700,
-                            foregroundColor: Colors.white,
-                            disabledBackgroundColor: Colors.blue.shade300,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.r),
-                            ),
+                      child: ElevatedButton(
+                        onPressed: state.statusUser == Status2.loading
+                            ? null
+                            : _saveChanges,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade700,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: Colors.blue.shade300,
+                          elevation: 0,
+                          shadowColor: Colors.blue.shade700.withValues(alpha: 0.4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.r),
                           ),
-                          child: state.statusUser == Status2.loading
-                              ? SizedBox(
-                                  height: 24.w,
-                                  width: 24.w,
-                                  child: const CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
-                                  ),
-                                )
-                              : Text(
-                                  'O\'zgarishlarni saqlash',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
+                        ),
+                        child: state.statusUser == Status2.loading
+                            ? SizedBox(
+                          height: 24.w,
+                          width: 24.w,
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                            : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'O\'zgarishlarni saqlash',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    SizedBox(height: 24.h),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           );
         },
