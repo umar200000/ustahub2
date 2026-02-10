@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/infrastructure/services/toast/toast_service.dart';
+
 import '../../../../infrastructure2/init/injection.dart';
 
 class UserInformationPage extends StatefulWidget {
@@ -14,7 +15,6 @@ class UserInformationPage extends StatefulWidget {
 }
 
 class _UserInformationPageState extends State<UserInformationPage> {
-
   final bloc = sl<RegisterBloc>();
 
   late TextEditingController firstNameController;
@@ -36,8 +36,6 @@ class _UserInformationPageState extends State<UserInformationPage> {
     phoneController = TextEditingController(
       text: bloc.state.userProfile?.phone ?? '',
     );
-
-
   }
 
   @override
@@ -54,32 +52,41 @@ class _UserInformationPageState extends State<UserInformationPage> {
     final lastName = lastNameController.text.trim();
     final email = emailController.text.trim();
 
-
     if (name.isEmpty) {
-      ToastService.error(context: context, title: "Xato", description: "Ism bo'sh bo'lishi mumkin emas");
+      ToastService.error(
+        context: context,
+        title: "Xato",
+        description: "Ism bo'sh bo'lishi mumkin emas",
+      );
       return;
     }
     if (lastName.isEmpty) {
-      ToastService.error(context: context, title: "Xato", description: "Familya bo'sh bo'lishi mumkin emas");
+      ToastService.error(
+        context: context,
+        title: "Xato",
+        description: "Familya bo'sh bo'lishi mumkin emas",
+      );
       return;
     }
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (email.isEmpty) {
-      ToastService.error(context: context, title: "Xatolik", description: "Emailni kiriting");
+      ToastService.error(
+        context: context,
+        title: "Xatolik",
+        description: "Emailni kiriting",
+      );
       return;
     } else if (!emailRegex.hasMatch(email)) {
-      ToastService.error(context: context, title: "Xatolik", description: "Email formati noto'g'ri");
+      ToastService.error(
+        context: context,
+        title: "Xatolik",
+        description: "Email formati noto'g'ri",
+      );
       return;
     }
 
-    bloc.add(UbdateUserProfile(
-      name,
-      lastName,
-      email,
-    ));
+    bloc.add(UpdateUserProfile(name, lastName, email));
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +100,6 @@ class _UserInformationPageState extends State<UserInformationPage> {
               title: "Muvaffaqiyatli",
               description: "Ma'lumotlar saqlandi!",
             );
-
-
-
           }
           if (state.statusUser == Status2.error) {
             ToastService.error(
@@ -107,13 +111,18 @@ class _UserInformationPageState extends State<UserInformationPage> {
         },
         builder: (context, state) {
           return Scaffold(
+            //resizeToAvoidBottomInset: false,
             backgroundColor: const Color(0xFFF8F9FB),
             appBar: AppBar(
               scrolledUnderElevation: 0,
               backgroundColor: Colors.white,
               elevation: 0.5,
               leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new, color: Colors.black87, size: 20.sp),
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.black87,
+                  size: 20.sp,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(
@@ -126,149 +135,154 @@ class _UserInformationPageState extends State<UserInformationPage> {
               ),
               centerTitle: true,
             ),
-            body: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                children: [
-                  SizedBox(height: 24.h),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 24.h),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Stack(
-                          children: [
-                            Container(
-                              width: 100.w,
-                              height: 100.w,
-                              decoration: BoxDecoration(
-                                color: Colors.blue.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.blue.shade100, width: 2),
-                              ),
-                              child: Icon(
-                                Icons.person_rounded,
-                                size: 55.sp,
-                                color: Colors.blue.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12.h),
-                        Text(
-                          '${state.userProfile?.firstName ?? ''} ${state.userProfile?.lastName ?? ''}',
-                          style: TextStyle(
-                            fontSize: 19.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  children: [
+                    SizedBox(height: 10.h),
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
-                        ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Stack(
+                            children: [
+                              Container(
+                                width: 100.w,
+                                height: 100.w,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.blue.shade100,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.person_rounded,
+                                  size: 55.sp,
+                                  color: Colors.blue.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12.h),
+                          Text(
+                            '${state.userProfile?.firstName ?? ''} ${state.userProfile?.lastName ?? ''}',
+                            style: TextStyle(
+                              fontSize: 19.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
-                      ],
+                    SizedBox(height: 16.h),
+                    Container(
+                      padding: EdgeInsets.all(20.r),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildEditableField(
+                            label: 'Ism',
+                            controller: firstNameController,
+                            icon: Icons.person_outline,
+                            enabled: state.statusUser != Status2.loading,
+                          ),
+                          SizedBox(height: 16.h),
+                          _buildEditableField(
+                            label: 'Familiya',
+                            controller: lastNameController,
+                            icon: Icons.person_outline,
+                            enabled: state.statusUser != Status2.loading,
+                          ),
+                          SizedBox(height: 16.h),
+                          _buildEditableField(
+                            label: 'Email manzili',
+                            controller: emailController,
+                            icon: Icons.alternate_email_rounded,
+                            enabled: state.statusUser != Status2.loading,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          SizedBox(height: 16.h),
+                          _buildEditableField(
+                            label: 'Telefon raqam',
+                            controller: phoneController,
+                            icon: Icons.phone_android_rounded,
+                            enabled: false,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-
-                  SizedBox(height: 20.h),
-                  Container(
-                    padding: EdgeInsets.all(20.r),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                    SizedBox(height: 16.h),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54.h,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15.w),
+                        child: ElevatedButton(
+                          onPressed: state.statusUser == Status2.loading
+                              ? null
+                              : _saveChanges,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade700,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.blue.shade300,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.r),
+                            ),
+                          ),
+                          child: state.statusUser == Status2.loading
+                              ? SizedBox(
+                                  height: 24.w,
+                                  width: 24.w,
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  'O\'zgarishlarni saqlash',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
                         ),
-                      ],
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildEditableField(
-                          label: 'Ism',
-                          controller: firstNameController,
-                          icon: Icons.person_outline,
-                          enabled: state.statusUser != Status2.loading,
-                        ),
-                        SizedBox(height: 16.h),
-                        _buildEditableField(
-                          label: 'Familiya',
-                          controller: lastNameController,
-                          icon: Icons.person_outline,
-                          enabled: state.statusUser != Status2.loading,
-                        ),
-                        SizedBox(height: 16.h),
-                        _buildEditableField(
-                          label: 'Email manzili',
-                          controller: emailController,
-                          icon: Icons.alternate_email_rounded,
-                          enabled: state.statusUser != Status2.loading,
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                        SizedBox(height: 16.h),
-                        _buildEditableField(
-                          label: 'Telefon raqam',
-                          controller: phoneController,
-                          icon: Icons.phone_android_rounded,
-                          enabled: false,
-                        ),
-
-                      ],
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
-            floatingActionButton: SizedBox(
-              width: double.infinity,
-              height: 54.h,
-              child: Padding(
-                padding:  EdgeInsets.symmetric(horizontal: 15.w),
-                child: ElevatedButton(
-                  onPressed: state.statusUser == Status2.loading ? null : _saveChanges,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade700,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.blue.shade300,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.r),
-                    ),
-                  ),
-                  child: state.statusUser == Status2.loading
-                      ? SizedBox(
-                    height: 24.w,
-                    width: 24.w,
-                    child: const CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2.5,
-                    ),
-                  )
-                      : Text(
-                    'O\'zgarishlarni saqlash',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
+                    SizedBox(height: 24.h),
+                  ],
                 ),
               ),
             ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
           );
         },
       ),
@@ -317,7 +331,10 @@ class _UserInformationPageState extends State<UserInformationPage> {
             suffixIcon: !enabled
                 ? Icon(Icons.lock_rounded, color: Colors.grey[300], size: 18.sp)
                 : null,
-            contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
+            contentPadding: EdgeInsets.symmetric(
+              vertical: 16.h,
+              horizontal: 12.w,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
               borderSide: BorderSide(color: Colors.grey.shade200),

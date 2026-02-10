@@ -41,6 +41,11 @@ class LogoutEvent extends RegisterEvent {
   List<Object?> get props => [];
 }
 
+class GetLocalUserEvent extends RegisterEvent {
+  @override
+  List<Object?> get props => [];
+}
+
 class UpdateTokenModelEvent extends RegisterEvent {
   final TokenModel tokenModel;
   const UpdateTokenModelEvent(this.tokenModel);
@@ -48,14 +53,11 @@ class UpdateTokenModelEvent extends RegisterEvent {
   List<Object?> get props => [tokenModel];
 }
 
-class UbdateUserProfile extends RegisterEvent {
+class UpdateUserProfile extends RegisterEvent {
   final String? firstName;
   final String? lastName;
   final String? gmail;
-  const UbdateUserProfile(this.firstName, this.lastName, this.gmail);
+  const UpdateUserProfile(this.firstName, this.lastName, this.gmail);
   @override
   List<Object?> get props => [firstName, lastName, gmail];
 }
-
-
-

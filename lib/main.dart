@@ -97,7 +97,9 @@ Future<void> main() async {
         child: MultiBlocProvider(
           providers: [
             BlocProvider.value(
-              value: sl<RegisterBloc>()..add(LoadUserFromSharedPrefsEvent()),
+              value: sl<RegisterBloc>()
+                ..add(LoadUserFromSharedPrefsEvent())
+                ..add(GetLocalUserEvent()),
             ),
             BlocProvider.value(
               value: sl<CategoryBloc>()..add(GetCategoriesEvent()),

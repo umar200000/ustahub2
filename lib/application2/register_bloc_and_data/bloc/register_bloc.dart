@@ -16,12 +16,15 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final SharedPrefService _prefService;
 
   RegisterBloc(this._prefService) : super(const RegisterState()) {
-
     on<UpdateTokenModelEvent>((event, emit) {
       _prefService.setTokenModel(event.tokenModel);
       emit(state.copyWith(tokenModel: event.tokenModel));
     });
 
+    on<GetLocalUserEvent>((event, emit) {
+      final user = _prefService.getUserProfile();
+      emit(state.copyWith(userProfile: user));
+    });
 
     on<VisiteGuestEvent>((event, emit) async {
       emit(state.copyWith(status: Status2.loading));
@@ -38,22 +41,25 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
           _prefService.setTokenModel(tokenModel);
 
-          emit(state.copyWith(
-            status: Status2.success,
-            registrationModel: RegistrationModel.fromJson(data),
-            tokenModel: tokenModel,
-          ));
+          emit(
+            state.copyWith(
+              status: Status2.success,
+              registrationModel: RegistrationModel.fromJson(data),
+              tokenModel: tokenModel,
+            ),
+          );
         } else {
-          emit(state.copyWith(
+          emit(
+            state.copyWith(
               status: Status2.error,
-              errorMessage: data["error"]?["message"] ?? "Xatolik yuz berdi"
-          ));
+              errorMessage: data["error"]?["message"] ?? "Xatolik yuz berdi",
+            ),
+          );
         }
       } catch (e) {
         emit(state.copyWith(status: Status2.error, errorMessage: e.toString()));
       }
     });
-
 
     on<CompleteRegistrationEvent>((event, emit) async {
       emit(state.copyWith(status: Status2.loading));
@@ -76,22 +82,25 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           _prefService.setTokenModel(tokenModel);
           add(GetUserProfileEvent());
 
-          emit(state.copyWith(
-            status: Status2.success,
-            registrationModel: RegistrationModel.fromJson(data),
-            tokenModel: tokenModel,
-          ));
+          emit(
+            state.copyWith(
+              status: Status2.success,
+              registrationModel: RegistrationModel.fromJson(data),
+              tokenModel: tokenModel,
+            ),
+          );
         } else {
-          emit(state.copyWith(
+          emit(
+            state.copyWith(
               status: Status2.error,
-              errorMessage: data["error"]?["message"] ?? "Xatolik"
-          ));
+              errorMessage: data["error"]?["message"] ?? "Xatolik",
+            ),
+          );
         }
       } catch (e) {
         emit(state.copyWith(status: Status2.error, errorMessage: e.toString()));
       }
     });
-
 
     on<GetUserProfileEvent>((event, emit) async {
       emit(state.copyWith(statusUser: Status2.loading));
@@ -102,28 +111,36 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
           await _prefService.setUserProfile(user);
 
-          emit(state.copyWith(
-            statusUser: Status2.success,
-            userProfile: user,
-            successMessageUser: data["message"],
-          ));
+          emit(
+            state.copyWith(
+              statusUser: Status2.success,
+              userProfile: user,
+              successMessageUser: data["message"],
+            ),
+          );
         } else {
-          emit(state.copyWith(statusUser: Status2.error, errorMessageUser: "Profil xatosi"));
+          emit(
+            state.copyWith(
+              statusUser: Status2.error,
+              errorMessageUser: "Profil xatosi",
+            ),
+          );
         }
       } catch (e) {
-        emit(state.copyWith(statusUser: Status2.error, errorMessageUser: e.toString()));
+        emit(
+          state.copyWith(
+            statusUser: Status2.error,
+            errorMessageUser: e.toString(),
+          ),
+        );
       }
     });
-
 
     on<LoadUserFromSharedPrefsEvent>((event, emit) async {
       final tokenModel = _prefService.getTokenModel();
       final userProfile = _prefService.getUserProfile();
 
-      emit(state.copyWith(
-        tokenModel: tokenModel,
-        userProfile: userProfile,
-      ));
+      emit(state.copyWith(tokenModel: tokenModel, userProfile: userProfile));
     });
 
     on<LogoutEvent>((event, emit) async {
@@ -131,7 +148,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       emit(const RegisterState());
     });
 
-    on<UbdateUserProfile>((event, emit) async {
+    on<UpdateUserProfile>((event, emit) async {
       emit(state.copyWith(statusUser: Status2.loading));
 
       try {
@@ -152,15 +169,21 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
             await _prefService.setUserProfile(updatedUser);
           }
 
-          emit(state.copyWith(
-            statusUser: Status2.success,
-            userProfile: updatedUser,
-          ));
+          emit(
+            state.copyWith(
+              statusUser: Status2.success,
+              userProfile: updatedUser,
+            ),
+          );
         } else {
-          emit(state.copyWith(statusUser: Status2.error, errorMessage: "Xatolik"));
+          emit(
+            state.copyWith(statusUser: Status2.error, errorMessage: "Xatolik"),
+          );
         }
       } on DioException catch (e) {
-        emit(state.copyWith(statusUser: Status2.error, errorMessage: e.toString()));
+        emit(
+          state.copyWith(statusUser: Status2.error, errorMessage: e.toString()),
+        );
       }
     });
   }
