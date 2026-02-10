@@ -24,8 +24,6 @@ class _ProfilePageState extends State<ProfilePage> {
   bool notificationsEnabled = true;
   String selectedLanguage = 'English';
 
-
-
   void _showLogoutDialog(
     BuildContext context,
     CustomColorSet colors,
@@ -179,15 +177,22 @@ class _ProfilePageState extends State<ProfilePage> {
                       _SettingsCard(
                         colors: colors,
                         children: [
-                          SettingsMenuItem(
-                            icon: Icons.person_outline,
-                            title: 'user_information'.tr(),
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => UserInformationPage(),));
-                            },
-                            showTrailing: true,
-                            fonts: fonts,
-                            colors: colors,
+                          BlocBuilder<RegisterBloc, RegisterState>(
+                            builder: (context, state) => SettingsMenuItem(
+                              icon: Icons.person_outline,
+                              title: state.userProfile?.firstName ?? "User",
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UserInformationPage(),
+                                  ),
+                                );
+                              },
+                              showTrailing: true,
+                              fonts: fonts,
+                              colors: colors,
+                            ),
                           ),
                         ],
                       ),
