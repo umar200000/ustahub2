@@ -34,5 +34,25 @@ class RegisterRepo {
     );
 
     return response.data;
+  }  Future<Map<String, dynamic>> userProfileUbdate({
+    required String firstName,
+    required String lastName,
+    required String email,
+  }) async {
+    final response = await _dio.patch(
+      "api/v1/client/auth/profile/",
+      data: {
+        "first_name": firstName,
+        "last_name": lastName,
+        "email": email,
+      },
+      options: Options(validateStatus: (status) => true),
+    );
+
+    return response.data;
   }
+
+
+
+
 }

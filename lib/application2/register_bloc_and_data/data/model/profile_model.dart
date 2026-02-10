@@ -5,6 +5,19 @@ class ProfileModel {
 
   ProfileModel({this.success, this.userProfile, this.message});
 
+
+  ProfileModel copyWith({
+    bool? success,
+    UserProfile? userProfile,
+    String? message,
+  }) {
+    return ProfileModel(
+      success: success ?? this.success,
+      userProfile: userProfile ?? this.userProfile,
+      message: message ?? this.message,
+    );
+  }
+
   factory ProfileModel.fromJson(Map<String, dynamic> json) => ProfileModel(
     success: json["success"],
     userProfile: json["userProfile"] == null
@@ -38,6 +51,26 @@ class UserProfile {
     this.email,
     this.createdAt,
   });
+
+  UserProfile copyWith({
+    String? id,
+    String? firstName,
+    String? lastName,
+    String? userType,
+    String? phone,
+    String? email,
+    DateTime? createdAt,
+  }) {
+    return UserProfile(
+      id: id ?? this.id,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      userType: userType ?? this.userType,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
     id: json["id"],
