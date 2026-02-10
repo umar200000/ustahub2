@@ -17,6 +17,7 @@ import 'package:ustahub/utils/constants.dart';
 import 'package:ustahub/utils/firebase_options.dart';
 import 'package:ustahub/utils/sms_helper.dart';
 
+import 'infrastructure/services/device_info/device_info_service.dart';
 import 'infrastructure2/init/injection.dart';
 
 Future<void> main() async {
@@ -33,6 +34,7 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions().getOptions(),
     );
+    final deviceInfo = await DeviceInfoService().getDeviceData();
 
     AppConfig.create(
       appName: Constants.appName,
