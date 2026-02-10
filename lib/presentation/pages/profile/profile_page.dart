@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
+import 'package:ustahub/presentation/pages/profile/screens/user_information_page.dart';
 import 'package:ustahub/presentation/pages/profile/widgets/custom_switch.dart';
 import 'package:ustahub/presentation/pages/profile/widgets/language_selector.dart';
 import 'package:ustahub/presentation/pages/profile/widgets/logout_button.dart';
@@ -120,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       borderRadius: BorderRadius.circular(14.r),
                       boxShadow: [
                         BoxShadow(
-                          color: colors.primary500.withOpacity(0.3),
+                          color: colors.primary500.withValues(alpha: 0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -179,7 +180,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           SettingsMenuItem(
                             icon: Icons.person_outline,
                             title: 'user_information'.tr(),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => UserInformationPage(),));
+                            },
                             showTrailing: true,
                             fonts: fonts,
                             colors: colors,

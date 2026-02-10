@@ -47,3 +47,15 @@ class UpdateTokenModelEvent extends RegisterEvent {
   @override
   List<Object?> get props => [tokenModel];
 }
+
+class UbdateUserProfile extends RegisterEvent {
+  final String? firstName;
+  final String? lastName;
+  final String? gmail;
+  const UbdateUserProfile(this.firstName, this.lastName, this.gmail);
+  @override
+  List<Object?> get props => [firstName, lastName, gmail];
+}
+
+
+

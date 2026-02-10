@@ -16,10 +16,12 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final SharedPrefService _prefService;
 
   RegisterBloc(this._prefService) : super(const RegisterState()) {
+
     on<UpdateTokenModelEvent>((event, emit) {
       _prefService.setTokenModel(event.tokenModel);
       emit(state.copyWith(tokenModel: event.tokenModel));
     });
+
 
     on<VisiteGuestEvent>((event, emit) async {
       emit(state.copyWith(status: Status2.loading));
@@ -36,31 +38,22 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
           _prefService.setTokenModel(tokenModel);
 
-          emit(
-            state.copyWith(
-              status: Status2.success,
-              registrationModel: RegistrationModel.fromJson(data),
-              tokenModel: tokenModel,
-            ),
-          );
+          emit(state.copyWith(
+            status: Status2.success,
+            registrationModel: RegistrationModel.fromJson(data),
+            tokenModel: tokenModel,
+          ));
         } else {
-          String errorMessage = "Xatolik yuz berdi";
-          if (data["error"] != null && data["error"]["message"] != null) {
-            errorMessage = data["error"]["message"];
-          }
-          emit(
-            state.copyWith(status: Status2.error, errorMessage: errorMessage),
-          );
+          emit(state.copyWith(
+              status: Status2.error,
+              errorMessage: data["error"]?["message"] ?? "Xatolik yuz berdi"
+          ));
         }
       } catch (e) {
-        emit(
-          state.copyWith(
-            status: Status2.error,
-            errorMessage: "Kutilmagan xatolik: $e",
-          ),
-        );
+        emit(state.copyWith(status: Status2.error, errorMessage: e.toString()));
       }
     });
+
 
     on<CompleteRegistrationEvent>((event, emit) async {
       emit(state.copyWith(status: Status2.loading));
@@ -81,100 +74,94 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           );
 
           _prefService.setTokenModel(tokenModel);
+          add(GetUserProfileEvent());
 
-          add(GetUserProfileEvent()); // To'g'ridan-to'g'ri chaqirish
-
-          emit(
-            state.copyWith(
-              status: Status2.success,
-              registrationModel: RegistrationModel.fromJson(data),
-              tokenModel: tokenModel,
-            ),
-          );
+          emit(state.copyWith(
+            status: Status2.success,
+            registrationModel: RegistrationModel.fromJson(data),
+            tokenModel: tokenModel,
+          ));
         } else {
-          String errorMessage = "Xatolik yuz berdi";
-          if (data["error"] != null && data["error"]["message"] != null) {
-            errorMessage = data["error"]["message"];
-          }
-          emit(
-            state.copyWith(status: Status2.error, errorMessage: errorMessage),
-          );
+          emit(state.copyWith(
+              status: Status2.error,
+              errorMessage: data["error"]?["message"] ?? "Xatolik"
+          ));
         }
       } catch (e) {
-        emit(
-          state.copyWith(
-            status: Status2.error,
-            errorMessage: "Kutilmagan xatolik: $e",
-          ),
-        );
+        emit(state.copyWith(status: Status2.error, errorMessage: e.toString()));
       }
     });
+
 
     on<GetUserProfileEvent>((event, emit) async {
       emit(state.copyWith(statusUser: Status2.loading));
       try {
         final data = await _registerRepo.getUserProfile();
         if (data["success"] == true) {
-          // status emas, success bo'lishi mumkin, tekshiring
           final user = UserProfile.fromJson(data["data"]);
-          emit(
-            state.copyWith(
-              statusUser: Status2.success,
-              userProfile: user,
-              successMessageUser: data["message"],
-            ),
-          );
+
+          await _prefService.setUserProfile(user);
+
+          emit(state.copyWith(
+            statusUser: Status2.success,
+            userProfile: user,
+            successMessageUser: data["message"],
+          ));
         } else {
-          String errorMessage = "Profilni yuklab bo'lmadi";
-          if (data["error"] != null && data["error"]["message"] != null) {
-            errorMessage = data["error"]["message"];
-          }
-          emit(
-            state.copyWith(
-              statusUser: Status2.error,
-              errorMessageUser: errorMessage,
-            ),
-          );
+          emit(state.copyWith(statusUser: Status2.error, errorMessageUser: "Profil xatosi"));
         }
-      } on DioException catch (e) {
-        String errorMessage = "Tarmoq xatoligi";
-        if (e.response?.data != null && e.response?.data["error"] != null) {
-          errorMessage = e.response?.data["error"]["message"];
-        }
-        emit(
-          state.copyWith(
-            statusUser: Status2.error,
-            errorMessageUser: errorMessage,
-          ),
-        );
       } catch (e) {
-        emit(
-          state.copyWith(
-            statusUser: Status2.error,
-            errorMessageUser: "Kutilmagan xatolik: $e",
-          ),
-        );
+        emit(state.copyWith(statusUser: Status2.error, errorMessageUser: e.toString()));
       }
     });
 
+
     on<LoadUserFromSharedPrefsEvent>((event, emit) async {
       final tokenModel = _prefService.getTokenModel();
-      if (tokenModel != null) {
-        emit(state.copyWith(tokenModel: tokenModel));
-      }
+      final userProfile = _prefService.getUserProfile();
+
+      emit(state.copyWith(
+        tokenModel: tokenModel,
+        userProfile: userProfile,
+      ));
     });
 
     on<LogoutEvent>((event, emit) async {
       _prefService.clear();
-      emit(
-        state.copyWith(
-          tokenModel: null,
-          registrationModel: null,
-          userProfile: null,
-          status: Status2.initial,
-          statusUser: Status2.initial,
-        ),
-      );
+      emit(const RegisterState());
+    });
+
+    on<UbdateUserProfile>((event, emit) async {
+      emit(state.copyWith(statusUser: Status2.loading));
+
+      try {
+        final response = await _registerRepo.userProfileUbdate(
+          firstName: event.firstName ?? "",
+          lastName: event.lastName ?? "",
+          email: event.gmail ?? "",
+        );
+
+        if (response['success'] == true) {
+          final updatedUser = state.userProfile?.copyWith(
+            firstName: event.firstName,
+            lastName: event.lastName,
+            email: event.gmail,
+          );
+
+          if (updatedUser != null) {
+            await _prefService.setUserProfile(updatedUser);
+          }
+
+          emit(state.copyWith(
+            statusUser: Status2.success,
+            userProfile: updatedUser,
+          ));
+        } else {
+          emit(state.copyWith(statusUser: Status2.error, errorMessage: "Xatolik"));
+        }
+      } on DioException catch (e) {
+        emit(state.copyWith(statusUser: Status2.error, errorMessage: e.toString()));
+      }
     });
   }
 }

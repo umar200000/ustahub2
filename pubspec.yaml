@@ -103,6 +103,7 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   get_it: ^9.2.0
   path: ^1.9.1
+  gap: ^3.0.1
 
 dev_dependencies:
   flutter_test:
