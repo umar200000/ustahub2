@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ustahub/presentation/pages/home/widgets/service_widget.dart';
 
 final List<Map<String, dynamic>> categories = [
   {'title': 'Plumber', 'icon': Icons.plumbing},
@@ -217,43 +216,4 @@ final List<Map<String, dynamic>> serviceProviders = [
     'yearsExperience': 6,
     'completedJobs': 198,
   },
-];
-
-List<ServiceModel> services = [
-  ServiceModel(
-    title: 'Plumber',
-    subtitle: 'services for installations',
-    iconPath: 'assets/images/wrench.png',
-    color: Color(0xFF2196F3),
-  ),
-  ServiceModel(
-    title: 'Electric',
-    subtitle: 'refers to electricity',
-    iconPath: 'assets/images/electricity.png',
-    color: Color(0xFF2CCCCE),
-  ),
-  ServiceModel(
-    title: 'Carpenter',
-    subtitle: 'woodwork and furniture',
-    iconPath: 'assets/images/wrench.png',
-    color: Color(0xFFFF9800),
-  ),
-  ServiceModel(
-    title: 'Painter',
-    subtitle: 'interior and exterior',
-    iconPath: 'assets/images/electricity.png',
-    color: Color(0xFF9C27B0),
-  ),
-  ServiceModel(
-    title: 'Cleaner',
-    subtitle: 'home and office cleaning',
-    iconPath: 'assets/images/wrench.png',
-    color: Color(0xFF4CAF50),
-  ),
-  ServiceModel(
-    title: 'AC Repair',
-    subtitle: 'cooling system services',
-    iconPath: 'assets/images/electricity.png',
-    color: Color(0xFFE91E63),
-  ),
 ];

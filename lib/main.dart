@@ -7,7 +7,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
+import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
 import 'package:ustahub/infrastructure/services/analytics/analytics_service.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/presentation/pages/core/app_init.dart';
@@ -94,10 +96,14 @@ Future<void> main() async {
         assetLoader: const RootBundleAssetLoader(),
         child: MultiBlocProvider(
           providers: [
-            BlocProvider(
-              create: (context) =>
-                  RegisterBloc(sharedPrefService)
-                    ..add(LoadUserFromSharedPrefsEvent()),
+            BlocProvider.value(
+              value: sl<RegisterBloc>()..add(LoadUserFromSharedPrefsEvent()),
+            ),
+            BlocProvider.value(
+              value: sl<CategoryBloc>()..add(GetCategoriesEvent()),
+            ),
+            BlocProvider.value(
+              value: sl<ServiceBloc>()..add(const GetServicesEvent()),
             ),
           ],
           child: ClarityWidget(

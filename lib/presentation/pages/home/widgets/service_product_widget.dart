@@ -17,8 +17,6 @@ class ServiceProviderCard extends StatelessWidget {
   final bool isVerified;
   final bool isAvailable;
   final String? mainImageUrl;
-  final String? image2Url;
-  final String? image3Url;
   final VoidCallback? onTap;
   final VoidCallback? onFavorite;
   final bool isFavorite;
@@ -35,8 +33,6 @@ class ServiceProviderCard extends StatelessWidget {
     this.isVerified = false,
     this.isAvailable = true,
     this.mainImageUrl,
-    this.image2Url,
-    this.image3Url,
     this.onTap,
     this.onFavorite,
     this.isFavorite = false,
@@ -65,37 +61,15 @@ class ServiceProviderCard extends StatelessWidget {
                   ),
                   child: SizedBox(
                     height: 200.h,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: mainImageUrl != null
-                              ? UniversalImage(image: mainImageUrl!)
-                              : _placeholderBig(colors),
-                        ),
-
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: image2Url != null
-                                    ? UniversalImage(image: image2Url!)
-                                    : _placeholderSmall(colors),
-                              ),
-                              Expanded(
-                                child: image3Url != null
-                                    ? UniversalImage(image: image3Url!)
-                                    : _placeholderSmall(colors),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                    width: double.infinity,
+                    child: (mainImageUrl != null && mainImageUrl!.isNotEmpty)
+                        ? UniversalImage(
+                            image: mainImageUrl!,
+                            fit: BoxFit.cover,
+                          )
+                        : _placeholderBig(colors),
                   ),
                 ),
-
                 Padding(
                   padding: EdgeInsets.all(16.r),
                   child: Column(
@@ -127,28 +101,28 @@ class ServiceProviderCard extends StatelessWidget {
                           fontFamily: GoogleFonts.balsamiqSans().fontFamily,
                         ),
                       ),
-                      8.h.verticalSpace,
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            size: 16.sp,
-                            color: colors.yellow500,
-                          ),
-                          4.w.horizontalSpace,
-                          Text(
-                            rating.toStringAsFixed(1),
-                            style: fonts.paragraphP2SemiBold,
-                          ),
-                          4.w.horizontalSpace,
-                          Text(
-                            '($reviewCount)',
-                            style: fonts.paragraphP3Regular,
-                          ),
-                          12.w.horizontalSpace,
-                          Text(duration, style: fonts.paragraphP3Regular),
-                        ],
-                      ),
+                      // 8.h.verticalSpace,
+                      // Row(
+                      //   children: [
+                      //     Icon(
+                      //       Icons.star,
+                      //       size: 16.sp,
+                      //       color: colors.yellow500,
+                      //     ),
+                      //     4.w.horizontalSpace,
+                      //     Text(
+                      //       rating.toStringAsFixed(1),
+                      //       style: fonts.paragraphP2SemiBold,
+                      //     ),
+                      //     4.w.horizontalSpace,
+                      //     Text(
+                      //       '($reviewCount)',
+                      //       style: fonts.paragraphP3Regular,
+                      //     ),
+                      //     12.w.horizontalSpace,
+                      //     Text(duration, style: fonts.paragraphP3Regular),
+                      //   ],
+                      // ),
                       12.h.verticalSpace,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -190,11 +164,6 @@ class ServiceProviderCard extends StatelessWidget {
 
   Widget _placeholderBig(dynamic colors) => Container(
     color: colors.neutral200,
-    child: Icon(Icons.person, size: 60.sp),
-  );
-
-  Widget _placeholderSmall(dynamic colors) => Container(
-    color: colors.neutral200,
-    child: Icon(Icons.image, size: 32.sp),
+    child: Icon(Icons.construction, size: 60.sp, color: colors.neutral400),
   );
 }

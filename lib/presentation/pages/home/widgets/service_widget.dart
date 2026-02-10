@@ -1,26 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ustahub/application2/category_bloc_and_data/data/model/category_model.dart';
 import 'package:ustahub/presentation/components/animation_effect.dart';
 import 'package:ustahub/presentation/pages/home/widgets/icon_widget.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
-class ServiceModel {
-  final String title;
-  final String subtitle;
-  final String iconPath;
-  final Color color;
-
-  const ServiceModel({
-    required this.title,
-    required this.subtitle,
-    required this.iconPath,
-    required this.color,
-  });
-}
-
 class ServicesGrid extends StatefulWidget {
-  final List<ServiceModel> services;
+  final List<CategoryModel> services;
 
   const ServicesGrid({super.key, required this.services});
 
@@ -32,7 +19,7 @@ class _ServicesGridState extends State<ServicesGrid> {
   static const int _initialDisplayCount = 2;
   bool _isExpanded = false;
 
-  List<ServiceModel> get _displayedServices {
+  List<CategoryModel> get _displayedServices {
     return _isExpanded
         ? widget.services
         : widget.services.take(_initialDisplayCount).toList();
@@ -52,7 +39,6 @@ class _ServicesGridState extends State<ServicesGrid> {
           children: [
             _buildServicesGrid(colors),
             if (_hasMoreServices) ...[
-              // 8.h.verticalSpace,
               _buildToggleButton(colors, fonts),
               8.h.verticalSpace,
             ],
@@ -126,16 +112,28 @@ class _ServicesGridState extends State<ServicesGrid> {
 }
 
 class ServiceCard extends StatelessWidget {
-  final ServiceModel service;
+  final CategoryModel service;
 
   const ServiceCard({super.key, required this.service});
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.locale.languageCode;
+    String title = service.nameUz ?? '';
+    if (lang == 'ru') title = service.nameRu ?? service.nameUz ?? '';
+    if (lang == 'en') title = service.nameEn ?? service.nameUz ?? '';
+
     return IconWidget(
-      title: service.title,
-      subtitle: service.subtitle,
-      icon: Image.asset(service.iconPath, color: service.color, width: 40.w),
+      title: title,
+      subtitle: "", // API da hozircha subtitle yo'q
+      icon: service.iconUrl != null && service.iconUrl!.isNotEmpty
+          ? Image.network(
+              service.iconUrl!,
+              width: 40.w,
+              errorBuilder: (context, error, stackTrace) =>
+                  Icon(Icons.category, size: 40.w),
+            )
+          : Icon(Icons.category, size: 40.w),
     );
   }
 }

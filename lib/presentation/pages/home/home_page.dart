@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ustahub/presentation/pages/home/details/details_info.dart';
-import 'package:ustahub/presentation/pages/home/details/service_details_page.dart';
+import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
+import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
+import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
+import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/home/widgets/home_app_bar.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_product_widget.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_widget.dart';
-import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
+
+import '../../../infrastructure2/init/injection.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,10 +20,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final Set<int> _favoriteIndices = {};
+  final Set<String> _favoriteIds = {};
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<ServiceBloc>().add(
+        const GetServicesEvent(isFetchMore: true),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    print("--------- here; ${sl<RegisterBloc>().state.tokenModel?.userType}");
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
@@ -27,7 +54,117 @@ class _HomePageState extends State<HomePage> {
           body: Column(
             children: [
               const HomeAppBar(),
-              Expanded(child: _buildScrollableContent(colors)),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<CategoryBloc>().add(GetCategoriesEvent());
+                    context.read<ServiceBloc>().add(const GetServicesEvent());
+                  },
+                  child: ListView(
+                    controller: _scrollController,
+                    padding: EdgeInsets.zero,
+                    children: [
+                      BlocBuilder<CategoryBloc, CategoryState>(
+                        builder: (context, state) {
+                          if (state.status == Status2.loading) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          } else if (state.status == Status2.success) {
+                            final categories =
+                                state.categoryData?.categoryModel ?? [];
+                            return ServicesGrid(services: categories);
+                          } else if (state.status == Status2.error) {
+                            return Center(
+                              child: Text(state.errorMessage ?? "Error"),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+
+                      /// ServiceBloc data display
+                      BlocBuilder<ServiceBloc, ServiceState>(
+                        builder: (context, state) {
+                          if (state.status == Status2.loading &&
+                              (state.servicesData?.servicesModel ?? [])
+                                  .isEmpty) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          } else if (state.status == Status2.success ||
+                              (state.status == Status2.loading &&
+                                  (state.servicesData?.servicesModel ?? [])
+                                      .isNotEmpty)) {
+                            final services =
+                                state.servicesData?.servicesModel ?? [];
+                            if (services.isEmpty) {
+                              return const Center(
+                                child: Text("Xizmatlar topilmadi"),
+                              );
+                            }
+                            return Column(
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.only(bottom: 16.h),
+                                  itemCount: services.length,
+                                  itemBuilder: (context, index) {
+                                    final service = services[index];
+                                    return ServiceProviderCard(
+                                      name: service.titleUz ?? "Nomsiz xizmat",
+                                      profession:
+                                          service.categoryNameUz ??
+                                          "Mutaxassis",
+                                      distance: 0.0,
+                                      rating: 5.0,
+                                      reviewCount: 0,
+                                      duration: "Noma'lum",
+                                      priceFrom:
+                                          double.tryParse(
+                                            service.basePrice ?? "0",
+                                          )?.toInt() ??
+                                          0,
+                                      isVerified: false,
+                                      isAvailable: service.status == "active",
+                                      mainImageUrl: service.primaryImageUrl,
+                                      isFavorite: _favoriteIds.contains(
+                                        service.id,
+                                      ),
+                                      onFavorite: () =>
+                                          _toggleFavorite(service.id ?? ""),
+                                      onTap: () {
+                                        // Detail pagega o'tish logikasi
+                                      },
+                                    );
+                                  },
+                                ),
+                                if (state.status == Status2.loading)
+                                  const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                              ],
+                            );
+                          } else if (state.status == Status2.error) {
+                            return Center(
+                              child: Text(state.errorMessage ?? "Error"),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -35,90 +172,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildScrollableContent(dynamic colors) {
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        // 12.h.verticalSpace,
-        ServicesGrid(services: services),
-        // 16.h.verticalSpace,
-        _buildServiceProvidersList(colors),
-      ],
-    );
-  }
-
-  Widget _buildServiceProvidersList(dynamic colors) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24.r),
-          topRight: Radius.circular(24.r),
-        ),
-      ),
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.only(bottom: 16.h),
-        itemCount: serviceProviders.length,
-        itemBuilder: (context, index) => _buildProviderCard(index),
-      ),
-    );
-  }
-
-  Widget _buildProviderCard(int index) {
-    final provider = serviceProviders[index];
-    return ServiceProviderCard(
-      name: provider['name'] as String,
-      profession: provider['profession'] as String,
-      distance: (provider['distance'] as num).toDouble(),
-      rating: (provider['rating'] as num).toDouble(),
-      reviewCount: provider['reviewCount'] as int,
-      duration: provider['duration'] as String,
-      priceFrom: provider['priceFrom'] as int,
-      isVerified: provider['isVerified'] as bool,
-      isAvailable: provider['isAvailable'] as bool,
-      mainImageUrl: provider['mainImageUrl'] as String?,
-      image2Url: provider['image2Url'] as String?,
-      image3Url: provider['image3Url'] as String?,
-      isFavorite: _favoriteIndices.contains(index),
-      onFavorite: () => _toggleFavorite(index),
-      onTap: () => _navigateToDetail(provider),
-    );
-  }
-
-  void _navigateToDetail(Map<String, dynamic> provider) {
-    Navigator.of(context).push(
-      ServiceProviderDetailPage.route(
-        name: provider['name'] as String,
-        profession: provider['profession'] as String,
-        distance: (provider['distance'] as num).toDouble(),
-        rating: (provider['rating'] as num).toDouble(),
-        reviewCount: provider['reviewCount'] as int,
-        duration: provider['duration'] as String,
-        priceFrom: provider['priceFrom'] as int,
-        isVerified: provider['isVerified'] as bool,
-        isAvailable: provider['isAvailable'] as bool,
-        mainImageUrl: provider['mainImageUrl'] as String? ?? '',
-        image2Url: provider['image2Url'] as String?,
-        image3Url: provider['image3Url'] as String?,
-        description: provider['description'] as String?,
-        services: provider['services'] as List<Map<String, dynamic>>?,
-        workingHours: provider['workingHours'] as Map<String, dynamic>?,
-        phoneNumber: provider['phoneNumber'] as String?,
-        language: provider['language'] as String?,
-        location: provider['location'] as String?,
-        yearsExperience: (provider['yearsExperience'] as int?) ?? 5,
-        completedJobs: (provider['completedJobs'] as int?) ?? 189,
-      ),
-    );
-  }
-
-  void _toggleFavorite(int index) {
+  void _toggleFavorite(String id) {
     setState(() {
-      if (_favoriteIndices.contains(index)) {
-        _favoriteIndices.remove(index);
+      if (_favoriteIds.contains(id)) {
+        _favoriteIds.remove(id);
       } else {
-        _favoriteIndices.add(index);
+        _favoriteIds.add(id);
       }
     });
   }

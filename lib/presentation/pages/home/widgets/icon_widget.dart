@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:ustahub/presentation/components/animation_effect.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 class IconWidget extends StatelessWidget {
@@ -48,6 +46,7 @@ class IconWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       icon,
+                      8.h.verticalSpace,
                       Text(
                         title,
                         style: fonts.paragraphP1Bold,
@@ -55,14 +54,14 @@ class IconWidget extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
 
-                      Text(
-                        subtitle,
-                        style: fonts.paragraphP3Medium.copyWith(
-                          color: colors.neutral600,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      // Text(
+                      //   subtitle,
+                      //   style: fonts.paragraphP3Medium.copyWith(
+                      //     color: colors.neutral600,
+                      //   ),
+                      //   maxLines: 2,
+                      //   overflow: TextOverflow.ellipsis,
+                      // ),
                     ],
                   ),
                 ),
