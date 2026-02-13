@@ -62,8 +62,10 @@ class GlobalController with ChangeNotifier {
 
 class BottomNavBarController with ChangeNotifier {
   bool _hiddenNavBar = false;
+  int _currentIndex = 0; // Yangi qo'shilgan
 
   bool get hiddenNavBar => _hiddenNavBar;
+  int get currentIndex => _currentIndex; // Yangi qo'shilgan
 
   BottomNavBarController._();
 
@@ -72,6 +74,14 @@ class BottomNavBarController with ChangeNotifier {
   void changeNavBar(bool enabled) {
     if (enabled != _hiddenNavBar) {
       _hiddenNavBar = enabled;
+      notifyListeners();
+    }
+  }
+
+  // Yangi qo'shilgan metod
+  void changeIndex(int index) {
+    if (_currentIndex != index) {
+      _currentIndex = index;
       notifyListeners();
     }
   }

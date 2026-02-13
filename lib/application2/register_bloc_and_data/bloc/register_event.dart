@@ -46,6 +46,13 @@ class GetLocalUserEvent extends RegisterEvent {
   List<Object?> get props => [];
 }
 
+class GetTokenEvent extends RegisterEvent {
+  final Map<String, dynamic>? data;
+  const GetTokenEvent({this.data});
+  @override
+  List<Object?> get props => [data];
+}
+
 class UpdateTokenModelEvent extends RegisterEvent {
   final TokenModel tokenModel;
   const UpdateTokenModelEvent(this.tokenModel);

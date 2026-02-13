@@ -1,81 +1,68 @@
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
+import 'package:ustahub/infrastructure2/init/injection.dart';
 
+import '../../application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'dio_exception.dart';
 
-/*
-  Bu Interceptor — har bir request/response/error oqimiga aralashib,
-  xatoliklarni global darajada boshqaradi.
-*/
 class DioInterceptor extends Interceptor {
   DioInterceptor();
 
-  Future<Object> getDeviceInfoData() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-
-    if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-      return {
-        'Model: ${androidInfo.model}',
-        'Brand: ${androidInfo.brand}',
-        'Android Version: ${androidInfo.version.release}',
-        'Android ID: ${androidInfo.id}',
-      };
-    } else if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-
-      return {
-        'Model: ${iosInfo.utsname.machine}',
-        'System Name: ${iosInfo.systemName}',
-        'System Version: ${iosInfo.systemVersion}',
-        'Identifier for Vendor: ${iosInfo.identifierForVendor}',
-      };
-    }
-    return {};
-  }
+  @override
+  onPreRequest(RequestOptions options, RequestInterceptorHandler handler) {}
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    // ✅ checkUnauthorized — token borligini tekshirish flag’i
-    // Agar request header ichida `check_token` bo‘lmasa → Unauthorized deb olinadi
     final bool checkUnauthorized = !err.requestOptions.headers.containsKey(
       'check_token',
     );
 
-    // 🔹 1. Agar backend 401 qaytarsa → foydalanuvchi tokeni noto‘g‘ri yoki muddati o‘tgan
-    if (err.response?.statusCode == 401) {
-      // Tokenni tozalash kerak bo‘lsa shu yerda yozish mumkin
-      // Masalan: UserData.token = "";
+    if (err.response?.statusCode == 401 && checkUnauthorized) {
+      final prefService = sl<SharedPrefService>();
+      final tokenModel = prefService.getTokenModel();
 
-      // Login sahifasiga qayta yo‘naltirish (navigatorKey orqali context o‘rniga ishlatiladi)
-      // navigatorKey.currentState?.pushAndRemoveUntil(
-      //   CupertinoPageRoute(builder: (_) => AuthPage()),
-      //   (route) => false, // stackdagi barcha sahifalarni o‘chirib tashlaydi
-      // );
+      if (tokenModel?.refreshToken != null) {
+        try {
+          // Tokenni yangilash uchun alohida Dio instance ishlatamiz (interceptor cheksiz aylanib qolmasligi uchun)
+          final dio = Dio(BaseOptions(baseUrl: err.requestOptions.baseUrl));
+
+          final response = await dio.post(
+            "/api/v1/auth/refresh",
+            data: {"refresh_token": tokenModel!.refreshToken},
+          );
+
+          if ((response.statusCode == 200 || response.statusCode == 201) &&
+              response.data['success'] == true) {
+            sl<RegisterBloc>().add(GetTokenEvent(data: response.data));
+            final newData = response.data['data'];
+
+            // Asl so'rovni yangi token bilan qayta yuboramiz
+            final opts = err.requestOptions;
+            opts.headers[HttpHeaders.authorizationHeader] =
+                'Bearer ${newData["access_token"]}';
+
+            final secondResponse = await dio.fetch(opts);
+            return handler.resolve(secondResponse);
+          }
+        } catch (e) {
+          debugPrint("Token refresh error: $e");
+          // Refresh ham xato bersa, logout qilish yoki login sahifasiga yo'naltirish mumkin
+          // prefService.clear();
+        }
+      }
     }
-    // 🔹 2. Agar backend 310 qaytarsa → bu maxsus custom error
-    else if (err.response?.statusCode == 310) {
-      // Debug uchun log chiqarish
-      debugPrint("⚠️ Custom error: ${err.response?.data['error']['message']}");
 
-      // Istasa shu yerda SnackBar yoki Dialog chiqarish mumkin
-      // ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(...)
-    }
-
-    // 🔹 3. Har doim xatolikni qayta ishlash va oldinga uzatish
     return handler.next(
       DioExceptionX(
-        requestOptions: err.requestOptions, // Request ma’lumotlari
-        statusCode: err.response?.statusCode, // HTTP status code
-        serverError:
-            err.response?.data ?? {}, // Serverdan qaytgan xato ma’lumoti
-        errorType: err.type, // Xatolik turi (timeout, response error va h.k.)
-        checkUnauthorized: checkUnauthorized, // Unauthorized flag’i
+        requestOptions: err.requestOptions,
+        statusCode: err.response?.statusCode,
+        serverError: err.response?.data ?? {},
+        errorType: err.type,
+        checkUnauthorized: checkUnauthorized,
       ),
     );
   }
-} // Custom Exception class (DioExceptionX)
+}

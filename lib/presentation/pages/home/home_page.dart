@@ -8,6 +8,7 @@ import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/home/widgets/home_app_bar.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_product_widget.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_widget.dart';
+import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 import '../../../infrastructure2/init/injection.dart';
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: ListView(
                     controller: _scrollController,
-                    padding: EdgeInsets.zero,
+                    padding: EdgeInsets.only(bottom: 60),
                     children: [
                       BlocBuilder<CategoryBloc, CategoryState>(
                         builder: (context, state) {
@@ -70,7 +71,9 @@ class _HomePageState extends State<HomePage> {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(20.0),
-                                child: CircularProgressIndicator(),
+                                child: CircularProgressIndicator(
+                                  color: Colors.blue,
+                                ),
                               ),
                             );
                           } else if (state.status == Status2.success) {
@@ -95,7 +98,9 @@ class _HomePageState extends State<HomePage> {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(20.0),
-                                child: CircularProgressIndicator(),
+                                child: CircularProgressIndicator(
+                                  color: Colors.blue,
+                                ),
                               ),
                             );
                           } else if (state.status == Status2.success ||
@@ -119,6 +124,14 @@ class _HomePageState extends State<HomePage> {
                                   itemBuilder: (context, index) {
                                     final service = services[index];
                                     return ServiceProviderCard(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          AppRoutes.detailsPage(
+                                            service.id ?? "",
+                                          ),
+                                        );
+                                      },
                                       name: service.titleUz ?? "Nomsiz xizmat",
                                       profession:
                                           service.categoryNameUz ??
@@ -140,16 +153,15 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       onFavorite: () =>
                                           _toggleFavorite(service.id ?? ""),
-                                      onTap: () {
-                                        // Detail pagega o'tish logikasi
-                                      },
                                     );
                                   },
                                 ),
                                 if (state.status == Status2.loading)
                                   const Padding(
                                     padding: EdgeInsets.all(16.0),
-                                    child: CircularProgressIndicator(),
+                                    child: CircularProgressIndicator(
+                                      color: Colors.blue,
+                                    ),
                                   ),
                               ],
                             );

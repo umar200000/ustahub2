@@ -32,7 +32,7 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
             ? (state.servicesData?.servicesModel?.length ?? 0)
             : 0;
 
-        final int limit = 2; // Test uchun 2, production uchun 20
+        final int limit = 20; // Test uchun 2, production uchun 20
 
         final response = await _serviceRepo.getServices(
           skip: currentLength,

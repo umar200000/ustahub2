@@ -26,6 +26,41 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       emit(state.copyWith(userProfile: user));
     });
 
+    on<GetTokenEvent>((event, emit) async {
+      try {
+        // final data = await _registerRepo.getToken(
+        //   refreshToken: event.refreshToken,
+        // );
+
+        if (event.data != null && event.data!["success"] == true) {
+          final tokenModel = TokenModel(
+            tokenType: event.data!["data"]["token_type"],
+            userType: event.data!["data"]["user_type"],
+            refreshToken: event.data!["data"]["refresh_token"],
+            accessToken: event.data!["data"]["access_token"],
+          );
+
+          _prefService.setTokenModel(tokenModel);
+
+          emit(
+            state.copyWith(
+              registrationModel: RegistrationModel.fromJson(event.data!),
+              tokenModel: tokenModel,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              errorMessage:
+                  event.data?["error"]?["message"] ?? "Xatolik yuz berdi",
+            ),
+          );
+        }
+      } catch (e) {
+        emit(state.copyWith(errorMessage: e.toString()));
+      }
+    });
+
     on<VisiteGuestEvent>((event, emit) async {
       emit(state.copyWith(status: Status2.loading));
       try {

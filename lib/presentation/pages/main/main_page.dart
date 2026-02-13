@@ -20,7 +20,6 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin {
-  late int _currentIndex;
   final _navigationKey = GlobalKey<CurvedNavigationBarState>();
 
   static const _pages = [
@@ -37,7 +36,6 @@ class _MainPageState extends State<MainPage>
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.index ?? 0;
     _initializeNavBar();
   }
 
@@ -45,17 +43,17 @@ class _MainPageState extends State<MainPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      context.read<BottomNavBarController>().changeNavBar(false);
+      final controller = context.read<BottomNavBarController>();
+      controller.changeNavBar(false);
 
-      if (widget.index != null && widget.index != 0) {
-        _navigationKey.currentState?.setPage(widget.index!);
+      if (widget.index != null) {
+        controller.changeIndex(widget.index!);
       }
     });
   }
 
   void _onTabSelected(int index) {
-    if (_currentIndex == index) return;
-    setState(() => _currentIndex = index);
+    context.read<BottomNavBarController>().changeIndex(index);
   }
 
   @override
@@ -64,52 +62,58 @@ class _MainPageState extends State<MainPage>
 
     return ThemeWrapper(
       builder: (ctx, colors, fonts, icons, controller) {
-        return Scaffold(
-          backgroundColor: colors.shade0,
-          body: SafeArea(top: false, child: _buildBody(colors)),
+        return Consumer<BottomNavBarController>(
+          builder: (context, navBarController, _) {
+            // Controllerdagi indeks o'zgarganda NavBar ham siljishi uchun
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _navigationKey.currentState?.setPage(
+                navBarController.currentIndex,
+              );
+            });
+
+            return Scaffold(
+              resizeToAvoidBottomInset: false,
+              backgroundColor: colors.shade0,
+              body: SafeArea(
+                top: false,
+                child: Stack(
+                  children: [
+                    IndexedStack(
+                      index: navBarController.currentIndex,
+                      children: _pages,
+                    ),
+                    if (!navBarController.hiddenNavBar)
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: CurvedNavigationBar(
+                          key: _navigationKey,
+                          index: navBarController.currentIndex,
+                          backgroundColor: Colors.transparent,
+                          color: colors.shade0,
+                          buttonBackgroundColor: colors.blue500,
+                          height: _navBarHeight.h,
+                          animationDuration: _animationDuration,
+                          animationCurve: Curves.easeInOut,
+                          items: _buildNavItems(
+                            colors,
+                            navBarController.currentIndex,
+                          ),
+                          onTap: _onTabSelected,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildBody(dynamic colors) {
-    return Consumer<BottomNavBarController>(
-      builder: (context, navBarController, _) {
-        return Stack(
-          children: [
-            _buildPageView(),
-            if (!navBarController.hiddenNavBar) _buildNavigationBar(colors),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildPageView() {
-    return IndexedStack(index: _currentIndex, children: _pages);
-  }
-
-  Widget _buildNavigationBar(dynamic colors) {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: CurvedNavigationBar(
-        key: _navigationKey,
-        index: _currentIndex,
-        backgroundColor: Colors.transparent,
-        color: colors.shade0,
-        buttonBackgroundColor: colors.blue500,
-        height: _navBarHeight.h,
-        animationDuration: _animationDuration,
-        animationCurve: Curves.easeInOut,
-        items: _buildNavItems(colors),
-        onTap: _onTabSelected,
-      ),
-    );
-  }
-
-  List<Widget> _buildNavItems(dynamic colors) {
+  List<Widget> _buildNavItems(dynamic colors, int currentIndex) {
     final iconPaths = [
       'assets/images/world.png',
       'assets/images/search.png',
@@ -119,24 +123,12 @@ class _MainPageState extends State<MainPage>
 
     return List.generate(
       iconPaths.length,
-      (index) => _buildNavIcon(
+      (index) => Image.asset(
         iconPaths[index],
-        isActive: index == _currentIndex,
-        colors: colors,
+        width: _iconSize.w,
+        height: _iconSize.h,
+        color: index == currentIndex ? colors.shade0 : colors.neutral600,
       ),
-    );
-  }
-
-  Widget _buildNavIcon(
-    String assetPath, {
-    required bool isActive,
-    required dynamic colors,
-  }) {
-    return Image.asset(
-      assetPath,
-      width: _iconSize.w,
-      height: _iconSize.h,
-      color: isActive ? colors.shade0 : colors.neutral600,
     );
   }
 

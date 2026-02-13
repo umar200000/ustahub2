@@ -10,6 +10,14 @@ class RegisterRepo {
     return response.data;
   }
 
+  // Future<Map<String, dynamic>> getToken({required String refreshToken}) async {
+  //   final response = await _dio.post(
+  //     "/api/v1/auth/refresh",
+  //     data: {"refresh_token": refreshToken},
+  //   );
+  //   return response.data;
+  // }
+
   Future<Map<String, dynamic>> getUserProfile() async {
     final response = await _dio.get("api/v1/client/auth/me/");
     return response.data;
@@ -29,30 +37,21 @@ class RegisterRepo {
         "last_name": lastName,
         "date_of_birth": dateOfBirth,
       },
-      // 400, 401, 500 kabi xatolarda Exception tashlamasligi uchun:
-      options: Options(validateStatus: (status) => true),
     );
 
     return response.data;
-  }  Future<Map<String, dynamic>> userProfileUbdate({
+  }
+
+  Future<Map<String, dynamic>> userProfileUbdate({
     required String firstName,
     required String lastName,
     required String email,
   }) async {
     final response = await _dio.patch(
       "api/v1/client/auth/profile/",
-      data: {
-        "first_name": firstName,
-        "last_name": lastName,
-        "email": email,
-      },
-      options: Options(validateStatus: (status) => true),
+      data: {"first_name": firstName, "last_name": lastName, "email": email},
     );
 
     return response.data;
   }
-
-
-
-
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ustahub/application2/details_service/bloc/details_bloc.dart';
 import 'package:ustahub/infrastructure/apis/apis.dart';
 import 'package:ustahub/infrastructure/repositories/auth_repo.dart';
 import 'package:ustahub/infrastructure/repositories/category_repo.dart';
@@ -14,8 +15,11 @@ import 'package:ustahub/presentation/pages/notification/notification_page.dart';
 import 'package:ustahub/presentation/pages/order/orders_page.dart';
 import 'package:ustahub/presentation/pages/splash/splash_screen.dart';
 
+import '../../../infrastructure2/init/injection.dart';
 import '../pages/auth/auth_options.dart';
 import '../pages/auth/register2_page.dart';
+import '../pages/category_list_page/category_list_page.dart';
+import '../pages/home/details_page.dart';
 
 // Cache repositories to avoid recreating them
 class _RepositoryCache {
@@ -97,6 +101,23 @@ class AppRoutes {
   // Main screen - third screen (after onboarding)
   static MaterialPageRoute main() {
     return MaterialPageRoute(builder: (_) => const MainPage());
+  }
+
+  // categoryListPage
+  static MaterialPageRoute categoryListPage(String id, String name) {
+    return MaterialPageRoute(
+      builder: (_) => CategoryListPage(categoryId: id, categoryName: name),
+    );
+  }
+
+  // DetailsPage - service
+  static MaterialPageRoute detailsPage(String id) {
+    return MaterialPageRoute(
+      builder: (_) => BlocProvider.value(
+        value: sl<DetailsBloc>(),
+        child: DetailsPage(serviceId: id),
+      ),
+    );
   }
 
   // Main screen - third screen (after onboarding)

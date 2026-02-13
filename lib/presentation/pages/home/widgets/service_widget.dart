@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/category_bloc_and_data/data/model/category_model.dart';
 import 'package:ustahub/presentation/components/animation_effect.dart';
 import 'package:ustahub/presentation/pages/home/widgets/icon_widget.dart';
+import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 class ServicesGrid extends StatefulWidget {
@@ -67,7 +68,16 @@ class _ServicesGridState extends State<ServicesGrid> {
           itemCount: _displayedServices.length,
           itemBuilder: (context, index) {
             final service = _displayedServices[index];
-            return ServiceCard(service: service);
+            return GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  AppRoutes.categoryListPage(service.id!, service.nameUz!),
+                );
+              },
+              child: ServiceCard(service: service),
+            );
           },
         ),
       ),
