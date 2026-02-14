@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
-import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
+import 'package:ustahub/presentation/pages/home/widgets/banner_carousel_widget.dart';
 import 'package:ustahub/presentation/pages/home/widgets/home_app_bar.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_product_widget.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_widget.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
-
-import '../../../infrastructure2/init/injection.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -47,7 +46,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print("--------- here; ${sl<RegisterBloc>().state.tokenModel?.userType}");
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
@@ -63,8 +61,11 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: ListView(
                     controller: _scrollController,
-                    padding: EdgeInsets.only(bottom: 60),
+                    padding: const EdgeInsets.only(bottom: 60),
                     children: [
+                      16.h.verticalSpace,
+                      const BannerCarouselWidget(),
+
                       BlocBuilder<CategoryBloc, CategoryState>(
                         builder: (context, state) {
                           if (state.status == Status2.loading) {
@@ -88,6 +89,68 @@ class _HomePageState extends State<HomePage> {
                           return const SizedBox.shrink();
                         },
                       ),
+
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
+                        child: Text(
+                          "Praviderlar",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: colors.neutral800,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: 110.h,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          itemCount: 10,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: 140.w,
+                              margin: EdgeInsets.only(right: 12.w),
+                              decoration: BoxDecoration(
+                                color: colors.shade0,
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(12.r),
+                                    ),
+                                    child: Image.network(
+                                      "https://img.freepik.com/free-vector/lightning-bolt-circle-gradient_78370-5397.jpg?semt=ais_user_personalization&w=740&q=80",
+                                      height: 80.w,
+                                      width: 80.w,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: Text(
+                                      "Qurilish kampaynasi",
+                                      style: fonts.paragraphP2Bold.copyWith(
+                                        color: colors.neutral800,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const Gap(4),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const Gap(20),
 
                       /// ServiceBloc data display
                       BlocBuilder<ServiceBloc, ServiceState>(
