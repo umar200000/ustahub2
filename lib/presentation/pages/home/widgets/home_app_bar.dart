@@ -3,6 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
+import '../../../components/animation_effect.dart';
+import '../../../styles/theme.dart';
+import '../../search/search_page.dart';
+
 class HomeAppBar extends StatelessWidget {
   const HomeAppBar({super.key});
 
@@ -28,34 +32,35 @@ class HomeAppBar extends StatelessWidget {
           ),
           titleAlign: TextAlign.start,
 
-          // actions: [
-          //   CircleAvatar(
-          //     radius: 20.r,
-          //     backgroundColor: colors.neutral200,
-          //     child: AnimationButtonEffect(
-          //       onTap: () {
-          //         Navigator.push(
-          //           context,
-          //           MaterialPageRoute(builder: (context) => const SearchPage()),
-          //         );
-          //       },
-          //       child: icons.searchS.svg(color: colors.shade100),
-          //     ),
-          //   ),
-          //   SizedBox(width: 8.w),
-          //   CircleAvatar(
-          //     radius: 20.r,
-          //     backgroundColor: colors.neutral200,
-          //     child: AnimationButtonEffect(
-          //       onTap: () {},
-          //       child: Icon(Icons.menu, color: colors.shade100, size: 24.sp),
-          //     ),
-          //   ),
-          // ],
-          // bottom: Padding(
-          //   padding: EdgeInsets.symmetric(horizontal: 16.w),
-          //   child: Gap(20),
-          // ),
+          actions: [
+            CircleAvatar(
+              radius: 20.r,
+              backgroundColor: colors.neutral200,
+              child: AnimationButtonEffect(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SearchPage()),
+                  );
+                },
+                child: icons.searchS.svg(color: colors.shade100),
+              ),
+            ),
+            SizedBox(width: 8.w),
+            CircleAvatar(
+              radius: 20.r,
+              backgroundColor: colors.neutral200,
+              child: AnimationButtonEffect(
+                onTap: () {},
+                child: Icon(
+                  Icons.notifications_none_outlined,
+                  color: colors.shade100,
+                  size: 24.sp,
+                ),
+              ),
+            ),
+          ],
+
           bottomHeight: 56.h,
         );
       },

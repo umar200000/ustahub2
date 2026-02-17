@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
+import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
 import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/home/widgets/banner_carousel_widget.dart';
@@ -27,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    context.read<CompanyBloc>().add(GetCompaniesEvent());
   }
 
   @override
@@ -58,6 +60,7 @@ class _HomePageState extends State<HomePage> {
                   onRefresh: () async {
                     context.read<CategoryBloc>().add(GetCategoriesEvent());
                     context.read<ServiceBloc>().add(const GetServicesEvent());
+                    context.read<CompanyBloc>().add(GetCompaniesEvent());
                   },
                   child: ListView(
                     controller: _scrollController,
@@ -93,7 +96,7 @@ class _HomePageState extends State<HomePage> {
                       Padding(
                         padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
                         child: Text(
-                          "Praviderlar",
+                          "Providerlar",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -102,54 +105,99 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
 
-                      SizedBox(
-                        height: 110.h,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          itemCount: 10,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              width: 140.w,
-                              margin: EdgeInsets.only(right: 12.w),
-                              decoration: BoxDecoration(
-                                color: colors.shade0,
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(12.r),
-                                    ),
-                                    child: Image.network(
-                                      "https://img.freepik.com/free-vector/lightning-bolt-circle-gradient_78370-5397.jpg?semt=ais_user_personalization&w=740&q=80",
-                                      height: 80.w,
-                                      width: 80.w,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    child: Text(
-                                      "Qurilish kampaynasi",
-                                      style: fonts.paragraphP2Bold.copyWith(
-                                        color: colors.neutral800,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const Gap(4),
-                                ],
-                              ),
+                      BlocBuilder<CompanyBloc, CompanyState>(
+                        builder: (context, state) {
+                          if (state.status == Status2.loading &&
+                              (state.companyResponse?.data?.items ?? [])
+                                  .isEmpty) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
                             );
-                          },
-                        ),
+                          }
+
+                          final companies =
+                              state.companyResponse?.data?.items ?? [];
+
+                          if (companies.isEmpty &&
+                              state.status == Status2.success) {
+                            return const Center(
+                              child: Text("Providerlar topilmadi"),
+                            );
+                          }
+
+                          return SizedBox(
+                            height: 120.h,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              itemCount: companies.length,
+                              itemBuilder: (context, index) {
+                                final company = companies[index];
+                                return GestureDetector(
+                                  behavior: HitTestBehavior.translucent,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      AppRoutes.companyDetailsPage(
+                                        id: company.id!,
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 140.w,
+                                    margin: EdgeInsets.only(right: 12.w),
+                                    decoration: BoxDecoration(
+                                      color: colors.shade0,
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                          child: Image.network(
+                                            company.logoUrl ??
+                                                "https://img.freepik.com/free-vector/lightning-bolt-circle-gradient_78370-5397.jpg",
+                                            height: 70.w,
+                                            width: 70.w,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    const Icon(
+                                                      Icons.business_outlined,
+                                                    ),
+                                          ),
+                                        ),
+                                        Gap(4.h),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 8.w,
+                                          ),
+                                          child: Text(
+                                            company.name ?? "Nomsiz",
+                                            textAlign: TextAlign.center,
+                                            maxLines: 1,
+                                            style: fonts.paragraphP3Bold
+                                                .copyWith(
+                                                  color: colors.neutral800,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
                       ),
+
                       const Gap(20),
 
                       /// ServiceBloc data display

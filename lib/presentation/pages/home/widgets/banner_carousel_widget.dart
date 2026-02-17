@@ -29,7 +29,7 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       if (_pageController.hasClients) {
         if (_currentPage < _banners.length - 1) {
           _currentPage++;
@@ -58,7 +58,7 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
     return Column(
       children: [
         SizedBox(
-          height: 170.h,
+          height: 210.h,
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (int page) {

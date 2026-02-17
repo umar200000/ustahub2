@@ -16,9 +16,12 @@ import 'package:ustahub/presentation/pages/order/orders_page.dart';
 import 'package:ustahub/presentation/pages/splash/splash_screen.dart';
 
 import '../../../infrastructure2/init/injection.dart';
+import '../../application2/details_service/data/model/details_model.dart';
 import '../pages/auth/auth_options.dart';
 import '../pages/auth/register2_page.dart';
+import '../pages/booking_page/pages/booking_page.dart';
 import '../pages/category_list_page/category_list_page.dart';
+import '../pages/company_details_page/pages/company_details_page.dart';
 import '../pages/home/details_page.dart';
 
 // Cache repositories to avoid recreating them
@@ -96,6 +99,18 @@ class AppRoutes {
   // AuthOptions screen
   static MaterialPageRoute getAuthOptions() {
     return MaterialPageRoute(builder: (_) => const AuthOptions());
+  }
+
+  // Booking page
+  static MaterialPageRoute bookingPage({required ServiceData service}) {
+    return MaterialPageRoute(builder: (_) => BookingPage(service: service));
+  }
+
+  // Booking page
+  static MaterialPageRoute companyDetailsPage({required String id}) {
+    return MaterialPageRoute(
+      builder: (_) => CompanyDetailsPage(providerId: id),
+    );
   }
 
   // Main screen - third screen (after onboarding)

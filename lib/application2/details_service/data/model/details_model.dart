@@ -43,6 +43,7 @@ class ServiceData {
   final List<ServiceImage>? images;
   final String? currencyCode;
   final String? currencySymbol;
+  final String? providerLogo;
 
   ServiceData({
     this.id,
@@ -65,6 +66,7 @@ class ServiceData {
     this.images,
     this.currencyCode,
     this.currencySymbol,
+    this.providerLogo,
   });
 
   factory ServiceData.fromJson(Map<String, dynamic> json) => ServiceData(
@@ -94,6 +96,7 @@ class ServiceData {
           ),
     currencyCode: json["currency_code"],
     currencySymbol: json["currency_symbol"],
+    providerLogo: json["provider_logo"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -119,6 +122,7 @@ class ServiceData {
         : List<dynamic>.from(images!.map((x) => x.toJson())),
     "currency_code": currencyCode,
     "currency_symbol": currencySymbol,
+    "provider_logo": providerLogo,
   };
 }
 

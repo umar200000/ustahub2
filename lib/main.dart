@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
+import 'package:ustahub/application2/category_list_bloc_and_data/bloc/category_list_bloc.dart';
+import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
+import 'package:ustahub/application2/details_service/bloc/details_bloc.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
 import 'package:ustahub/infrastructure/services/analytics/analytics_service.dart';
@@ -107,6 +110,9 @@ Future<void> main() async {
             BlocProvider.value(
               value: sl<ServiceBloc>()..add(const GetServicesEvent()),
             ),
+            BlocProvider.value(value: sl<DetailsBloc>()),
+            BlocProvider.value(value: sl<CategoryListBloc>()),
+            BlocProvider.value(value: sl<CompanyBloc>()),
           ],
           child: ClarityWidget(
             clarityConfig: config,
