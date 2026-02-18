@@ -34,16 +34,15 @@ class ServiceData {
   final String? descriptionEn;
   final String? basePrice;
   final String? maxPrice;
-  final int? durationMinutes;
   final String? status;
   final double? averageRating;
   final int? totalBookings;
   final int? totalReviews;
   final ServiceCategory? category;
   final List<ServiceImage>? images;
+  final ServiceProvider? provider;
   final String? currencyCode;
   final String? currencySymbol;
-  final String? providerLogo;
 
   ServiceData({
     this.id,
@@ -57,16 +56,15 @@ class ServiceData {
     this.descriptionEn,
     this.basePrice,
     this.maxPrice,
-    this.durationMinutes,
     this.status,
     this.averageRating,
     this.totalBookings,
     this.totalReviews,
     this.category,
     this.images,
+    this.provider,
     this.currencyCode,
     this.currencySymbol,
-    this.providerLogo,
   });
 
   factory ServiceData.fromJson(Map<String, dynamic> json) => ServiceData(
@@ -81,7 +79,6 @@ class ServiceData {
     descriptionEn: json["description_en"],
     basePrice: json["base_price"],
     maxPrice: json["max_price"],
-    durationMinutes: json["duration_minutes"],
     status: json["status"],
     averageRating: json["average_rating"]?.toDouble(),
     totalBookings: json["total_bookings"],
@@ -94,9 +91,11 @@ class ServiceData {
         : List<ServiceImage>.from(
             json["images"].map((x) => ServiceImage.fromJson(x)),
           ),
+    provider: json["provider"] == null
+        ? null
+        : ServiceProvider.fromJson(json["provider"]),
     currencyCode: json["currency_code"],
     currencySymbol: json["currency_symbol"],
-    providerLogo: json["provider_logo"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -111,7 +110,6 @@ class ServiceData {
     "description_en": descriptionEn,
     "base_price": basePrice,
     "max_price": maxPrice,
-    "duration_minutes": durationMinutes,
     "status": status,
     "average_rating": averageRating,
     "total_bookings": totalBookings,
@@ -120,9 +118,9 @@ class ServiceData {
     "images": images == null
         ? null
         : List<dynamic>.from(images!.map((x) => x.toJson())),
+    "provider": provider?.toJson(),
     "currency_code": currencyCode,
     "currency_symbol": currencySymbol,
-    "provider_logo": providerLogo,
   };
 }
 
@@ -180,5 +178,29 @@ class ServiceImage {
     "id": id,
     "image_url": imageUrl,
     "is_primary": isPrimary,
+  };
+}
+
+class ServiceProvider {
+  final String? id;
+  final String? name;
+  final String? logoUrl;
+  final bool? isVerified;
+
+  ServiceProvider({this.id, this.name, this.logoUrl, this.isVerified});
+
+  factory ServiceProvider.fromJson(Map<String, dynamic> json) =>
+      ServiceProvider(
+        id: json["id"],
+        name: json["name"],
+        logoUrl: json["logo_url"],
+        isVerified: json["is_verified"],
+      );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "logo_url": logoUrl,
+    "is_verified": isVerified,
   };
 }

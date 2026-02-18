@@ -5,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:ustahub/application2/category_list_bloc_and_data/bloc/category_list_bloc.dart';
 import 'package:ustahub/application2/details_service/bloc/details_bloc.dart';
+import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
+import 'package:ustahub/presentation/pages/auth/auth_options.dart';
 import 'package:ustahub/presentation/pages/booking_page/pages/booking_page.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
@@ -242,13 +244,6 @@ class _DetailsPageState extends State<DetailsPage> {
                                 Row(
                                   children: [
                                     _buildInfoChip(
-                                      Icons.access_time,
-                                      "${data.durationMinutes ?? 0} min",
-                                      colors,
-                                      fonts,
-                                    ),
-                                    12.w.horizontalSpace,
-                                    _buildInfoChip(
                                       Icons.location_on_outlined,
                                       "Tashkent",
                                       colors,
@@ -310,10 +305,12 @@ class _DetailsPageState extends State<DetailsPage> {
                                           radius: 25.r,
                                           backgroundColor: colors.neutral200,
                                           backgroundImage:
-                                              data.providerLogo != null
-                                              ? NetworkImage(data.providerLogo!)
+                                              data.provider?.logoUrl != null
+                                              ? NetworkImage(
+                                                  data.provider!.logoUrl!,
+                                                )
                                               : null,
-                                          child: data.providerLogo == null
+                                          child: data.provider?.logoUrl == null
                                               ? Icon(
                                                   Icons.person,
                                                   color: colors.neutral400,
@@ -327,7 +324,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                "Qurilish.uz",
+                                                data.provider?.name ?? "----",
                                                 style: TextStyle(
                                                   fontSize: 18.sp,
                                                   fontWeight: FontWeight.bold,
@@ -546,13 +543,29 @@ class _DetailsPageState extends State<DetailsPage> {
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            BookingPage(service: data),
-                                      ),
-                                    );
+                                    final registerState = context
+                                        .read<RegisterBloc>()
+                                        .state;
+
+                                    if (registerState.userProfile != null) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              BookingPage(service: data),
+                                        ),
+                                      );
+                                    } else {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const AuthOptions(
+                                                showGuestOption: false,
+                                              ),
+                                        ),
+                                      );
+                                    }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: colors.blue500,

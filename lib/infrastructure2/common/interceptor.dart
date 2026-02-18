@@ -30,7 +30,7 @@ class DioInterceptor extends Interceptor {
           final dio = Dio(BaseOptions(baseUrl: err.requestOptions.baseUrl));
 
           final response = await dio.post(
-            "/api/v1/auth/refresh",
+            "api/v1/auth/refresh/",
             data: {"refresh_token": tokenModel!.refreshToken},
           );
 

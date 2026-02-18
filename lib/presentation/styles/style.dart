@@ -16,13 +16,13 @@ class Style {
   static const Color neutral700 = Color(0xFf5A5858);
   static final Color neutral800 = const Color(0xFF000000).withOpacity(.5);
 
-  static const Color primary500 = Color(0xFF01CC47);
+  static const Color primary500 = Color(0xFF02BDC6);
 
   static const Color yellow500 = Color(0xFFFFC038);
 
   static const Color red500 = Color(0xFFFF3300);
 
-  static const Color blue500 = Color(0xFF2986FF);
+  static const Color blue500 = Color(0xFF02BDC6);
 
   static const Color shade100 = Color(0xFF000000);
   static const Color shade0 = Color(0xFFFFFFFF);
@@ -54,7 +54,7 @@ class Style {
   static const mainGradient = LinearGradient(
     begin: Alignment(-0.05, -1.00),
     end: Alignment(0.05, 1),
-    colors: [Color(0xff1E88E5), Color(0xff0D47A1)],
+    colors: [Color(0xff02BDC6), Color(0xff018A91)],
   );
 
   static const LinearGradient texture = LinearGradient(

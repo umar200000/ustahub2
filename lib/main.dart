@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
 import 'package:ustahub/application2/category_list_bloc_and_data/bloc/category_list_bloc.dart';
 import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
@@ -22,6 +23,7 @@ import 'package:ustahub/utils/constants.dart';
 import 'package:ustahub/utils/firebase_options.dart';
 import 'package:ustahub/utils/sms_helper.dart';
 
+import 'application2/booking_bloc_and_data/bloc/booking_bloc.dart';
 import 'infrastructure/services/device_info/device_info_service.dart';
 import 'infrastructure2/init/injection.dart';
 
@@ -113,6 +115,8 @@ Future<void> main() async {
             BlocProvider.value(value: sl<DetailsBloc>()),
             BlocProvider.value(value: sl<CategoryListBloc>()),
             BlocProvider.value(value: sl<CompanyBloc>()),
+            BlocProvider.value(value: sl<BannerBloc>()),
+            BlocProvider.value(value: sl<BookingBloc>()),
           ],
           child: ClarityWidget(
             clarityConfig: config,

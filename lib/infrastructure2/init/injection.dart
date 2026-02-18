@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:ustahub/application2/auth_bloc_and_data/bloc/auth_pin_put_bloc.dart';
+import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
+import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
 import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
 import 'package:ustahub/application2/details_service/bloc/details_bloc.dart';
@@ -33,5 +35,7 @@ Future<void> init() async {
     ..registerLazySingleton<DetailsBloc>(() => DetailsBloc())
     ..registerLazySingleton<CategoryListBloc>(() => CategoryListBloc())
     ..registerLazySingleton<SearchBloc>(() => SearchBloc())
-    ..registerLazySingleton<CompanyBloc>(() => CompanyBloc());
+    ..registerLazySingleton<BannerBloc>(() => BannerBloc())
+    ..registerLazySingleton<CompanyBloc>(() => CompanyBloc())
+    ..registerLazySingleton<BookingBloc>(() => BookingBloc());
 }

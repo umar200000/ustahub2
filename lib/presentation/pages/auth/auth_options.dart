@@ -9,7 +9,8 @@ import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 enum AuthFlowStep { initial, phoneInput, otpVerification }
 
 class AuthOptions extends StatefulWidget {
-  const AuthOptions({super.key});
+  final bool showGuestOption;
+  const AuthOptions({super.key, this.showGuestOption = true});
 
   @override
   State<AuthOptions> createState() => _AuthOptionsState();
@@ -40,7 +41,7 @@ class _AuthOptionsState extends State<AuthOptions> {
     } else if (currentLocale.languageCode == 'ru') {
       selectedLang = 'RU';
     } else if (currentLocale.languageCode == 'en') {
-      selectedLang = 'EN'; // 'US' emas, 'EN' bo'lishi kerak
+      selectedLang = 'EN';
     }
   }
 
@@ -138,7 +139,7 @@ class _AuthOptionsState extends State<AuthOptions> {
                       ),
                     ),
                     Spacer(),
-                    AuthContentBox(),
+                    AuthContentBox(showGuestOption: widget.showGuestOption),
                   ],
                 ),
               ),

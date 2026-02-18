@@ -36,7 +36,7 @@ class CategoryListPage extends StatelessWidget {
           builder: (context, state) {
             if (state.status == Status2.loading && state.items.isEmpty) {
               return const Center(
-                child: CircularProgressIndicator(color: Colors.blue),
+                child: CircularProgressIndicator(color: Color(0xFF02BDC6)),
               );
             }
             if (state.status == Status2.error && state.items.isEmpty) {
@@ -68,7 +68,7 @@ class CategoryListPage extends StatelessWidget {
                     return const Center(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator.adaptive(),
+                        child: CircularProgressIndicator(color: Color(0xFF02BDC6)),
                       ),
                     );
                   }

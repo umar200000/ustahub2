@@ -1,8 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
+import 'package:ustahub/application2/booking_bloc_and_data/data/model/booking_model_list.dart';
+import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/components/custom_toggle.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
+import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
@@ -17,76 +22,38 @@ class MainOrderPage extends StatefulWidget {
 
 class _MainOrderPageState extends State<MainOrderPage> {
   OrderTab selectedTab = OrderTab.active;
+  final _scrollController = ScrollController();
 
-  // Sample data - replace with real data
-  final List<Map<String, dynamic>> activeOrders = [
-    {
-      'orderId': '#12345',
-      'serviceName': 'Home Cleaning',
-      'providerName': 'John Doe',
-      'date': '12 Jan 2025',
-      'time': '10:00 AM',
-      'status': 'In Progress',
-      'price': 150000,
-    },
-    {
-      'orderId': '#12346',
-      'serviceName': 'Plumbing Service',
-      'providerName': 'Mike Smith',
-      'date': '13 Jan 2025',
-      'time': '2:00 PM',
-      'status': 'Pending',
-      'price': 200000,
-    },
-    {
-      'orderId': '#12347',
-      'serviceName': 'Electrical Repair',
-      'providerName': 'Sarah Johnson',
-      'date': '14 Jan 2025',
-      'time': '11:30 AM',
-      'status': 'In Progress',
-      'price': 180000,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    context.read<BookingBloc>().add(
+      const GetBookingsListEvent(isRefresh: true),
+    );
+    _scrollController.addListener(_onScroll);
+  }
 
-  final List<Map<String, dynamic>> closedOrders = [
-    {
-      'orderId': '#12340',
-      'serviceName': 'Carpet Cleaning',
-      'providerName': 'Tom Wilson',
-      'date': '8 Jan 2025',
-      'time': '9:00 AM',
-      'status': 'Completed',
-      'price': 120000,
-    },
-    {
-      'orderId': '#12341',
-      'serviceName': 'AC Repair',
-      'providerName': 'James Brown',
-      'date': '9 Jan 2025',
-      'time': '3:00 PM',
-      'status': 'Completed',
-      'price': 250000,
-    },
-    {
-      'orderId': '#12342',
-      'serviceName': 'Painting Service',
-      'providerName': 'David Lee',
-      'date': '10 Jan 2025',
-      'time': '1:00 PM',
-      'status': 'Cancelled',
-      'price': 300000,
-    },
-    {
-      'orderId': '#12343',
-      'serviceName': 'Garden Maintenance',
-      'providerName': 'Emma Davis',
-      'date': '11 Jan 2025',
-      'time': '8:00 AM',
-      'status': 'Completed',
-      'price': 100000,
-    },
-  ];
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      final state = context.read<BookingBloc>().state;
+      if (state.listStatus != Status2.loading && !state.hasReachedMax) {
+        context.read<BookingBloc>().add(const GetBookingsListEvent());
+      }
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    return currentScroll >= (maxScroll - 100);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,62 +61,157 @@ class _MainOrderPageState extends State<MainOrderPage> {
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
           backgroundColor: colors.neutral100,
-          body: Column(
-            children: [
-              UniversalAppBar(
-                title: "orders".tr(),
-                centerTitle: true,
-                showBackButton: false,
-                backgroundColor: const Color(0xFF1A1A1A),
-                showShadow: true,
-                bottom: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: CustomToggle<OrderTab>(
-                    current: selectedTab,
-                    values: [OrderTab.active, OrderTab.closed],
-                    onChanged: (value) {
-                      setState(() {
-                        selectedTab = value;
-                      });
-                    },
-                    height: 48.h,
-                    indicatorSize: Size(
-                      (MediaQuery.of(context).size.width - 38.w) / 2,
-                      48.h,
+          body: BlocBuilder<BookingBloc, BookingState>(
+            builder: (context, state) {
+              final activeOrders = state.items.where((item) {
+                return [
+                  'pending',
+                  'accepted',
+                  'assigned',
+                  'started',
+                ].contains(item.status);
+              }).toList();
+
+              final closedOrders = state.items.where((item) {
+                return ['completed', 'canceled'].contains(item.status);
+              }).toList();
+
+              final currentOrders = selectedTab == OrderTab.active
+                  ? activeOrders
+                  : closedOrders;
+
+              return Column(
+                children: [
+                  UniversalAppBar(
+                    title: "orders".tr(),
+                    centerTitle: true,
+                    showBackButton: false,
+                    backgroundColor: const Color(0xFF1A1A1A),
+                    showShadow: true,
+                    bottom: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: CustomToggle<OrderTab>(
+                        current: selectedTab,
+                        values: [OrderTab.active, OrderTab.closed],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedTab = value;
+                          });
+                        },
+                        height: 48.h,
+                        indicatorSize: Size(
+                          (MediaQuery.of(context).size.width - 38.w) / 2,
+                          48.h,
+                        ),
+                        backgroundColor: colors.neutral200,
+                        indicatorColor: colors.shade0,
+                        elevation: true,
+                        iconList: [
+                          _buildTabContent(
+                            'active_orders'.tr(),
+                            activeOrders.length,
+                            selectedTab == OrderTab.active,
+                            fonts,
+                            colors,
+                          ),
+                          _buildTabContent(
+                            'closed_orders'.tr(),
+                            closedOrders.length,
+                            selectedTab == OrderTab.closed,
+                            fonts,
+                            colors,
+                          ),
+                        ],
+                      ),
                     ),
-                    backgroundColor: colors.neutral200,
-                    indicatorColor: colors.shade0,
-                    elevation: true,
-                    iconList: [
-                      _buildTabContent(
-                        'active_orders'.tr(),
-                        activeOrders.length,
-                        selectedTab == OrderTab.active,
-                        fonts,
-                        colors,
-                      ),
-                      _buildTabContent(
-                        'closed_orders'.tr(),
-                        closedOrders.length,
-                        selectedTab == OrderTab.closed,
-                        fonts,
-                        colors,
-                      ),
-                    ],
                   ),
-                ),
-              ),
-
-              // Toggle Tabs
-
-              // Orders List
-              Expanded(
-                child: selectedTab == OrderTab.active
-                    ? _buildActiveOrders(colors, fonts)
-                    : _buildClosedOrders(colors, fonts),
-              ),
-            ],
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<BookingBloc>().add(
+                          const GetBookingsListEvent(isRefresh: true),
+                        );
+                      },
+                      child: _buildBody(currentOrders, state, colors, fonts),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(
+    List<BookingListItem> orders,
+    BookingState state,
+    CustomColorSet colors,
+    FontSet fonts,
+  ) {
+    if (state.listStatus == Status2.loading && state.items.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xff02BDC6)),
+      );
+    }
+
+    if (orders.isEmpty &&
+        !state.hasReachedMax &&
+        state.listStatus != Status2.loading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xff02BDC6)),
+      );
+    }
+
+    if (orders.isEmpty) {
+      return _buildEmptyState(
+        selectedTab == OrderTab.active
+            ? 'no_active_orders'.tr()
+            : 'no_closed_orders'.tr(),
+        selectedTab == OrderTab.active
+            ? 'active_orders_description'.tr()
+            : 'closed_orders_description'.tr(),
+        colors,
+        fonts,
+      );
+    }
+
+    return ListView.separated(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16.w,
+      ).copyWith(top: 12.h, bottom: 100.h),
+      itemCount: state.hasReachedMax ? orders.length : orders.length + 1,
+      separatorBuilder: (context, index) => SizedBox(height: 12.h),
+      itemBuilder: (context, index) {
+        if (index >= orders.length) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: CircularProgressIndicator(color: Color(0xff02BDC6)),
+            ),
+          );
+        }
+
+        final order = orders[index];
+        return _buildOrderCard(
+          bookingUuid: order.id ?? "",
+          orderId: "#${order.bookingNumber}",
+          serviceName: order.serviceTitle ?? "",
+          providerName: order.providerName ?? "",
+          providerLogo: order.providerLogo ?? "",
+          date: order.scheduledDate ?? "",
+          time: order.scheduledTimeStart ?? "",
+          status: order.status ?? "",
+          price: (order.totalPrice ?? 0).toInt(),
+          statusColor: order.status == 'started'
+              ? colors.yellow500
+              : colors.blue500,
+          colors: colors,
+          fonts: fonts,
+          isActive: selectedTab == OrderTab.active,
         );
       },
     );
@@ -186,76 +248,6 @@ class _MainOrderPageState extends State<MainOrderPage> {
     );
   }
 
-  Widget _buildActiveOrders(CustomColorSet colors, FontSet fonts) {
-    if (activeOrders.isEmpty) {
-      return _buildEmptyState(
-        'no_active_orders'.tr(),
-        'active_orders_description'.tr(),
-        colors,
-        fonts,
-      );
-    }
-
-    return ListView.separated(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      itemCount: activeOrders.length,
-      separatorBuilder: (context, index) => SizedBox(height: 12.h),
-      itemBuilder: (context, index) {
-        final order = activeOrders[index];
-        return _buildOrderCard(
-          orderId: order['orderId'],
-          serviceName: order['serviceName'],
-          providerName: order['providerName'],
-          date: order['date'],
-          time: order['time'],
-          status: order['status'],
-          price: order['price'],
-          statusColor: order['status'] == 'In Progress'
-              ? colors.yellow500
-              : colors.blue500,
-          colors: colors,
-          fonts: fonts,
-          isActive: true,
-        );
-      },
-    );
-  }
-
-  Widget _buildClosedOrders(CustomColorSet colors, FontSet fonts) {
-    if (closedOrders.isEmpty) {
-      return _buildEmptyState(
-        'no_closed_orders'.tr(),
-        'closed_orders_description'.tr(),
-        colors,
-        fonts,
-      );
-    }
-
-    return ListView.separated(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      itemCount: closedOrders.length,
-      separatorBuilder: (context, index) => SizedBox(height: 12.h),
-      itemBuilder: (context, index) {
-        final order = closedOrders[index];
-        return _buildOrderCard(
-          orderId: order['orderId'],
-          serviceName: order['serviceName'],
-          providerName: order['providerName'],
-          date: order['date'],
-          time: order['time'],
-          status: order['status'],
-          price: order['price'],
-          statusColor: order['status'] == 'Completed'
-              ? colors.blue500
-              : colors.red500,
-          colors: colors,
-          fonts: fonts,
-          isActive: false,
-        );
-      },
-    );
-  }
-
   Widget _buildEmptyState(
     String title,
     String description,
@@ -263,40 +255,45 @@ class _MainOrderPageState extends State<MainOrderPage> {
     FontSet fonts,
   ) {
     return Center(
-      child: Padding(
-        padding: EdgeInsets.all(32.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.receipt_long_outlined,
-              size: 80.sp,
-              color: colors.neutral400,
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              title,
-              style: fonts.headingH6SemiBold.copyWith(color: colors.shade100),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              description,
-              style: fonts.paragraphP2Regular.copyWith(
-                color: colors.neutral600,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.all(32.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.receipt_long_outlined,
+                size: 80.sp,
+                color: colors.neutral400,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              SizedBox(height: 16.h),
+              Text(
+                title,
+                style: fonts.headingH6SemiBold.copyWith(color: colors.shade100),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                description,
+                style: fonts.paragraphP2Regular.copyWith(
+                  color: colors.neutral600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildOrderCard({
+    required String bookingUuid,
     required String orderId,
     required String serviceName,
     required String providerName,
+    required String providerLogo,
     required String date,
     required String time,
     required String status,
@@ -306,6 +303,14 @@ class _MainOrderPageState extends State<MainOrderPage> {
     required FontSet fonts,
     required bool isActive,
   }) {
+    String formattedTime = time;
+    if (time.contains(':')) {
+      final parts = time.split(':');
+      if (parts.length >= 2) {
+        formattedTime = "${parts[0]}:${parts[1]}";
+      }
+    }
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -323,7 +328,6 @@ class _MainOrderPageState extends State<MainOrderPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Order ID & Status
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -340,16 +344,13 @@ class _MainOrderPageState extends State<MainOrderPage> {
                   borderRadius: BorderRadius.circular(100.r),
                 ),
                 child: Text(
-                  status,
+                  status.toUpperCase(),
                   style: fonts.paragraphP3Medium.copyWith(color: statusColor),
                 ),
               ),
             ],
           ),
-
           SizedBox(height: 12.h),
-
-          // Service Name
           Text(
             serviceName,
             style: fonts.paragraphP1SemiBold.copyWith(
@@ -357,14 +358,24 @@ class _MainOrderPageState extends State<MainOrderPage> {
               fontSize: 16.sp,
             ),
           ),
-
-          SizedBox(height: 4.h),
-
-          // Provider Name
+          SizedBox(height: 8.h),
           Row(
             children: [
-              Icon(Icons.person_outline, size: 16.sp, color: colors.neutral600),
-              SizedBox(width: 6.w),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4.r),
+                child: Image.network(
+                  providerLogo,
+                  width: 20.w,
+                  height: 20.w,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.business,
+                    size: 18.sp,
+                    color: colors.neutral600,
+                  ),
+                ),
+              ),
+              SizedBox(width: 8.w),
               Text(
                 providerName,
                 style: fonts.paragraphP3Regular.copyWith(
@@ -373,10 +384,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
               ),
             ],
           ),
-
           SizedBox(height: 8.h),
-
-          // Date & Time
           Row(
             children: [
               Icon(
@@ -395,22 +403,16 @@ class _MainOrderPageState extends State<MainOrderPage> {
               Icon(Icons.access_time, size: 16.sp, color: colors.neutral600),
               SizedBox(width: 6.w),
               Text(
-                time,
+                formattedTime,
                 style: fonts.paragraphP3Regular.copyWith(
                   color: colors.neutral600,
                 ),
               ),
             ],
           ),
-
           SizedBox(height: 12.h),
-
-          // Divider
           Divider(height: 1, color: colors.neutral200),
-
           SizedBox(height: 12.h),
-
-          // Footer: Price & Action Button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -433,16 +435,15 @@ class _MainOrderPageState extends State<MainOrderPage> {
                   ),
                 ],
               ),
-
-              // Action Button
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to order details
+                  Navigator.push(
+                    context,
+                    AppRoutes.orders(serviceId: bookingUuid),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isActive
-                      ? colors.blue500
-                      : colors.neutral300,
+                  backgroundColor: colors.blue500,
                   foregroundColor: colors.shade0,
                   padding: EdgeInsets.symmetric(
                     horizontal: 20.w,

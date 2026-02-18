@@ -12,7 +12,8 @@ import 'auth_button.dart';
 import 'enter_phone_number_box.dart';
 
 class AuthContentBox extends StatefulWidget {
-  const AuthContentBox({super.key});
+  final bool showGuestOption;
+  const AuthContentBox({super.key, this.showGuestOption = true});
 
   @override
   State<AuthContentBox> createState() => _AuthContentBoxState();
@@ -36,16 +37,18 @@ class _AuthContentBoxState extends State<AuthContentBox> {
     return BlocProvider.value(
       value: registerBloc,
       child: BlocConsumer<RegisterBloc, RegisterState>(
+        listenWhen: (previous, current) =>
+            previous.status != current.status &&
+            current.status == Status2.success,
         listener: (context, state) {
-          if (ModalRoute.of(context)?.isCurrent != true) return;
-
-          if (state.status == Status2.success) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              AppRoutes.main(),
-              (route) => false,
-            );
-          }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pushAndRemoveUntil(AppRoutes.main(), (route) => false);
+            }
+          });
         },
         builder: (context, state) {
           return ThemeWrapper(
@@ -103,7 +106,7 @@ class _AuthContentBoxState extends State<AuthContentBox> {
                     textColor: colors.blue500,
                     title: "continue_with_phone".tr(),
                   ),
-                  if (state.status != Status2.loading)
+                  if (state.status != Status2.loading && widget.showGuestOption)
                     GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onTap: () {

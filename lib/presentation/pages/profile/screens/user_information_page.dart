@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/infrastructure/services/toast/toast_service.dart';
+import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 import '../../../../infrastructure2/init/injection.dart';
 
@@ -91,222 +92,232 @@ class _UserInformationPageState extends State<UserInformationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: bloc,
-      child: BlocConsumer<RegisterBloc, RegisterState>(
-        listener: (context, state) {
-          if (state.statusUser == Status2.success) {
-            ToastService.success(
-              context: context,
-              title: "Muvaffaqiyatli",
-              description: "Ma'lumotlar saqlandi!",
-            );
-            Navigator.pop(context);
-          }
-          if (state.statusUser == Status2.error) {
-            ToastService.error(
-              context: context,
-              title: "Xatolik",
-              description: state.errorMessage ?? "Kutilmagan xato yuz berdi",
-            );
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: const Color(0xFFF8F9FB),
-            appBar: AppBar(
-              scrolledUnderElevation: 0,
-              backgroundColor: Colors.white,
-              elevation: 0.5,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.black87,
-                  size: 20.sp,
-                ),
-                onPressed: () => Navigator.pop(context),
-              ),
-              title: Text(
-                'Profil ma\'lumotlari',
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              centerTitle: true,
-            ),
-            body: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 10.h),
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                width: 100.w,
-                                height: 100.w,
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.blue.shade100,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Icon(
-                                  Icons.person_rounded,
-                                  size: 55.sp,
-                                  color: Colors.blue.shade600,
-                                ),
-                              ),
-                              SizedBox(height: 12.h),
-                              Text(
-                                '${state.userProfile?.firstName ?? ''} ${state.userProfile?.lastName ?? ''}',
-                                style: TextStyle(
-                                  fontSize: 19.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(height: 16.h),
-                        Container(
-                          padding: EdgeInsets.all(20.r),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildEditableField(
-                                label: 'Ism',
-                                controller: firstNameController,
-                                icon: Icons.person_outline,
-                                enabled: state.statusUser != Status2.loading,
-                              ),
-                              SizedBox(height: 16.h),
-                              _buildEditableField(
-                                label: 'Familiya',
-                                controller: lastNameController,
-                                icon: Icons.person_outline,
-                                enabled: state.statusUser != Status2.loading,
-                              ),
-                              SizedBox(height: 16.h),
-                              _buildEditableField(
-                                label: 'Email manzili',
-                                controller: emailController,
-                                icon: Icons.alternate_email_rounded,
-                                enabled: state.statusUser != Status2.loading,
-                                keyboardType: TextInputType.emailAddress,
-                              ),
-                              SizedBox(height: 16.h),
-                              _buildEditableField(
-                                label: 'Telefon raqam',
-                                controller: phoneController,
-                                icon: Icons.phone_android_rounded,
-                                enabled: false,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 100.h),
-                      ],
+    return ThemeWrapper(
+      builder: (context, colors, fonts, icons, controller) {
+        return BlocProvider.value(
+          value: bloc,
+          child: BlocConsumer<RegisterBloc, RegisterState>(
+            listener: (context, state) {
+              if (state.statusUser == Status2.success) {
+                ToastService.success(
+                  context: context,
+                  title: "Muvaffaqiyatli",
+                  description: "Ma'lumotlar saqlandi!",
+                );
+                Navigator.pop(context);
+              }
+              if (state.statusUser == Status2.error) {
+                ToastService.error(
+                  context: context,
+                  title: "Xatolik",
+                  description:
+                      state.errorMessage ?? "Kutilmagan xato yuz berdi",
+                );
+              }
+            },
+            builder: (context, state) {
+              return Scaffold(
+                backgroundColor: const Color(0xFFF8F9FB),
+                appBar: AppBar(
+                  scrolledUnderElevation: 0,
+                  backgroundColor: Colors.white,
+                  elevation: 0.5,
+                  leading: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.black87,
+                      size: 20.sp,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  title: Text(
+                    'Profil ma\'lumotlari',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
+                  centerTitle: true,
                 ),
-
-
-                Container(
-                  padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 20.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 10,
-                        offset: const Offset(0, -2),
-                      ),
-                    ],
-                  ),
-                  child: SafeArea(
-                    top: false,
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 54.h,
-                      child: ElevatedButton(
-                        onPressed: state.statusUser == Status2.loading
-                            ? null
-                            : _saveChanges,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue.shade700,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.blue.shade300,
-                          elevation: 0,
-                          shadowColor: Colors.blue.shade700.withValues(alpha: 0.4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                        ),
-                        child: state.statusUser == Status2.loading
-                            ? SizedBox(
-                          height: 24.w,
-                          width: 24.w,
-                          child: const CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
-                            : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                body: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Column(
                           children: [
-                            Text(
-                              'O\'zgarishlarni saqlash',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
+                            SizedBox(height: 10.h),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 16.h),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.04),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: 100.w,
+                                    height: 100.w,
+                                    decoration: BoxDecoration(
+                                      color: colors.blue500.withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: colors.blue500.withOpacity(0.2),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.person_rounded,
+                                      size: 55.sp,
+                                      color: colors.blue500,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  Text(
+                                    '${state.userProfile?.firstName ?? ''} ${state.userProfile?.lastName ?? ''}',
+                                    style: TextStyle(
+                                      fontSize: 19.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                            SizedBox(height: 16.h),
+                            Container(
+                              padding: EdgeInsets.all(20.r),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.04),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildEditableField(
+                                    label: 'Ism',
+                                    controller: firstNameController,
+                                    icon: Icons.person_outline,
+                                    enabled:
+                                        state.statusUser != Status2.loading,
+                                    colors: colors,
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  _buildEditableField(
+                                    label: 'Familiya',
+                                    controller: lastNameController,
+                                    icon: Icons.person_outline,
+                                    enabled:
+                                        state.statusUser != Status2.loading,
+                                    colors: colors,
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  _buildEditableField(
+                                    label: 'Email manzili',
+                                    controller: emailController,
+                                    icon: Icons.alternate_email_rounded,
+                                    enabled:
+                                        state.statusUser != Status2.loading,
+                                    keyboardType: TextInputType.emailAddress,
+                                    colors: colors,
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  _buildEditableField(
+                                    label: 'Telefon raqam',
+                                    controller: phoneController,
+                                    icon: Icons.phone_android_rounded,
+                                    enabled: false,
+                                    colors: colors,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 100.h),
                           ],
                         ),
                       ),
                     ),
-                  ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 20.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 10,
+                            offset: const Offset(0, -2),
+                          ),
+                        ],
+                      ),
+                      child: SafeArea(
+                        top: false,
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 54.h,
+                          child: ElevatedButton(
+                            onPressed: state.statusUser == Status2.loading
+                                ? null
+                                : _saveChanges,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.blue500,
+                              foregroundColor: Colors.white,
+                              disabledBackgroundColor: colors.blue500
+                                  .withOpacity(0.5),
+                              elevation: 0,
+                              shadowColor: colors.blue500.withOpacity(0.4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16.r),
+                              ),
+                            ),
+                            child: state.statusUser == Status2.loading
+                                ? SizedBox(
+                                    height: 24.w,
+                                    width: 24.w,
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.5,
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'O\'zgarishlarni saqlash',
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -315,6 +326,7 @@ class _UserInformationPageState extends State<UserInformationPage> {
     required TextEditingController controller,
     required IconData icon,
     required bool enabled,
+    required dynamic colors,
     TextInputType? keyboardType,
   }) {
     return Column(
@@ -346,7 +358,7 @@ class _UserInformationPageState extends State<UserInformationPage> {
             fillColor: enabled ? Colors.white : Colors.grey[50],
             prefixIcon: Icon(
               icon,
-              color: enabled ? Colors.blue.shade400 : Colors.grey[400],
+              color: enabled ? colors.blue500 : Colors.grey[400],
               size: 20.sp,
             ),
             suffixIcon: !enabled
@@ -366,7 +378,7 @@ class _UserInformationPageState extends State<UserInformationPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(color: Colors.blue.shade400, width: 1.5),
+              borderSide: BorderSide(color: colors.blue500, width: 1.5),
             ),
             disabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),

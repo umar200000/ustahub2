@@ -140,8 +140,8 @@ class AppRoutes {
     return MaterialPageRoute(builder: (_) => const Register2Page());
   }
 
-  static MaterialPageRoute orders() {
-    return MaterialPageRoute(builder: (_) => const OrdersPage());
+  static MaterialPageRoute orders({required String serviceId}) {
+    return MaterialPageRoute(builder: (_) => OrdersPage(bookingId: serviceId));
   }
 
   static MaterialPageRoute notification() {

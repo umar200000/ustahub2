@@ -78,39 +78,39 @@ class _PinPutWidgetState extends State<PinPutWidget> {
       child: MultiBlocListener(
         listeners: [
           BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.phoneStatus != current.phoneStatus &&
+                current.phoneStatus == Status2.success,
             listener: (context, state) {
-              if (state.phoneStatus == Status2.success) {
-                _timer.cancel();
-                _startTimer();
-              }
+              _timer.cancel();
+              _startTimer();
             },
           ),
           BlocListener<AuthPinPutBloc, AuthPinPutState>(
+            listenWhen: (previous, current) =>
+                previous.status != current.status &&
+                current.status == Status2.success,
             listener: (context, state) {
-              if (state.status == Status2.success) {
-                if (state.isExistingUser == true) {
-                  // RegisterBloc orqali GetUserProfileEvent allaqachon AuthPinPutBloc'da chaqirilgan bo'lishi kerak
-                  // yoki bu yerda chaqirish mumkin:
-                  // register.add(GetUserProfileEvent());
-                } else {
-                  Navigator.pushReplacement(context, AppRoutes.register2Page());
-                }
-              }
-            },
-          ),
-          BlocListener<RegisterBloc, RegisterState>(
-            listener: (context, state) {
-              if (ModalRoute.of(context)?.isCurrent != true) return;
+              // Close all bottom sheets first.
+              Navigator.of(context, rootNavigator: true).pop();
+              Navigator.of(context, rootNavigator: true).pop();
 
-              if (state.statusUser == Status2.success) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  AppRoutes.main(),
-                  (route) => false,
-                );
-              } else if (state.statusUser == Status2.error) {
-                register.add(GetUserProfileEvent());
-              }
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                if (state.isExistingUser == true) {
+                  // If user exists, go to the main page.
+                  Navigator.of(
+                    context,
+                    rootNavigator: true,
+                  ).pushAndRemoveUntil(AppRoutes.main(), (route) => false);
+                } else {
+                  // If new user, go to the registration completion page.
+                  Navigator.of(
+                    context,
+                    rootNavigator: true,
+                  ).push(AppRoutes.register2Page());
+                }
+              });
             },
           ),
         ],

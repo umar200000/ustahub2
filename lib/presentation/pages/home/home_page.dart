@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
 import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
 import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
@@ -28,7 +29,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    // Ma'lumotlarni yuklashni boshlaymiz
+    _loadInitialData();
+  }
+
+  void _loadInitialData() {
+    context.read<BannerBloc>().add(GetBannersEvent());
+    context.read<CategoryBloc>().add(GetCategoriesEvent());
     context.read<CompanyBloc>().add(GetCompaniesEvent());
+    context.read<ServiceBloc>().add(const GetServicesEvent());
   }
 
   @override
@@ -58,9 +67,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    context.read<CategoryBloc>().add(GetCategoriesEvent());
-                    context.read<ServiceBloc>().add(const GetServicesEvent());
-                    context.read<CompanyBloc>().add(GetCompaniesEvent());
+                    _loadInitialData();
                   },
                   child: ListView(
                     controller: _scrollController,
@@ -75,9 +82,7 @@ class _HomePageState extends State<HomePage> {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(20.0),
-                                child: CircularProgressIndicator(
-                                  color: Colors.blue,
-                                ),
+                                child: CircularProgressIndicator(),
                               ),
                             );
                           } else if (state.status == Status2.success) {
@@ -209,9 +214,7 @@ class _HomePageState extends State<HomePage> {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(20.0),
-                                child: CircularProgressIndicator(
-                                  color: Colors.blue,
-                                ),
+                                child: CircularProgressIndicator(),
                               ),
                             );
                           } else if (state.status == Status2.success ||
@@ -270,9 +273,7 @@ class _HomePageState extends State<HomePage> {
                                 if (state.status == Status2.loading)
                                   const Padding(
                                     padding: EdgeInsets.all(16.0),
-                                    child: CircularProgressIndicator(
-                                      color: Colors.blue,
-                                    ),
+                                    child: CircularProgressIndicator(),
                                   ),
                               ],
                             );
