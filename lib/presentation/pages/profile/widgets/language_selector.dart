@@ -1,14 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
-import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/presentation/components/animation_effect.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 
 class LanguageSelector extends StatelessWidget {
   final String selectedLanguage;
-  final ValueChanged<String> onChanged;
+  final Function(String name, Locale locale) onChanged;
   final FontSet fonts;
   final CustomColorSet colors;
 
@@ -71,6 +69,7 @@ class LanguageSelector extends StatelessWidget {
               ),
               SizedBox(height: 16.h),
               ..._buildLanguageOptions(context),
+              SizedBox(height: MediaQuery.of(context).padding.bottom - 10),
             ],
           ),
         );
@@ -79,22 +78,20 @@ class LanguageSelector extends StatelessWidget {
   }
 
   List<Widget> _buildLanguageOptions(BuildContext context) {
-    final languages = {'English': 'en', 'Русский': 'ru', 'O\'zbekcha': 'uz'};
+    final languages = {
+      'English': const Locale('en', 'US'),
+      'Русский': const Locale('ru', 'RU'),
+      'O\'zbekcha': const Locale('uz', 'UZ'),
+    };
 
     return languages.entries.map((entry) {
       final languageName = entry.key;
-      final languageCode = entry.value;
+      final locale = entry.value;
       final isSelected = selectedLanguage == languageName;
 
       return AnimationButtonEffect(
         onTap: () {
-          // 1. Til kodini SharedPrefs'ga saqlash
-          sl<SharedPrefService>().setLanguage(languageCode);
-
-          // 2. UI'ni yangilash uchun callback chaqirish
-          onChanged(languageName);
-
-          // 3. Bottom sheet'ni yopish
+          onChanged(languageName, locale);
           Navigator.pop(context);
         },
         child: Container(

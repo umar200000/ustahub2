@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/category_bloc_and_data/data/model/category_model.dart';
 import 'package:ustahub/presentation/components/animation_effect.dart';
+import 'package:ustahub/presentation/pages/home/widgets/all_categories_page.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
@@ -32,7 +33,13 @@ class ServicesGrid extends StatelessWidget {
                   ),
                   AnimationButtonEffect(
                     onTap: () {
-                      // TODO: Navigate to all categories
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AllCategoriesPage(categories: services),
+                        ),
+                      );
                     },
                     child: Text(
                       'see_all'.tr(),
@@ -93,41 +100,39 @@ class _CategoryItem extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Circular image container
+                // Circular icon container with modern design
                 Container(
-                  width: 65.w,
-                  height: 65.w,
+                  width: 60.w,
+                  height: 60.w,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: colors.shade0,
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.neutral300.withValues(alpha: 0.5),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    color: colors.blue500.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(18.r),
                   ),
-                  child: ClipOval(
-                    child: service.iconUrl != null && service.iconUrl!.isNotEmpty
-                        ? Image.network(
-                            service.iconUrl!,
-                            width: 65.w,
-                            height: 65.w,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                _buildPlaceholderIcon(colors),
-                          )
-                        : _buildPlaceholderIcon(colors),
+                  child: Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14.r),
+                      child:
+                          service.iconUrl != null && service.iconUrl!.isNotEmpty
+                          ? Image.network(
+                              service.iconUrl!,
+                              width: 32.w,
+                              height: 32.w,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  _buildPlaceholderIcon(colors),
+                            )
+                          : _buildPlaceholderIcon(colors),
+                    ),
                   ),
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 10.h),
                 // Label
                 Text(
                   title,
                   style: fonts.paragraphP3Regular.copyWith(
                     color: colors.neutral700,
                     fontWeight: FontWeight.w500,
+                    fontSize: 12.sp,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,
@@ -142,19 +147,7 @@ class _CategoryItem extends StatelessWidget {
   }
 
   Widget _buildPlaceholderIcon(dynamic colors) {
-    return Container(
-      width: 65.w,
-      height: 65.w,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: colors.blue500.withValues(alpha: 0.1),
-      ),
-      child: Icon(
-        Icons.category_outlined,
-        size: 28.w,
-        color: colors.blue500,
-      ),
-    );
+    return Icon(Icons.category_rounded, size: 28.w, color: colors.blue500);
   }
 }
 

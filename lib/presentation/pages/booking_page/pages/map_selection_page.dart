@@ -1,10 +1,12 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:ustahub/presentation/components/universal_appbar.dart';
+import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 class MapSelectionPage extends StatefulWidget {
   const MapSelectionPage({super.key});
@@ -16,14 +18,15 @@ class MapSelectionPage extends StatefulWidget {
 class _MapSelectionPageState extends State<MapSelectionPage>
     with WidgetsBindingObserver {
   LatLng _currentPosition = const LatLng(41.311081, 69.240562); // Toshkent
-  LatLng? _userRealLocation; // Foydalanuvchining aniq turgan joyi
+  LatLng? _userRealLocation;
   final MapController _mapController = MapController();
-  String _address = "Manzil yuklanmoqda...";
+  String _address = "";
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _address = "loading_address".tr();
     WidgetsBinding.instance.addObserver(this);
     _determinePosition();
   }
@@ -37,7 +40,6 @@ class _MapSelectionPageState extends State<MapSelectionPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Sozlamalardan qaytganda lokatsiyani qayta tekshirish
     if (state == AppLifecycleState.resumed) {
       _determinePosition();
     }
@@ -81,7 +83,6 @@ class _MapSelectionPageState extends State<MapSelectionPage>
           _isLoading = false;
         });
         _getAddress(_currentPosition);
-        // Zoom darajasini 15.0 dan 18.0 ga o'zgartirdik (yaqinroq ko'rsatish uchun)
         _mapController.move(_currentPosition, 18.0);
       }
     } catch (e) {
@@ -95,17 +96,18 @@ class _MapSelectionPageState extends State<MapSelectionPage>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Lokatsiya o'chirilgan"),
-          content: const Text(
-            "Iltimos, manzilni aniqlash uchun qurilmangizda lokatsiyani yoqing.",
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
           ),
+          title: Text("location_disabled_title".tr()),
+          content: Text("location_disabled_desc".tr()),
           actions: [
             TextButton(
-              child: const Text("Bekor qilish"),
+              child: Text("cancel".tr()),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text("Sozlamalar"),
+              child: Text("settings".tr()),
               onPressed: () async {
                 await Geolocator.openLocationSettings();
                 if (mounted) Navigator.of(context).pop();
@@ -123,17 +125,18 @@ class _MapSelectionPageState extends State<MapSelectionPage>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Ruxsat berilmagan"),
-          content: const Text(
-            "Ilova lokatsiyadan foydalanish uchun ruxsatga ega emas. Iltimos, sozlamalardan ruxsat bering.",
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
           ),
+          title: Text("permission_denied_title".tr()),
+          content: Text("permission_denied_desc".tr()),
           actions: [
             TextButton(
-              child: const Text("Bekor qilish"),
+              child: Text("cancel".tr()),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text("Sozlamalar"),
+              child: Text("settings".tr()),
               onPressed: () async {
                 await Geolocator.openAppSettings();
                 if (mounted) Navigator.of(context).pop();
@@ -155,14 +158,14 @@ class _MapSelectionPageState extends State<MapSelectionPage>
         Placemark place = placemarks[0];
         if (mounted) {
           setState(() {
-            _address = "${place.street}, ${place.locality}, ${place.country}";
+            _address = "${place.street}, ${place.locality}";
           });
         }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _address = "Manzilni aniqlab bo'lmadi";
+          _address = "cannot_determine_address".tr();
         });
       }
     }
@@ -170,117 +173,190 @@ class _MapSelectionPageState extends State<MapSelectionPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Manzilni tanlang",
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, {
-                'address': _address,
-                'lat': _currentPosition.latitude,
-                'lng': _currentPosition.longitude,
-              });
-            },
-            child: Text(
-              "Tayyor",
-              style: GoogleFonts.poppins(
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _currentPosition,
-              initialZoom: 18.0, // Boshlang'ich zoomni ham yaqinroq qildik
-              onPositionChanged: (position, hasGesture) {
-                if (position.center != null) {
-                  _currentPosition = position.center!;
-                }
-              },
-              onMapEvent: (event) {
-                if (event is MapEventMoveEnd) {
-                  _getAddress(_currentPosition);
-                }
-              },
-            ),
+    return ThemeWrapper(
+      builder: (context, colors, fonts, icons, controller) {
+        return Scaffold(
+          backgroundColor: colors.shade0,
+          body: Stack(
             children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.ustahub.app',
+              Column(
+                children: [
+                  UniversalAppBar(
+                    title: "select_on_map".tr(),
+                    centerTitle: true,
+                    showBackButton: true,
+                  ),
+                  Expanded(
+                    child: FlutterMap(
+                      mapController: _mapController,
+                      options: MapOptions(
+                        initialCenter: _currentPosition,
+                        initialZoom: 18.0,
+                        onPositionChanged: (position, hasGesture) {
+                          if (position.center != null) {
+                            _currentPosition = position.center!;
+                          }
+                        },
+                        onMapEvent: (event) {
+                          if (event is MapEventMoveEnd) {
+                            _getAddress(_currentPosition);
+                          }
+                        },
+                      ),
+                      children: [
+                        TileLayer(
+                          urlTemplate:
+                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          userAgentPackageName: 'com.ustahub.app',
+                        ),
+                        if (_userRealLocation != null)
+                          MarkerLayer(
+                            markers: [
+                              Marker(
+                                point: _userRealLocation!,
+                                width: 40.w,
+                                height: 40.w,
+                                child: Icon(
+                                  Icons.my_location,
+                                  color: colors.blue500,
+                                  size: 24.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              if (_userRealLocation != null)
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: _userRealLocation!,
-                      width: 40.w,
-                      height: 40.w,
-                      child: const Icon(
-                        Icons.my_location,
-                        color: Colors.blue,
-                        size: 30,
+
+              // Custom Center Pin
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 35.h),
+                  child: Icon(
+                    Icons.location_on,
+                    size: 45.sp,
+                    color: colors.blue500,
+                  ),
+                ),
+              ),
+
+              // Address Info Card
+              Positioned(
+                bottom: 30.h + MediaQuery.of(context).padding.bottom,
+                left: 20.w,
+                right: 20.w,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // GPS Button
+                    GestureDetector(
+                      onTap: _determinePosition,
+                      child: Container(
+                        padding: EdgeInsets.all(12.r),
+                        decoration: BoxDecoration(
+                          color: colors.shade0,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.gps_fixed,
+                          color: colors.blue500,
+                          size: 24.sp,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    // Address Details
+                    Container(
+                      padding: EdgeInsets.all(20.w),
+                      decoration: BoxDecoration(
+                        color: colors.shade0,
+                        borderRadius: BorderRadius.circular(24.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                color: colors.blue500,
+                                size: 20.sp,
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  _address.isEmpty
+                                      ? "loading_address".tr()
+                                      : _address,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: fonts.paragraphP2SemiBold.copyWith(
+                                    color: colors.neutral800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20.h),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context, {
+                                  'address': _address,
+                                  'lat': _currentPosition.latitude,
+                                  'lng': _currentPosition.longitude,
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colors.blue500,
+                                foregroundColor: colors.shade0,
+                                padding: EdgeInsets.symmetric(vertical: 16.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16.r),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: Text(
+                                "ready".tr(),
+                                style: fonts.paragraphP2Bold.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
+              ),
+
+              if (_isLoading)
+                Container(
+                  color: Colors.black.withOpacity(0.3),
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
             ],
           ),
-          // Markazdagi qizil marker (tanlanayotgan joy)
-          const Center(
-            child: Icon(Icons.location_on, size: 45, color: Colors.red),
-          ),
-          // Manzil ko'rsatgichi
-          Positioned(
-            bottom: 10.h + MediaQuery.of(context).padding.bottom,
-            left: 20.w,
-            right: 20.w,
-            child: Container(
-              padding: EdgeInsets.all(15.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: Text(
-                _address,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14.sp,
-                ),
-              ),
-            ),
-          ),
-          // Turgan joyga qaytish tugmasi
-          Positioned(
-            right: 20.w,
-            bottom: 80.h + MediaQuery.of(context).padding.bottom,
-            child: FloatingActionButton(
-              mini: true,
-              backgroundColor: Colors.white,
-              onPressed: _determinePosition,
-              child: const Icon(Icons.gps_fixed, color: Colors.blue),
-            ),
-          ),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
-        ],
-      ),
+        );
+      },
     );
   }
 }

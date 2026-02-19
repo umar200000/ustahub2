@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
+import 'package:ustahub/presentation/pages/profile/screens/info_detail_page.dart';
 import 'package:ustahub/presentation/pages/profile/screens/user_information_page.dart';
 import 'package:ustahub/presentation/pages/profile/widgets/custom_switch.dart';
 import 'package:ustahub/presentation/pages/profile/widgets/language_selector.dart';
@@ -22,7 +23,12 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool notificationsEnabled = true;
-  String selectedLanguage = 'English';
+
+  String _getLanguageName(Locale locale) {
+    if (locale.languageCode == 'ru') return 'Русский';
+    if (locale.languageCode == 'uz') return 'O\'zbekcha';
+    return 'English';
+  }
 
   void _showLogoutDialog(
     BuildContext context,
@@ -43,8 +49,8 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             Container(
               padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFEBEB),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFEBEB),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -130,9 +136,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Center(
                       child: Text(
                         'yes'.tr(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.black,
-                          fontSize: 16.sp,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -185,7 +191,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => UserInformationPage(),
+                                    builder: (context) =>
+                                        const UserInformationPage(),
                                   ),
                                 );
                               },
@@ -211,11 +218,12 @@ class _ProfilePageState extends State<ProfilePage> {
                             fonts: fonts,
                             colors: colors,
                             trailing: LanguageSelector(
-                              selectedLanguage: selectedLanguage,
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedLanguage = value;
-                                });
+                              selectedLanguage: _getLanguageName(
+                                context.locale,
+                              ),
+                              onChanged: (name, locale) {
+                                context.setLocale(locale);
+                                setState(() {});
                               },
                               fonts: fonts,
                               colors: colors,
@@ -251,7 +259,18 @@ class _ProfilePageState extends State<ProfilePage> {
                           SettingsMenuItem(
                             icon: Icons.info_outline,
                             title: 'about_ustahub'.tr(),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const InfoDetailPage(
+                                    titleKey: "about_ustahub",
+                                    contentKey: "about_content",
+                                    icon: Icons.info_outline,
+                                  ),
+                                ),
+                              );
+                            },
                             showTrailing: true,
                             fonts: fonts,
                             colors: colors,
@@ -260,7 +279,18 @@ class _ProfilePageState extends State<ProfilePage> {
                           SettingsMenuItem(
                             icon: Icons.description_outlined,
                             title: 'terms_and_conditions'.tr(),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const InfoDetailPage(
+                                    titleKey: "terms_and_conditions",
+                                    contentKey: "terms_content",
+                                    icon: Icons.description_outlined,
+                                  ),
+                                ),
+                              );
+                            },
                             showTrailing: true,
                             fonts: fonts,
                             colors: colors,
@@ -269,7 +299,18 @@ class _ProfilePageState extends State<ProfilePage> {
                           SettingsMenuItem(
                             icon: Icons.privacy_tip_outlined,
                             title: 'privacy_policy'.tr(),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const InfoDetailPage(
+                                    titleKey: "privacy_policy",
+                                    contentKey: "privacy_content",
+                                    icon: Icons.privacy_tip_outlined,
+                                  ),
+                                ),
+                              );
+                            },
                             showTrailing: true,
                             fonts: fonts,
                             colors: colors,
@@ -278,7 +319,18 @@ class _ProfilePageState extends State<ProfilePage> {
                           SettingsMenuItem(
                             icon: Icons.work_outline,
                             title: 'work_with_us'.tr(),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const InfoDetailPage(
+                                    titleKey: "work_with_us",
+                                    contentKey: "work_with_us_content",
+                                    icon: Icons.work_outline,
+                                  ),
+                                ),
+                              );
+                            },
                             showTrailing: true,
                             fonts: fonts,
                             colors: colors,
@@ -290,23 +342,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         fonts: fonts,
                         colors: colors,
                       ),
-
-                      /// later we use this widget
-                      // _SettingsCard(
-                      //   colors: colors,
-                      //   children: [
-                      //     SettingsMenuItem(
-                      //       icon: Icons.delete_outline,
-                      //       title: 'delete_account'.tr(),
-                      //       onTap: () {},
-                      //       showTrailing: true,
-                      //       fonts: fonts,
-                      //       colors: colors,
-                      //       iconColor: colors.red500,
-                      //       titleColor: colors.red500,
-                      //     ),
-                      //   ],
-                      // ),
                       Padding(
                         padding: EdgeInsets.all(16.w),
                         child: LogoutButton(
@@ -317,6 +352,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       56.h.verticalSpace,
+                      MediaQuery.of(context).padding.bottom.verticalSpace,
                     ],
                   ),
                 ),

@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:ustahub/application2/search_bloc_and_data/bloc/search_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
@@ -106,13 +108,11 @@ class _SearchPageState extends State<SearchPage> {
         autofocus: true,
         style: fonts.paragraphP2Regular.copyWith(color: colors.neutral800),
         decoration: InputDecoration(
-          hintText: "Search",
-          hintStyle: fonts.paragraphP2Regular.copyWith(color: colors.neutral600),
-          prefixIcon: Icon(
-            Icons.search,
+          hintText: "search".tr(),
+          hintStyle: fonts.paragraphP2Regular.copyWith(
             color: colors.neutral600,
-            size: 22.sp,
           ),
+          prefixIcon: Icon(Icons.search, color: colors.neutral600, size: 22.sp),
           suffixIcon: _searchController.text.isEmpty
               ? Icon(
                   Icons.mic_none_rounded,
@@ -150,93 +150,40 @@ class _SearchPageState extends State<SearchPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Illustration
+        // Lottie Animation
         SizedBox(
-          width: 180.w,
-          height: 120.h,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Background cards
-              Positioned(
-                top: 20.h,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 60.w,
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        color: colors.neutral200,
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Container(
-                      width: 60.w,
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        color: colors.neutral200,
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Magnifying glass
-              Positioned(
-                bottom: 0,
-                child: Container(
-                  width: 70.w,
-                  height: 70.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: colors.blue500,
-                      width: 4.w,
-                    ),
-                  ),
-                  child: Container(
-                    margin: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          colors.shade0,
-                          colors.yellow500.withValues(alpha: 0.3),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // Handle
-              Positioned(
-                bottom: 0,
-                right: 45.w,
-                child: Transform.rotate(
-                  angle: 0.7,
-                  child: Container(
-                    width: 6.w,
-                    height: 30.h,
-                    decoration: BoxDecoration(
-                      color: colors.blue500,
-                      borderRadius: BorderRadius.circular(3.r),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          width: 250.w,
+          height: 250.w,
+          child: Lottie.asset(
+            'assets/animations/search users.json',
+            delegates: LottieDelegates(
+              values: [
+                // Faqat borderlar (Stroke) va Search icon rangini primary500 qilish
+                ValueDelegate.color(const [
+                  '**',
+                  'Stroke 1',
+                  '**',
+                ], value: colors.primary500),
+                ValueDelegate.color(const [
+                  '**',
+                  'Search Icon',
+                  '**',
+                ], value: colors.primary500),
+                ValueDelegate.color(const [
+                  '**',
+                  'Border',
+                  '**',
+                ], value: colors.primary500),
+              ],
+            ),
           ),
         ),
 
-        SizedBox(height: 32.h),
+        SizedBox(height: 12.h),
 
         // Title
         Text(
-          "What are\nyou searching for?",
+          "what_are_you_searching".tr(),
           textAlign: TextAlign.center,
           style: fonts.paragraphP1Bold.copyWith(
             color: colors.neutral800,
@@ -251,7 +198,7 @@ class _SearchPageState extends State<SearchPage> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 40.w),
           child: Text(
-            "Search for your favorite thing or find similar results in this area.",
+            "search_hint".tr(),
             textAlign: TextAlign.center,
             style: fonts.paragraphP3Regular.copyWith(
               color: colors.neutral500,
@@ -311,11 +258,7 @@ class _SearchPageState extends State<SearchPage> {
                     color: Colors.grey[400],
                   ),
                   SizedBox(height: 8.h),
-                  Container(
-                    width: 60.w,
-                    height: 14.h,
-                    color: Colors.grey[400],
-                  ),
+                  Container(width: 60.w, height: 14.h, color: Colors.grey[400]),
                 ],
               ),
             ),
@@ -330,14 +273,10 @@ class _SearchPageState extends State<SearchPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 48.sp,
-            color: colors.red500,
-          ),
+          Icon(Icons.error_outline, size: 48.sp, color: colors.red500),
           SizedBox(height: 16.h),
           Text(
-            message ?? "Something went wrong",
+            message ?? "something_went_wrong".tr(),
             style: fonts.paragraphP2Regular.copyWith(color: colors.neutral600),
           ),
         ],
@@ -350,14 +289,10 @@ class _SearchPageState extends State<SearchPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search_off,
-            size: 48.sp,
-            color: colors.neutral400,
-          ),
+          Icon(Icons.search_off, size: 48.sp, color: colors.neutral400),
           SizedBox(height: 16.h),
           Text(
-            "No results found",
+            "no_results".tr(),
             style: fonts.paragraphP2Medium.copyWith(color: colors.neutral600),
           ),
         ],

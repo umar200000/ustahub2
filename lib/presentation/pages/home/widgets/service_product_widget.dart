@@ -5,6 +5,7 @@ import 'package:ustahub/presentation/components/animation_effect.dart';
 import 'package:ustahub/presentation/components/universal_image.dart';
 import 'package:ustahub/presentation/styles/style.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
+import 'package:ustahub/utils/extensions.dart';
 
 class ServiceProviderCard extends StatelessWidget {
   final String name;
@@ -94,41 +95,41 @@ class ServiceProviderCard extends StatelessWidget {
                         ],
                       ),
                       4.h.verticalSpace,
-                      Text(
-                        '$profession • ${distance.toStringAsFixed(1)} km',
-                        style: fonts.paragraphP2Regular.copyWith(
-                          color: colors.neutral500,
-                          fontFamily: GoogleFonts.balsamiqSans().fontFamily,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            profession,
+                            style: fonts.paragraphP2Regular.copyWith(
+                              color: colors.neutral500,
+                              fontFamily: GoogleFonts.balsamiqSans().fontFamily,
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Icons.star,
+                            size: 14.sp,
+                            color: colors.yellow500,
+                          ),
+                          4.w.horizontalSpace,
+                          Text(
+                            rating.toStringAsFixed(1),
+                            style: fonts.paragraphP2SemiBold,
+                          ),
+                          4.w.horizontalSpace,
+                          Text(
+                            '($reviewCount)',
+                            style: fonts.paragraphP3Regular.copyWith(
+                              color: colors.neutral400,
+                            ),
+                          ),
+                        ],
                       ),
-                      // 8.h.verticalSpace,
-                      // Row(
-                      //   children: [
-                      //     Icon(
-                      //       Icons.star,
-                      //       size: 16.sp,
-                      //       color: colors.yellow500,
-                      //     ),
-                      //     4.w.horizontalSpace,
-                      //     Text(
-                      //       rating.toStringAsFixed(1),
-                      //       style: fonts.paragraphP2SemiBold,
-                      //     ),
-                      //     4.w.horizontalSpace,
-                      //     Text(
-                      //       '($reviewCount)',
-                      //       style: fonts.paragraphP3Regular,
-                      //     ),
-                      //     12.w.horizontalSpace,
-                      //     Text(duration, style: fonts.paragraphP3Regular),
-                      //   ],
-                      // ),
                       12.h.verticalSpace,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'From ${priceFrom.toString()} UZS',
+                            'From ${priceFrom.formatNumber()} UZS',
                             style: fonts.paragraphP1SemiBold,
                           ),
                           Container(

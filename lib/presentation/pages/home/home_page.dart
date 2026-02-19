@@ -136,7 +136,11 @@ class _HomePageState extends State<HomePage> {
                                 ListView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  padding: EdgeInsets.only(bottom: 16.h),
+                                  padding: EdgeInsets.only(
+                                    bottom:
+                                        16.h +
+                                        MediaQuery.of(context).padding.bottom,
+                                  ),
                                   itemCount: services.length,
                                   itemBuilder: (context, index) {
                                     final service = services[index];

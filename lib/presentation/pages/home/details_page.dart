@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -73,7 +74,7 @@ class _DetailsPageState extends State<DetailsPage>
               if (state.status == Status2.error) {
                 return Center(
                   child: Text(
-                    state.errorMessage ?? "Xatolik yuz berdi",
+                    state.errorMessage ?? "something_went_wrong".tr(),
                     style: TextStyle(color: colors.red500),
                   ),
                 );
@@ -174,7 +175,7 @@ class _DetailsPageState extends State<DetailsPage>
 
   Widget _buildAppBar(CustomColorSet colors, FontSet fonts) {
     return UniversalAppBar(
-      title: "Details",
+      title: "details".tr(),
       centerTitle: true,
       showBackButton: true,
       backgroundColor: colors.primary500,
@@ -286,7 +287,7 @@ class _DetailsPageState extends State<DetailsPage>
                   borderRadius: BorderRadius.circular(4.r),
                   color: _currentImageIndex == index
                       ? colors.blue500
-                      : colors.neutral300,
+                      : Colors.grey.shade400,
                 ),
               ),
             ),
@@ -296,7 +297,10 @@ class _DetailsPageState extends State<DetailsPage>
   }
 
   Widget _buildProviderBadge(
-      dynamic data, CustomColorSet colors, FontSet fonts) {
+    dynamic data,
+    CustomColorSet colors,
+    FontSet fonts,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
@@ -320,17 +324,11 @@ class _DetailsPageState extends State<DetailsPage>
           ),
           Gap(8.w),
           Text(
-            data.provider?.name ?? "Unknown Provider",
-            style: fonts.paragraphP3Bold.copyWith(
-              color: colors.neutral700,
-            ),
+            data.provider?.name ?? "unknown_provider".tr(),
+            style: fonts.paragraphP3Bold.copyWith(color: colors.neutral700),
           ),
           Gap(4.w),
-          Icon(
-            Icons.verified,
-            size: 16.sp,
-            color: colors.blue500,
-          ),
+          Icon(Icons.verified, size: 16.sp, color: colors.blue500),
         ],
       ),
     );
@@ -350,24 +348,16 @@ class _DetailsPageState extends State<DetailsPage>
           Gap(4.w),
           Text(
             "1.2 km",
-            style: fonts.paragraphP3Regular.copyWith(
-              color: colors.neutral500,
-            ),
+            style: fonts.paragraphP3Regular.copyWith(color: colors.neutral500),
           ),
           Gap(16.w),
 
           // Rating
-          Icon(
-            Icons.star,
-            size: 16.sp,
-            color: colors.yellow500,
-          ),
+          Icon(Icons.star, size: 16.sp, color: colors.yellow500),
           Gap(4.w),
           Text(
             data.averageRating?.toString() ?? "5.0",
-            style: fonts.paragraphP3Bold.copyWith(
-              color: colors.neutral700,
-            ),
+            style: fonts.paragraphP3Bold.copyWith(color: colors.neutral700),
           ),
           Gap(16.w),
 
@@ -379,10 +369,8 @@ class _DetailsPageState extends State<DetailsPage>
           ),
           Gap(4.w),
           Text(
-            "${data.totalReviews ?? 0} reviews",
-            style: fonts.paragraphP3Regular.copyWith(
-              color: colors.neutral500,
-            ),
+            "${data.totalReviews ?? 0} ${"reviews".tr()}",
+            style: fonts.paragraphP3Regular.copyWith(color: colors.neutral500),
           ),
 
           const Spacer(),
@@ -390,19 +378,35 @@ class _DetailsPageState extends State<DetailsPage>
           // Share & Bookmark
           GestureDetector(
             onTap: () {},
-            child: Icon(
-              Icons.share_outlined,
-              size: 20.sp,
-              color: colors.neutral600,
+            child: Column(
+              children: [
+                Icon(
+                  Icons.share_outlined,
+                  size: 20.sp,
+                  color: colors.neutral600,
+                ),
+                Text(
+                  "share".tr(),
+                  style: fonts.paragraphP3Regular.copyWith(fontSize: 10.sp),
+                ),
+              ],
             ),
           ),
           Gap(16.w),
           GestureDetector(
             onTap: () {},
-            child: Icon(
-              Icons.bookmark_border,
-              size: 20.sp,
-              color: colors.neutral600,
+            child: Column(
+              children: [
+                Icon(
+                  Icons.bookmark_border,
+                  size: 20.sp,
+                  color: colors.neutral600,
+                ),
+                Text(
+                  "bookmark".tr(),
+                  style: fonts.paragraphP3Regular.copyWith(fontSize: 10.sp),
+                ),
+              ],
             ),
           ),
         ],
@@ -430,11 +434,11 @@ class _DetailsPageState extends State<DetailsPage>
         labelStyle: fonts.paragraphP3Bold,
         unselectedLabelStyle: fonts.paragraphP3Regular,
         padding: EdgeInsets.all(4.w),
-        tabs: const [
-          Tab(text: "About"),
-          Tab(text: "Gallery"),
-          Tab(text: "Review"),
-          Tab(text: "Services"),
+        tabs: [
+          Tab(text: "about".tr()),
+          Tab(text: "gallery".tr()),
+          Tab(text: "review".tr()),
+          Tab(text: "services".tr()),
         ],
       ),
     );
@@ -491,10 +495,8 @@ class _DetailsPageState extends State<DetailsPage>
             child: Padding(
               padding: EdgeInsets.only(top: 8.h),
               child: Text(
-                _isDescriptionExpanded ? "Show Less" : "Read More",
-                style: fonts.paragraphP3Bold.copyWith(
-                  color: colors.blue500,
-                ),
+                _isDescriptionExpanded ? "show_less".tr() : "read_more".tr(),
+                style: fonts.paragraphP3Bold.copyWith(color: colors.blue500),
               ),
             ),
           ),
@@ -508,9 +510,8 @@ class _DetailsPageState extends State<DetailsPage>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CompanyDetailsPage(
-                    providerId: data.providerId!,
-                  ),
+                  builder: (context) =>
+                      CompanyDetailsPage(providerId: data.providerId!),
                 ),
               );
             }
@@ -590,11 +591,7 @@ class _DetailsPageState extends State<DetailsPage>
                       color: colors.blue500,
                       borderRadius: BorderRadius.circular(10.r),
                     ),
-                    child: Icon(
-                      Icons.phone,
-                      size: 20.sp,
-                      color: colors.shade0,
-                    ),
+                    child: Icon(Icons.phone, size: 20.sp, color: colors.shade0),
                   ),
                 ),
               ],
@@ -613,10 +610,7 @@ class _DetailsPageState extends State<DetailsPage>
           padding: EdgeInsets.all(40.w),
           child: Text(
             "No images available",
-            style: TextStyle(
-              color: colors.neutral500,
-              fontSize: 14.sp,
-            ),
+            style: TextStyle(color: colors.neutral500, fontSize: 14.sp),
           ),
         ),
       );
@@ -672,10 +666,7 @@ class _DetailsPageState extends State<DetailsPage>
               Gap(12.h),
               Text(
                 "No reviews yet",
-                style: TextStyle(
-                  color: colors.neutral500,
-                  fontSize: 14.sp,
-                ),
+                style: TextStyle(color: colors.neutral500, fontSize: 14.sp),
               ),
             ],
           ),
@@ -738,8 +729,9 @@ class _DetailsPageState extends State<DetailsPage>
           return const Center(child: CircularProgressIndicator());
         }
 
-        final filteredItems =
-            catState.items.where((item) => item.id != data.id).toList();
+        final filteredItems = catState.items
+            .where((item) => item.id != data.id)
+            .toList();
 
         if (filteredItems.isEmpty) {
           return Center(
@@ -747,10 +739,7 @@ class _DetailsPageState extends State<DetailsPage>
               padding: EdgeInsets.all(40.w),
               child: Text(
                 "No similar services",
-                style: TextStyle(
-                  color: colors.neutral500,
-                  fontSize: 14.sp,
-                ),
+                style: TextStyle(color: colors.neutral500, fontSize: 14.sp),
               ),
             ),
           );
@@ -839,7 +828,11 @@ class _DetailsPageState extends State<DetailsPage>
     );
   }
 
-  Widget _buildBottomButton(dynamic data, CustomColorSet colors, FontSet fonts) {
+  Widget _buildBottomButton(
+    dynamic data,
+    CustomColorSet colors,
+    FontSet fonts,
+  ) {
     return Container(
       padding: EdgeInsets.only(
         left: 20.w,
@@ -874,9 +867,8 @@ class _DetailsPageState extends State<DetailsPage>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AuthOptions(
-                    showGuestOption: false,
-                  ),
+                  builder: (context) =>
+                      const AuthOptions(showGuestOption: false),
                 ),
               );
             }
@@ -891,10 +883,8 @@ class _DetailsPageState extends State<DetailsPage>
             elevation: 0,
           ),
           child: Text(
-            "Book Service Now",
-            style: fonts.paragraphP2Bold.copyWith(
-              color: colors.shade0,
-            ),
+            "book_now".tr(),
+            style: fonts.paragraphP2Bold.copyWith(color: colors.shade0),
           ),
         ),
       ),
@@ -984,11 +974,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                   color: Colors.black.withValues(alpha: 0.5),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 24),
               ),
             ),
           ),

@@ -1,10 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/booking_page/pages/booking_success_page.dart';
@@ -52,7 +52,7 @@ class _BookingPageState extends State<BookingPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Sana tanlang",
+                    "select_date".tr(),
                     style: GoogleFonts.poppins(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
@@ -63,7 +63,7 @@ class _BookingPageState extends State<BookingPage> {
                   CupertinoButton(
                     padding: EdgeInsets.zero,
                     child: Text(
-                      'Tayyor',
+                      'ready'.tr(),
                       style: GoogleFonts.poppins(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
@@ -119,7 +119,7 @@ class _BookingPageState extends State<BookingPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Vaqt tanlang",
+                    "select_time".tr(),
                     style: GoogleFonts.poppins(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
@@ -130,7 +130,7 @@ class _BookingPageState extends State<BookingPage> {
                   CupertinoButton(
                     padding: EdgeInsets.zero,
                     child: Text(
-                      'Tayyor',
+                      'ready'.tr(),
                       style: GoogleFonts.poppins(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.bold,
@@ -168,11 +168,9 @@ class _BookingPageState extends State<BookingPage> {
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return BlocListener<BookingBloc, BookingState>(
-          // Faqat status o'zgargandagina tinglaymiz
           listenWhen: (previous, current) => previous.status != current.status,
           listener: (context, state) {
             if (state.status == Status2.success) {
-              // Buyurtma muvaffaqiyatli bo'lganda ro'yxatni yangilab qo'yamiz
               context.read<BookingBloc>().add(
                 const GetBookingsListEvent(isRefresh: true),
               );
@@ -186,7 +184,9 @@ class _BookingPageState extends State<BookingPage> {
             } else if (state.status == Status2.error) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(state.errorMessage ?? "Xatolik yuz berdi"),
+                  content: Text(
+                    state.errorMessage ?? "something_went_wrong".tr(),
+                  ),
                   backgroundColor: colors.red500,
                 ),
               );
@@ -195,7 +195,7 @@ class _BookingPageState extends State<BookingPage> {
           child: Scaffold(
             appBar: AppBar(
               title: Text(
-                "Bron qilish",
+                "booking".tr(),
                 style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
               ),
               centerTitle: true,
@@ -205,7 +205,6 @@ class _BookingPageState extends State<BookingPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Service Info Card
                   Container(
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
@@ -258,9 +257,8 @@ class _BookingPageState extends State<BookingPage> {
                   ),
                   Gap(24.h),
 
-                  // Date Selection
                   Text(
-                    "Sanani tanlang",
+                    "select_date".tr(),
                     style: GoogleFonts.poppins(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
@@ -284,7 +282,7 @@ class _BookingPageState extends State<BookingPage> {
                           Gap(12.w),
                           Text(
                             selectedDate == null
-                                ? "Sana tanlanmagan"
+                                ? "date_not_selected".tr()
                                 : DateFormat(
                                     'yyyy-MM-dd',
                                   ).format(selectedDate!),
@@ -296,9 +294,8 @@ class _BookingPageState extends State<BookingPage> {
                   ),
                   Gap(20.h),
 
-                  // Time Selection
                   Text(
-                    "Vaqtni tanlang",
+                    "select_time".tr(),
                     style: GoogleFonts.poppins(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
@@ -322,7 +319,7 @@ class _BookingPageState extends State<BookingPage> {
                           Gap(12.w),
                           Text(
                             selectedTime == null
-                                ? "Vaqt tanlanmagan"
+                                ? "time_not_selected".tr()
                                 : selectedTime!.format(context),
                             style: GoogleFonts.poppins(fontSize: 14.sp),
                           ),
@@ -332,9 +329,8 @@ class _BookingPageState extends State<BookingPage> {
                   ),
                   Gap(20.h),
 
-                  // Map/Address Selection
                   Text(
-                    "Manzilni tanlang",
+                    "select_address".tr(),
                     style: GoogleFonts.poppins(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
@@ -360,7 +356,7 @@ class _BookingPageState extends State<BookingPage> {
                       }
                     },
                     decoration: InputDecoration(
-                      hintText: "Xaritadan tanlash uchun bosing",
+                      hintText: "tap_to_select_from_map".tr(),
                       hintStyle: GoogleFonts.poppins(
                         fontSize: 14.sp,
                         color: Colors.grey,
@@ -381,9 +377,8 @@ class _BookingPageState extends State<BookingPage> {
                   ),
                   Gap(20.h),
 
-                  // Comment Field
                   Text(
-                    "Izoh qoldiring",
+                    "leave_a_comment".tr(),
                     style: GoogleFonts.poppins(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
@@ -394,7 +389,7 @@ class _BookingPageState extends State<BookingPage> {
                     controller: _commentController,
                     maxLines: 3,
                     decoration: InputDecoration(
-                      hintText: "Xizmat haqida qo'shimcha ma'lumot...",
+                      hintText: "additional_info_hint".tr(),
                       hintStyle: GoogleFonts.poppins(
                         fontSize: 14.sp,
                         color: Colors.grey,
@@ -411,7 +406,6 @@ class _BookingPageState extends State<BookingPage> {
                   ),
                   Gap(40.h),
 
-                  // Confirm Button
                   BlocBuilder<BookingBloc, BookingState>(
                     builder: (context, state) {
                       return SizedBox(
@@ -425,10 +419,8 @@ class _BookingPageState extends State<BookingPage> {
                                       selectedTime == null ||
                                       _addressController.text.isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          "Barcha maydonlarni to'ldiring",
-                                        ),
+                                      SnackBar(
+                                        content: Text("fill_all_fields".tr()),
                                       ),
                                     );
                                     return;
@@ -465,7 +457,7 @@ class _BookingPageState extends State<BookingPage> {
                                   color: Colors.white,
                                 )
                               : Text(
-                                  "Tasdiqlash",
+                                  "confirm".tr(),
                                   style: GoogleFonts.poppins(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,

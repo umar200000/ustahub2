@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
+import 'package:ustahub/presentation/pages/notification_page/notification_page.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 import '../../../components/animation_effect.dart';
-import '../../search/search_page.dart';
+import '../../../styles/theme.dart';
 
 class HomeAppBar extends StatelessWidget {
   const HomeAppBar({super.key});
@@ -107,12 +108,7 @@ class HomeAppBar extends StatelessWidget {
                     children: [
                       AnimationButtonEffect(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SearchPage(),
-                            ),
-                          );
+                          context.read<BottomNavBarController>().changeIndex(1);
                         },
                         child: Container(
                           width: 44.w,
@@ -133,7 +129,12 @@ class HomeAppBar extends StatelessWidget {
                       SizedBox(width: 8.w),
                       AnimationButtonEffect(
                         onTap: () {
-                          // TODO: Navigate to notifications
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const NotificationPage(),
+                            ),
+                          );
                         },
                         child: Container(
                           width: 44.w,

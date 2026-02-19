@@ -99,9 +99,8 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => BannerDetailsPage(
-                                    bannerId: banner.id!,
-                                  ),
+                                  builder: (context) =>
+                                      BannerDetailsPage(bannerId: banner.id!),
                                 ),
                               );
                             }
@@ -206,7 +205,9 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                         borderRadius: BorderRadius.circular(4.r),
                         color: _currentPage == index
                             ? colors.blue500
-                            : colors.neutral300,
+                            : Colors
+                                  .grey
+                                  .shade400, // O'zgartirildi: neutral300 -> neutral400
                       ),
                     ),
                   ),

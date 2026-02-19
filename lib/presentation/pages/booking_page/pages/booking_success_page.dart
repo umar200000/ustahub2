@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -35,7 +36,7 @@ class BookingSuccessPage extends StatelessWidget {
                   Gap(32.h),
                   // Success Message
                   Text(
-                    "Muvaffaqiyatli!",
+                    "success".tr(),
                     style: GoogleFonts.poppins(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
@@ -44,7 +45,7 @@ class BookingSuccessPage extends StatelessWidget {
                   ),
                   Gap(12.h),
                   Text(
-                    "Sizning buyurtmangiz muvaffaqiyatli qabul qilindi. Tez orada mutaxassislarimiz siz bilan bog'lanishadi.",
+                    "booking_success_msg".tr(),
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 16.sp,
@@ -75,7 +76,7 @@ class BookingSuccessPage extends StatelessWidget {
                         elevation: 0,
                       ),
                       child: Text(
-                        "Buyurtmalarni ko'rish",
+                        "view_orders".tr(),
                         style: GoogleFonts.poppins(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
