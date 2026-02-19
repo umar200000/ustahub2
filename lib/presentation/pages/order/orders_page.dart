@@ -42,7 +42,7 @@ class _OrdersPageState extends State<OrdersPage> {
                       title: "order_details".tr(),
                       centerTitle: true,
                       showBackButton: true,
-                      backgroundColor: const Color(0xFF1A1A1A),
+                      backgroundColor: colors.primary500,
                     ),
                     const Expanded(
                       child: Center(
@@ -62,7 +62,7 @@ class _OrdersPageState extends State<OrdersPage> {
                       title: "order_details".tr(),
                       centerTitle: true,
                       showBackButton: true,
-                      backgroundColor: const Color(0xFF1A1A1A),
+                      backgroundColor: colors.primary500,
                     ),
                     Expanded(
                       child: Center(
@@ -82,7 +82,7 @@ class _OrdersPageState extends State<OrdersPage> {
                     title: "order_details".tr(),
                     centerTitle: true,
                     showBackButton: true,
-                    backgroundColor: const Color(0xFF1A1A1A),
+                    backgroundColor: colors.primary500,
                   ),
                   Expanded(
                     child: SingleChildScrollView(

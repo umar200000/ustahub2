@@ -40,7 +40,7 @@ class _BannerDetailsPageState extends State<BannerDetailsPage> {
                     title: data?.title ?? "banner_details".tr(),
                     centerTitle: true,
                     showBackButton: true,
-                    backgroundColor: const Color(0xFF1A1A1A),
+                    // backgroundColor: const Color(0xFF1A1A1A),
                   ),
                   Expanded(
                     child: Builder(

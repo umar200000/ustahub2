@@ -156,7 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
           body: Column(
             children: [
               UniversalAppBar(
-                backgroundColor: const Color(0xFF1A1A1A),
+                backgroundColor: colors.primary500,
                 showBackButton: false,
                 showShadow: false,
                 padding: EdgeInsets.symmetric(horizontal: 16.w),

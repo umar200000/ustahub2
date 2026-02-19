@@ -1,16 +1,46 @@
 import 'package:dio/dio.dart';
 
 import '../../../../infrastructure2/init/injection.dart';
+import '../mock/booking_mock_data.dart';
 
 class BookingRepo {
   final _dio = sl<Dio>();
 
   Future<Response> getBookingDetails({required String id}) async {
+    // Use mock data
+    if (BookingMockData.useMockData) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      return Response(
+        requestOptions: RequestOptions(path: ''),
+        statusCode: 200,
+        data: BookingMockData.getMockBookingDetails(id),
+      );
+    }
+
     final response = await _dio.get("api/v1/client/bookings/my/$id/");
     return response;
   }
 
   Future<Response> getBookingsList({int limit = 20, int skip = 0}) async {
+    // Use mock data
+    if (BookingMockData.useMockData) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      final mockData = BookingMockData.getMockBookingsList();
+
+      // Simulate pagination
+      final allItems = mockData['data'] as List;
+      final paginatedItems = allItems.skip(skip).take(limit).toList();
+
+      return Response(
+        requestOptions: RequestOptions(path: ''),
+        statusCode: 200,
+        data: {
+          ...mockData,
+          'data': paginatedItems,
+        },
+      );
+    }
+
     final response = await _dio.get(
       "api/v1/client/bookings/my/",
       queryParameters: {"limit": limit, "skip": skip},

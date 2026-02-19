@@ -86,7 +86,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
                     title: "orders".tr(),
                     centerTitle: true,
                     showBackButton: false,
-                    backgroundColor: const Color(0xFF1A1A1A),
+                    backgroundColor: colors.primary500,
                     showShadow: true,
                     bottom: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -103,7 +103,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
                           (MediaQuery.of(context).size.width - 38.w) / 2,
                           48.h,
                         ),
-                        backgroundColor: colors.neutral200,
+                        backgroundColor: colors.neutral300,
                         indicatorColor: colors.shade0,
                         elevation: true,
                         iconList: [

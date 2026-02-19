@@ -46,9 +46,9 @@ Dio createDio() {
     ])
     ..options = BaseOptions(
       baseUrl: baseUrl, 
-      connectTimeout: const Duration(minutes: 1), 
-      receiveTimeout: const Duration(seconds: 40), 
-      sendTimeout: const Duration(seconds: 30), 
+      connectTimeout: const Duration(seconds: 1),
+      receiveTimeout: const Duration(seconds: 1),
+      sendTimeout: const Duration(seconds: 1),
       // 400+ statuslar endi Exception (onError) deb hisoblanadi
       validateStatus: (status) => status != null && status < 400,
 

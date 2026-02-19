@@ -85,7 +85,7 @@ class UniversalAppBar extends StatelessWidget {
           height: height,
           margin: margin,
           decoration: BoxDecoration(
-            color: backgroundColor ?? Colors.black,
+            color: backgroundColor ?? colors.primary500,
             borderRadius: showBorderRadius
                 ? BorderRadius.only(
                     bottomLeft: Radius.circular(borderRadius ?? 24.r),
@@ -114,25 +114,38 @@ class UniversalAppBar extends StatelessWidget {
               // Main AppBar Content
               Padding(
                 padding: padding ?? EdgeInsets.symmetric(horizontal: 16.w),
-                child: Row(
-                  mainAxisAlignment:
-                      mainAxisAlignment ?? MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment:
-                      crossAxisAlignment ?? CrossAxisAlignment.center,
+                child: Stack(
                   children: [
-                    // Leading Section
-                    if (showBackButton || leading != null)
-                      _buildLeading(context),
-
-                    if ((showBackButton || leading != null) &&
-                        (title != null || titleWidget != null))
-                      SizedBox(width: horizontalSpacing.w),
                     if (title != null || titleWidget != null)
-                      Expanded(child: _buildTitle(fonts, colors)),
-                    if (trailing != null || actions != null)
-                      SizedBox(width: horizontalSpacing.w),
+                      Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Column(
+                            children: [
+                              SizedBox(height: horizontalSpacing.h),
 
-                    if (trailing != null || actions != null) _buildTrailing(),
+                              Center(child: _buildTitle(fonts, colors)),
+                            ],
+                          )),
+
+                    Row(
+                      mainAxisAlignment:
+                          mainAxisAlignment ?? MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment:
+                          crossAxisAlignment ?? CrossAxisAlignment.center,
+                      children: [
+                        // Leading Section
+                        if (showBackButton || leading != null)
+                          _buildLeading(context),
+
+                        if ((showBackButton || leading != null) &&
+                            (title != null || titleWidget != null))
+                          SizedBox(width: horizontalSpacing.w),
+                        if (trailing != null || actions != null)
+                          SizedBox(width: horizontalSpacing.w),
+
+                        if (trailing != null || actions != null) _buildTrailing(),
+                      ],
+                    ),
                   ],
                 ),
               ),
