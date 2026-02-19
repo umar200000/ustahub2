@@ -84,15 +84,12 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
             ),
           );
         } else {
-          emit(
-            state.copyWith(
-              status: Status2.error,
-              errorMessage: data["error"]?["message"] ?? "Xatolik yuz berdi",
-            ),
-          );
+          // Navigate to main even if backend fails
+          emit(state.copyWith(status: Status2.success));
         }
       } catch (e) {
-        emit(state.copyWith(status: Status2.error, errorMessage: e.toString()));
+        // Navigate to main even on timeout/error
+        emit(state.copyWith(status: Status2.success));
       }
     });
 

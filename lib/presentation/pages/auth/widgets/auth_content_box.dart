@@ -56,7 +56,7 @@ class _AuthContentBoxState extends State<AuthContentBox> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               decoration: BoxDecoration(
-                color: colors.darkMode800,
+                color: colors.shade0,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
@@ -70,21 +70,21 @@ class _AuthContentBoxState extends State<AuthContentBox> {
                     textAlign: TextAlign.center,
                     'login_or_create_account'.tr(),
                     style: fonts.subheadingRegular.copyWith(
-                      color: colors.shade0,
+                      color: colors.shade100,
                       fontSize: 24.sp,
                       height: 1.2,
                     ),
                   ),
                   SizedBox(height: 24.h),
                   AuthButton(
-                    color: colors.shade0,
+                    color: colors.shade100,
                     icon: Icons.apple,
                     onTap: () {},
-                    textColor: colors.shade100,
+                    textColor: colors.shade0,
                     title: "continue_with_apple".tr(),
                   ),
                   AuthButton(
-                    color: colors.blue500,
+                    color: colors.primary500,
                     icon: Icons.g_mobiledata,
                     onTap: () {},
                     textColor: colors.shade0,
@@ -98,38 +98,30 @@ class _AuthContentBoxState extends State<AuthContentBox> {
                     title: "continue_with_facebook".tr(),
                   ),
                   AuthButton(
-                    color: colors.darkMode700,
+                    color: colors.neutral100,
                     icon: Icons.phone_android,
                     onTap: () {
                       showEnterNumber(context);
                     },
-                    textColor: colors.blue500,
+                    textColor: colors.primary500,
                     title: "continue_with_phone".tr(),
                   ),
-                  if (state.status != Status2.loading && widget.showGuestOption)
+                  if (widget.showGuestOption)
                     GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onTap: () {
+                        // Fire event in background, navigate immediately
                         registerBloc.add(VisiteGuestEvent());
+                        Navigator.of(context, rootNavigator: true)
+                            .pushAndRemoveUntil(AppRoutes.main(), (route) => false);
                       },
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.h),
                         child: Text(
                           "continue_as_guest".tr(),
                           style: fonts.paragraphP3SemiBold.copyWith(
-                            color: colors.blue500,
+                            color: colors.primary500,
                           ),
-                        ),
-                      ),
-                    ),
-                  if (state.status == Status2.loading)
-                    Center(
-                      child: SizedBox(
-                        width: 24.r,
-                        height: 24.r,
-                        child: CircularProgressIndicator(
-                          color: colors.shade0,
-                          strokeWidth: 2,
                         ),
                       ),
                     ),

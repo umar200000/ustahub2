@@ -67,7 +67,7 @@ class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
                   MediaQuery.of(context).padding.bottom,
             ),
             decoration: BoxDecoration(
-              color: colors.darkMode800,
+              color: colors.shade0,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
                 topRight: Radius.circular(24),
@@ -80,7 +80,7 @@ class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
                   width: 40.w,
                   height: 4.h,
                   decoration: BoxDecoration(
-                    color: colors.shade0.withOpacity(0.2),
+                    color: colors.neutral300,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -88,16 +88,16 @@ class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
                 Text(
                   'enter_phone_number'.tr(),
                   style: fonts.subheadingRegular.copyWith(
-                    color: colors.shade0,
+                    color: colors.shade100,
                     fontSize: 22.sp,
                   ),
                 ),
                 24.h.verticalSpace,
                 Container(
                   decoration: BoxDecoration(
-                    color: colors.darkMode700,
+                    color: colors.neutral100,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: colors.shade0.withOpacity(0.1)),
+                    border: Border.all(color: colors.neutral200),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Row(
@@ -105,7 +105,7 @@ class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
                       Text(
                         "+998 ",
                         style: fonts.paragraphP2SemiBold.copyWith(
-                          color: colors.shade0,
+                          color: colors.shade100,
                           fontSize: 18.sp,
                         ),
                       ),
@@ -116,13 +116,13 @@ class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
                           keyboardType: TextInputType.phone,
                           inputFormatters: [UzPhoneFormatter()],
                           style: fonts.paragraphP2SemiBold.copyWith(
-                            color: colors.shade0,
+                            color: colors.shade100,
                             fontSize: 18.sp,
                           ),
                           decoration: InputDecoration(
                             hintText: "(_ _) _ _ _  _ _  _ _",
                             hintStyle: fonts.paragraphP2SemiBold.copyWith(
-                              color: colors.shade0.withOpacity(0.3),
+                              color: colors.neutral500,
                             ),
                             border: InputBorder.none,
                           ),
@@ -136,7 +136,7 @@ class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
                   builder: (context, state) {
                     final isLoading = state.phoneStatus == Status2.loading;
                     return AuthButton(
-                      color: colors.blue500,
+                      color: colors.primary500,
                       onTap: isLoading
                           ? () {}
                           : () {

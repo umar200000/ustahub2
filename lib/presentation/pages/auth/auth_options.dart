@@ -96,7 +96,7 @@ class _AuthOptionsState extends State<AuthOptions> {
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
           resizeToAvoidBottomInset: true,
-          backgroundColor: colors.shade100,
+          backgroundColor: colors.shade0,
           body: Stack(
             children: [
               Positioned.fill(
@@ -112,9 +112,9 @@ class _AuthOptionsState extends State<AuthOptions> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        colors.shade100.withOpacity(0.3),
-                        colors.shade100.withOpacity(0.7),
-                        colors.shade100.withOpacity(0.95),
+                        colors.shade0.withValues(alpha: 0.3),
+                        colors.shade0.withValues(alpha: 0.7),
+                        colors.shade0.withValues(alpha: 0.95),
                       ],
                       stops: const [0.0, 0.5, 0.8],
                     ),
