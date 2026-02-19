@@ -84,5 +84,15 @@
     "start": "Get Started",
     "have_account": "Already have an account?",
     "sign_in": "Sign In"
-  }
+  },
+  "essential_services_title": "Essential services delivered instantly to you.",
+  "essential_services_subtitle": "All the services you need, delivered fast and easy — right from your phone, anytime, anywhere, with just a few taps.",
+  "find_trusted_professionals": "Find Trusted Professionals",
+  "connect_with_verified_experts": "Connect with verified experts for all your home service needs. Quality work, guaranteed satisfaction.",
+  "book_services_easily": "Book Services Easily",
+  "schedule_appointments_conveniently": "Schedule appointments at your convenience. Fast, simple, and hassle-free booking.",
+  "quality_guaranteed": "Quality Guaranteed",
+  "satisfaction_assured_every_time": "Every service comes with our satisfaction guarantee. Your peace of mind is our priority.",
+  "lets_get_started": "Let's Get Started",
+  "already_have_an_account": "Already have an account"
 }
