@@ -1,7 +1,6 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:ustahub/presentation/components/custom_bottom_nav_bar.dart';
 import 'package:ustahub/presentation/pages/home/home_page.dart';
 import 'package:ustahub/presentation/pages/order/main_order_page.dart';
 import 'package:ustahub/presentation/pages/profile/profile_page.dart';
@@ -20,18 +19,12 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin {
-  final _navigationKey = GlobalKey<CurvedNavigationBarState>();
-
   static const _pages = [
     HomePage(),
     SearchPage(),
     MainOrderPage(),
     ProfilePage(),
   ];
-
-  static const _navBarHeight = 60.0;
-  static const _iconSize = 18.0;
-  static const _animationDuration = Duration(milliseconds: 300);
 
   @override
   void initState() {
@@ -64,71 +57,34 @@ class _MainPageState extends State<MainPage>
       builder: (ctx, colors, fonts, icons, controller) {
         return Consumer<BottomNavBarController>(
           builder: (context, navBarController, _) {
-            // Controllerdagi indeks o'zgarganda NavBar ham siljishi uchun
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _navigationKey.currentState?.setPage(
-                navBarController.currentIndex,
-              );
-            });
-
             return Scaffold(
               resizeToAvoidBottomInset: false,
               backgroundColor: colors.shade0,
-              body: SafeArea(
-                top: false,
-                child: Stack(
-                  children: [
-                    IndexedStack(
-                      index: navBarController.currentIndex,
-                      children: _pages,
-                    ),
-                    if (!navBarController.hiddenNavBar)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: CurvedNavigationBar(
-                          key: _navigationKey,
-                          index: navBarController.currentIndex,
-                          backgroundColor: Colors.transparent,
-                          color: colors.shade0,
-                          buttonBackgroundColor: colors.blue500,
-                          height: _navBarHeight.h,
-                          animationDuration: _animationDuration,
-                          animationCurve: Curves.easeInOut,
-                          items: _buildNavItems(
-                            colors,
-                            navBarController.currentIndex,
-                          ),
-                          onTap: _onTabSelected,
-                        ),
+              body: Stack(
+                children: [
+                  IndexedStack(
+                    index: navBarController.currentIndex,
+                    children: _pages,
+                  ),
+                  if (!navBarController.hiddenNavBar)
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: CustomBottomNavBar(
+                        currentIndex: navBarController.currentIndex,
+                        onTap: _onTabSelected,
+                        backgroundColor: colors.shade0,
+                        activeColor: colors.blue500,
+                        inactiveColor: colors.neutral500,
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             );
           },
         );
       },
-    );
-  }
-
-  List<Widget> _buildNavItems(dynamic colors, int currentIndex) {
-    final iconPaths = [
-      'assets/images/world.png',
-      'assets/images/search.png',
-      'assets/images/order.png',
-      'assets/images/user.png',
-    ];
-
-    return List.generate(
-      iconPaths.length,
-      (index) => Image.asset(
-        iconPaths[index],
-        width: _iconSize.w,
-        height: _iconSize.h,
-        color: index == currentIndex ? colors.shade0 : colors.neutral600,
-      ),
     );
   }
 

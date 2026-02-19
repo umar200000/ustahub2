@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/banner_details_page/pages/banner_details_page.dart';
+import 'package:ustahub/presentation/pages/home/widgets/home_shimmer_widgets.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 class BannerCarouselWidget extends StatefulWidget {
@@ -23,7 +24,7 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
   @override
   void initState() {
     super.initState();
-    context.read<BannerBloc>().add(GetBannersEvent());
+    // Event is dispatched from HomePage, no need to dispatch here
   }
 
   void _startTimer(int count) {
@@ -65,16 +66,12 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
             }
           },
           builder: (context, state) {
-            if (state.status == Status2.loading) {
-              return SizedBox(
-                height: 210.h,
-                child: Center(
-                  child: CircularProgressIndicator(color: colors.blue500),
-                ),
-              );
-            }
-
             final banners = state.bannerModel?.data ?? [];
+
+            // Only show shimmer if we don't have data yet
+            if (state.status == Status2.loading && banners.isEmpty) {
+              return const BannerShimmer();
+            }
 
             if (banners.isEmpty) {
               return const SizedBox.shrink();
@@ -83,7 +80,7 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
             return Column(
               children: [
                 SizedBox(
-                  height: 210.h,
+                  height: 160.h,
                   child: PageView.builder(
                     controller: _pageController,
                     onPageChanged: (int page) {
@@ -109,91 +106,104 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                               );
                             }
                           },
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(16.r),
-                                child: Image.network(
-                                  banner.imageUrl ?? "",
-                                  width: double.infinity,
-                                  height: double.infinity,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16.r),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // Full image
+                                Image.network(
+                                  banner.imageUrl ?? '',
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      decoration: BoxDecoration(
-                                        color: colors.neutral200,
-                                        borderRadius: BorderRadius.circular(
-                                          16.r,
+                                      color: colors.neutral200,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.image_not_supported_outlined,
+                                          size: 48.sp,
+                                          color: colors.neutral400,
                                         ),
-                                      ),
-                                      child: const Icon(
-                                        Icons.image_not_supported,
                                       ),
                                     );
                                   },
                                 ),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16.r),
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.transparent,
-                                      Colors.black.withOpacity(0.6),
+                                // Gradient overlay for text readability
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: Container(
+                                    height: 80.h,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.transparent,
+                                          Colors.black.withValues(alpha: 0.7),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Title and subtitle at bottom
+                                Positioned(
+                                  bottom: 12.h,
+                                  left: 16.w,
+                                  right: 16.w,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (banner.title != null &&
+                                          banner.title!.isNotEmpty)
+                                        Text(
+                                          banner.title!,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      if (banner.subtitle != null &&
+                                          banner.subtitle!.isNotEmpty)
+                                        Text(
+                                          banner.subtitle!,
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12.sp,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                     ],
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.all(20.w),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (banner.title != null &&
-                                        banner.title!.isNotEmpty)
-                                      Text(
-                                        banner.title!,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18.sp,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    if (banner.subtitle != null &&
-                                        banner.subtitle!.isNotEmpty)
-                                      Text(
-                                        banner.subtitle!,
-                                        style: TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 14.sp,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );
                     },
                   ),
                 ),
-                8.h.verticalSpace,
+                SizedBox(height: 12.h),
+                // Page indicators
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
                     banners.length,
-                    (index) => Container(
-                      width: 8.w,
+                    (index) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: _currentPage == index ? 24.w : 8.w,
                       height: 8.w,
-                      margin: EdgeInsets.symmetric(horizontal: 4.w),
+                      margin: EdgeInsets.symmetric(horizontal: 3.w),
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(4.r),
                         color: _currentPage == index
                             ? colors.blue500
                             : colors.neutral300,

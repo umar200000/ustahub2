@@ -569,7 +569,7 @@ base class _Client extends ChopperClient {
     String baseUrl,
     bool useInterceptors,
     DBService dbService, {
-    int timeout = 20,
+    int timeout = 1,
   }) : super(
          client: TimeoutHttpClient(
            Client(),

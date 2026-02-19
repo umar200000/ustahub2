@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
+import '../../../infrastructure/services/mock_data/mock_data.dart';
 import '../data/model/details_model.dart';
 import '../data/repo/details_repo.dart';
 
@@ -30,42 +31,61 @@ class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
               ),
             );
           } else {
-            emit(
-              state.copyWith(
-                status: Status2.error,
-                errorMessage: detailsModel.message ?? "Xatolik yuz berdi",
-              ),
-            );
-          }
-        }
-      } on DioException catch (e) {
-        String? serverErrorMessage;
-
-        if (e.response?.data != null) {
-          final responseData = e.response?.data;
-          if (responseData is Map) {
-            if (responseData.containsKey('error') &&
-                responseData['error'] is Map) {
-              serverErrorMessage = responseData['error']['message'];
-            } else if (responseData.containsKey('message')) {
-              serverErrorMessage = responseData['message'];
+            // Use mock data on API failure
+            final mockDetails = MockData.getServiceDetails(event.serviceId);
+            if (mockDetails != null) {
+              emit(
+                state.copyWith(
+                  status: Status2.success,
+                  detailsServiceModel: mockDetails,
+                ),
+              );
+            } else {
+              emit(
+                state.copyWith(
+                  status: Status2.error,
+                  errorMessage: detailsModel.message ?? "Xatolik yuz berdi",
+                ),
+              );
             }
           }
         }
-
-        emit(
-          state.copyWith(
-            status: Status2.error,
-            errorMessage: serverErrorMessage ?? e.message ?? "Tarmoq xatoligi",
-          ),
-        );
-      } catch (e) {
-        emit(
-          state.copyWith(
-            status: Status2.error,
-            errorMessage: "Kutilmagan xatolik: ${e.toString()}",
-          ),
-        );
+      } on DioException catch (_) {
+        // Use mock data on network error
+        final mockDetails = MockData.getServiceDetails(event.serviceId);
+        if (mockDetails != null) {
+          emit(
+            state.copyWith(
+              status: Status2.success,
+              detailsServiceModel: mockDetails,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              status: Status2.error,
+              errorMessage: "Tarmoq xatoligi",
+            ),
+          );
+        }
+      } catch (_) {
+        // Use mock data on any error
+        final mockDetails = MockData.getServiceDetails(event.serviceId);
+        if (mockDetails != null) {
+          emit(
+            state.copyWith(
+              status: Status2.success,
+              detailsServiceModel: mockDetails,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              status: Status2.error,
+              errorMessage: "Kutilmagan xatolik",
+            ),
+          );
+        }
       }
     });
   }

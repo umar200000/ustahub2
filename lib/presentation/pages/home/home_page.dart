@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
-import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
 import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/home/widgets/banner_carousel_widget.dart';
 import 'package:ustahub/presentation/pages/home/widgets/home_app_bar.dart';
+import 'package:ustahub/presentation/pages/home/widgets/home_shimmer_widgets.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_product_widget.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_widget.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
@@ -33,11 +32,23 @@ class _HomePageState extends State<HomePage> {
     _loadInitialData();
   }
 
-  void _loadInitialData() {
-    context.read<BannerBloc>().add(GetBannersEvent());
-    context.read<CategoryBloc>().add(GetCategoriesEvent());
-    context.read<CompanyBloc>().add(GetCompaniesEvent());
-    context.read<ServiceBloc>().add(const GetServicesEvent());
+  void _loadInitialData({bool forceRefresh = false}) {
+    final bannerState = context.read<BannerBloc>().state;
+    final categoryState = context.read<CategoryBloc>().state;
+    final serviceState = context.read<ServiceBloc>().state;
+
+    // Only load if data is empty or force refresh
+    if (forceRefresh || (bannerState.bannerModel?.data ?? []).isEmpty) {
+      context.read<BannerBloc>().add(GetBannersEvent());
+    }
+    if (forceRefresh ||
+        (categoryState.categoryData?.categoryModel ?? []).isEmpty) {
+      context.read<CategoryBloc>().add(GetCategoriesEvent());
+    }
+    if (forceRefresh ||
+        (serviceState.servicesData?.servicesModel ?? []).isEmpty) {
+      context.read<ServiceBloc>().add(const GetServicesEvent());
+    }
   }
 
   @override
@@ -60,14 +71,14 @@ class _HomePageState extends State<HomePage> {
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
-          backgroundColor: colors.neutral50,
+          backgroundColor: colors.shade0,
           body: Column(
             children: [
               const HomeAppBar(),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    _loadInitialData();
+                    _loadInitialData(forceRefresh: true);
                   },
                   child: ListView(
                     controller: _scrollController,
@@ -78,145 +89,37 @@ class _HomePageState extends State<HomePage> {
 
                       BlocBuilder<CategoryBloc, CategoryState>(
                         builder: (context, state) {
-                          if (state.status == Status2.loading) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(20.0),
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          } else if (state.status == Status2.success) {
-                            final categories =
-                                state.categoryData?.categoryModel ?? [];
+                          final categories =
+                              state.categoryData?.categoryModel ?? [];
+
+                          // Show shimmer if loading and no data
+                          if (state.status == Status2.loading &&
+                              categories.isEmpty) {
+                            return const CategoryShimmer();
+                          }
+
+                          if (categories.isNotEmpty) {
                             return ServicesGrid(services: categories);
-                          } else if (state.status == Status2.error) {
+                          }
+
+                          if (state.status == Status2.error) {
                             return Center(
                               child: Text(state.errorMessage ?? "Error"),
                             );
                           }
+
                           return const SizedBox.shrink();
                         },
                       ),
 
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
-                        child: Text(
-                          "Providerlar",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: colors.neutral800,
-                          ),
-                        ),
-                      ),
-
-                      BlocBuilder<CompanyBloc, CompanyState>(
-                        builder: (context, state) {
-                          if (state.status == Status2.loading &&
-                              (state.companyResponse?.data?.items ?? [])
-                                  .isEmpty) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          final companies =
-                              state.companyResponse?.data?.items ?? [];
-
-                          if (companies.isEmpty &&
-                              state.status == Status2.success) {
-                            return const Center(
-                              child: Text("Providerlar topilmadi"),
-                            );
-                          }
-
-                          return SizedBox(
-                            height: 120.h,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              itemCount: companies.length,
-                              itemBuilder: (context, index) {
-                                final company = companies[index];
-                                return GestureDetector(
-                                  behavior: HitTestBehavior.translucent,
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      AppRoutes.companyDetailsPage(
-                                        id: company.id!,
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 140.w,
-                                    margin: EdgeInsets.only(right: 12.w),
-                                    decoration: BoxDecoration(
-                                      color: colors.shade0,
-                                      borderRadius: BorderRadius.circular(12.r),
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            12.r,
-                                          ),
-                                          child: Image.network(
-                                            company.logoUrl ??
-                                                "https://img.freepik.com/free-vector/lightning-bolt-circle-gradient_78370-5397.jpg",
-                                            height: 70.w,
-                                            width: 70.w,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
-                                                    const Icon(
-                                                      Icons.business_outlined,
-                                                    ),
-                                          ),
-                                        ),
-                                        Gap(4.h),
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 8.w,
-                                          ),
-                                          child: Text(
-                                            company.name ?? "Nomsiz",
-                                            textAlign: TextAlign.center,
-                                            maxLines: 1,
-                                            style: fonts.paragraphP3Bold
-                                                .copyWith(
-                                                  color: colors.neutral800,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-
-                      const Gap(20),
-
                       /// ServiceBloc data display
                       BlocBuilder<ServiceBloc, ServiceState>(
                         builder: (context, state) {
+                          // Show shimmer if loading and no data
                           if (state.status == Status2.loading &&
                               (state.servicesData?.servicesModel ?? [])
                                   .isEmpty) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(20.0),
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
+                            return const ServicesListShimmer(itemCount: 4);
                           } else if (state.status == Status2.success ||
                               (state.status == Status2.loading &&
                                   (state.servicesData?.servicesModel ?? [])
@@ -270,11 +173,9 @@ class _HomePageState extends State<HomePage> {
                                     );
                                   },
                                 ),
+                                // Show shimmer for loading more
                                 if (state.status == Status2.loading)
-                                  const Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: CircularProgressIndicator(),
-                                  ),
+                                  const ServiceCardShimmer(),
                               ],
                             );
                           } else if (state.status == Status2.error) {

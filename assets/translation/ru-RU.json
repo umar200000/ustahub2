@@ -465,5 +465,10 @@
   "quality_guaranteed": "Гарантированное качество",
   "satisfaction_assured_every_time": "Каждая услуга сопровождается нашей гарантией удовлетворения. Ваше спокойствие — наш приоритет.",
   "lets_get_started": "Начнем",
-  "already_have_an_account": "Уже есть аккаунт"
+  "already_have_an_account": "Уже есть аккаунт",
+  "select_category": "Выберите категорию",
+  "see_all": "Все",
+  "book_now": "Заказать",
+  "get_discount": "Скидка до 35%",
+  "on_first_services": "На первые услуги для дома"
 }

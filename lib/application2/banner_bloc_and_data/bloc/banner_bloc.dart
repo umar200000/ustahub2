@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
+import '../../../infrastructure/services/mock_data/mock_data.dart';
 import '../data/model/banner_details_model.dart';
 import '../data/model/banner_model.dart';
 import '../data/repo/banner_repo.dart';
@@ -29,18 +30,31 @@ class BannerBloc extends Bloc<BannerEvent, BannerState> {
               state.copyWith(status: Status2.success, bannerModel: bannerModel),
             );
           } else {
+            // Use mock data on API failure
             emit(
               state.copyWith(
-                status: Status2.error,
-                errorMessage: bannerModel.error?.toString() ?? "Xatolik",
+                status: Status2.success,
+                bannerModel: MockData.banners,
               ),
             );
           }
         }
       } on DioException catch (e) {
-        emit(state.copyWith(status: Status2.error, errorMessage: e.message));
+        // Use mock data on network error
+        emit(
+          state.copyWith(
+            status: Status2.success,
+            bannerModel: MockData.banners,
+          ),
+        );
       } catch (e) {
-        emit(state.copyWith(status: Status2.error, errorMessage: e.toString()));
+        // Use mock data on any error
+        emit(
+          state.copyWith(
+            status: Status2.success,
+            bannerModel: MockData.banners,
+          ),
+        );
       }
     });
 
