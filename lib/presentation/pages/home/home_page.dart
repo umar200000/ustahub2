@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,6 +14,9 @@ import 'package:ustahub/presentation/pages/home/widgets/service_widget.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
+import '../../../infrastructure/services/shared_perf/shared_pref_service.dart';
+import '../../../infrastructure2/init/injection.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -23,13 +27,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final Set<String> _favoriteIds = {};
   final ScrollController _scrollController = ScrollController();
+  String? _currentLanguage;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    // Ma'lumotlarni yuklashni boshlaymiz
     _loadInitialData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Til o'zgarganini tekshirish
+    final newLang = context.locale.languageCode;
+
+    if (_currentLanguage != null && _currentLanguage != newLang) {
+      _loadInitialData(forceRefresh: true);
+    }
+    _currentLanguage = newLang;
   }
 
   void _loadInitialData({bool forceRefresh = false}) {
@@ -37,7 +53,7 @@ class _HomePageState extends State<HomePage> {
     final categoryState = context.read<CategoryBloc>().state;
     final serviceState = context.read<ServiceBloc>().state;
 
-    // Only load if data is empty or force refresh
+    // Har safar yangi til kodi bilan request ketishi uchun forceRefresh ishlatamiz
     if (forceRefresh || (bannerState.bannerModel?.data ?? []).isEmpty) {
       context.read<BannerBloc>().add(GetBannersEvent());
     }
@@ -68,6 +84,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+      "token here: ${sl<SharedPrefService>().getTokenModel()?.accessToken ?? ""}",
+    );
+
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
@@ -92,7 +112,6 @@ class _HomePageState extends State<HomePage> {
                           final categories =
                               state.categoryData?.categoryModel ?? [];
 
-                          // Show shimmer if loading and no data
                           if (state.status == Status2.loading &&
                               categories.isEmpty) {
                             return const CategoryShimmer();
@@ -104,7 +123,7 @@ class _HomePageState extends State<HomePage> {
 
                           if (state.status == Status2.error) {
                             return Center(
-                              child: Text(state.errorMessage ?? "Error"),
+                              child: Text(state.errorMessage ?? "error".tr()),
                             );
                           }
 
@@ -112,10 +131,8 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
 
-                      /// ServiceBloc data display
                       BlocBuilder<ServiceBloc, ServiceState>(
                         builder: (context, state) {
-                          // Show shimmer if loading and no data
                           if (state.status == Status2.loading &&
                               (state.servicesData?.servicesModel ?? [])
                                   .isEmpty) {
@@ -127,8 +144,8 @@ class _HomePageState extends State<HomePage> {
                             final services =
                                 state.servicesData?.servicesModel ?? [];
                             if (services.isEmpty) {
-                              return const Center(
-                                child: Text("Xizmatlar topilmadi"),
+                              return Center(
+                                child: Text("no_services_found".tr()),
                               );
                             }
                             return Column(
@@ -144,6 +161,32 @@ class _HomePageState extends State<HomePage> {
                                   itemCount: services.length,
                                   itemBuilder: (context, index) {
                                     final service = services[index];
+
+                                    // Tilga qarab modeldan kerakli maydonni tanlaymiz
+                                    final lang = context.locale.languageCode;
+                                    String title =
+                                        service.title ??
+                                        ""; // Default mahalliylashtirilgan title
+
+                                    if (lang == 'ru') {
+                                      title =
+                                          service.titleRu ??
+                                          service.title ??
+                                          service.titleUz ??
+                                          "";
+                                    } else if (lang == 'en') {
+                                      title =
+                                          service.titleEn ??
+                                          service.title ??
+                                          service.titleUz ??
+                                          "";
+                                    } else {
+                                      title =
+                                          service.titleUz ??
+                                          service.title ??
+                                          "";
+                                    }
+
                                     return ServiceProviderCard(
                                       onTap: () {
                                         Navigator.push(
@@ -153,14 +196,16 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         );
                                       },
-                                      name: service.titleUz ?? "Nomsiz xizmat",
+                                      name: title.isNotEmpty
+                                          ? title
+                                          : "unnamed_service".tr(),
                                       profession:
-                                          service.categoryNameUz ??
-                                          "Mutaxassis",
+                                          service.categoryName ??
+                                          "specialist".tr(),
                                       distance: 0.0,
                                       rating: 5.0,
                                       reviewCount: 0,
-                                      duration: "Noma'lum",
+                                      duration: "unknown".tr(),
                                       priceFrom:
                                           double.tryParse(
                                             service.basePrice ?? "0",
@@ -177,14 +222,13 @@ class _HomePageState extends State<HomePage> {
                                     );
                                   },
                                 ),
-                                // Show shimmer for loading more
                                 if (state.status == Status2.loading)
                                   const ServiceCardShimmer(),
                               ],
                             );
                           } else if (state.status == Status2.error) {
                             return Center(
-                              child: Text(state.errorMessage ?? "Error"),
+                              child: Text(state.errorMessage ?? "error".tr()),
                             );
                           }
                           return const SizedBox.shrink();

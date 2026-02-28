@@ -14,6 +14,7 @@ import 'package:ustahub/presentation/pages/home/widgets/details_shimmer_widget.d
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
+import '../../../application2/details_service/data/model/details_model.dart';
 import '../company_details_page/pages/company_details_page.dart';
 
 class DetailsPage extends StatefulWidget {
@@ -91,6 +92,13 @@ class _DetailsPageState extends State<DetailsPage>
                   );
                 }
 
+                final locale = context.locale.languageCode;
+                final title = locale == 'uz'
+                    ? data.titleUz
+                    : locale == 'ru'
+                    ? data.titleRu
+                    : data.titleEn ?? data.titleUz ?? "";
+
                 return Column(
                   children: [
                     // App Bar
@@ -116,7 +124,7 @@ class _DetailsPageState extends State<DetailsPage>
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 20.w),
                               child: Text(
-                                data.titleUz ?? "",
+                                title ?? "",
                                 style: TextStyle(
                                   fontSize: 22.sp,
                                   fontWeight: FontWeight.bold,
@@ -444,7 +452,11 @@ class _DetailsPageState extends State<DetailsPage>
     );
   }
 
-  Widget _buildTabContent(dynamic data, CustomColorSet colors, FontSet fonts) {
+  Widget _buildTabContent(
+    ServiceData data,
+    CustomColorSet colors,
+    FontSet fonts,
+  ) {
     return Padding(
       padding: EdgeInsets.all(20.w),
       child: AnimatedBuilder(
@@ -467,12 +479,28 @@ class _DetailsPageState extends State<DetailsPage>
     );
   }
 
-  Widget _buildAboutTab(dynamic data, CustomColorSet colors, FontSet fonts) {
-    final description = data.descriptionUz ?? "";
-    final shouldTruncate = description.length > 150;
+  Widget _buildAboutTab(
+    ServiceData data,
+    CustomColorSet colors,
+    FontSet fonts,
+  ) {
+    final locale = context.locale.languageCode;
+    final description = locale == 'uz'
+        ? data.descriptionUz
+        : locale == 'ru'
+        ? data.descriptionRu
+        : data.descriptionEn ?? data.descriptionUz ?? "";
+
+    final categoryName = locale == 'uz'
+        ? data.category?.nameUz
+        : locale == 'ru'
+        ? data.category?.nameRu
+        : data.category?.nameEn ?? data.category?.nameUz ?? "";
+
+    final shouldTruncate = (description ?? "").length > 150;
     final displayText = shouldTruncate && !_isDescriptionExpanded
-        ? "${description.substring(0, 150)}..."
-        : description;
+        ? "${description!.substring(0, 150)}..."
+        : (description ?? "");
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,7 +585,7 @@ class _DetailsPageState extends State<DetailsPage>
                       ),
                       Gap(4.h),
                       Text(
-                        data.category?.nameUz ?? "Service Provider",
+                        categoryName ?? "Service Provider",
                         style: fonts.paragraphP3Regular.copyWith(
                           color: colors.neutral500,
                         ),
@@ -609,7 +637,7 @@ class _DetailsPageState extends State<DetailsPage>
         child: Padding(
           padding: EdgeInsets.all(40.w),
           child: Text(
-            "No images available",
+            "no_images_available".tr(),
             style: TextStyle(color: colors.neutral500, fontSize: 14.sp),
           ),
         ),
@@ -665,7 +693,7 @@ class _DetailsPageState extends State<DetailsPage>
               ),
               Gap(12.h),
               Text(
-                "No reviews yet",
+                "no_reviews_yet".tr(),
                 style: TextStyle(color: colors.neutral500, fontSize: 14.sp),
               ),
             ],
@@ -738,7 +766,7 @@ class _DetailsPageState extends State<DetailsPage>
             child: Padding(
               padding: EdgeInsets.all(40.w),
               child: Text(
-                "No similar services",
+                "no_similar_services".tr(),
                 style: TextStyle(color: colors.neutral500, fontSize: 14.sp),
               ),
             ),
@@ -752,6 +780,13 @@ class _DetailsPageState extends State<DetailsPage>
           separatorBuilder: (context, index) => Gap(12.h),
           itemBuilder: (context, index) {
             final item = filteredItems[index];
+            final locale = context.locale.languageCode;
+            final itemTitle = locale == 'uz'
+                ? item.titleUz
+                : locale == 'ru'
+                ? item.titleRu
+                : item.titleEn ?? item.titleUz ?? "";
+
             return GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -796,7 +831,7 @@ class _DetailsPageState extends State<DetailsPage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            item.titleUz ?? "",
+                            itemTitle ?? "",
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: fonts.paragraphP3Bold.copyWith(

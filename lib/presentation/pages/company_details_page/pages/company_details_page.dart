@@ -283,7 +283,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                             );
                           },
                           name: service.titleUz ?? "Nomsiz",
-                          profession: service.categoryNameUz ?? "Mutaxassis",
+                          profession: "Mutaxassis",
                           distance: 0.0,
                           rating: 5.0,
                           reviewCount: 0,

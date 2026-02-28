@@ -1,5 +1,5 @@
 class BookingMockData {
-  static const bool useMockData = true;
+  static const bool useMockData = false;
 
   static Map<String, dynamic> getMockBookingsList() {
     return {
@@ -12,12 +12,13 @@ class BookingMockData {
           "master_id": null,
           "service_title": "Sartaroshlik xizmati",
           "provider_name": "Premium Barber Shop",
-          "provider_logo": "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=100",
+          "provider_logo":
+              "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=100",
           "scheduled_date": "2026-02-22",
           "scheduled_time_start": "10:00:00",
           "status": "pending",
           "total_price": 85000.0,
-          "created_at": "2026-02-20T08:30:00Z"
+          "created_at": "2026-02-20T08:30:00Z",
         },
         {
           "id": "mock-booking-002",
@@ -26,12 +27,13 @@ class BookingMockData {
           "master_id": "master-001",
           "service_title": "Uy tozalash xizmati",
           "provider_name": "Clean House Pro",
-          "provider_logo": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=100",
+          "provider_logo":
+              "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=100",
           "scheduled_date": "2026-02-21",
           "scheduled_time_start": "14:00:00",
           "status": "accepted",
           "total_price": 250000.0,
-          "created_at": "2026-02-19T15:20:00Z"
+          "created_at": "2026-02-19T15:20:00Z",
         },
         {
           "id": "mock-booking-003",
@@ -40,12 +42,13 @@ class BookingMockData {
           "master_id": "master-002",
           "service_title": "Konditsioner ta'mirlash",
           "provider_name": "Cool Tech Service",
-          "provider_logo": "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=100",
+          "provider_logo":
+              "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=100",
           "scheduled_date": "2026-02-20",
           "scheduled_time_start": "09:00:00",
           "status": "started",
           "total_price": 450000.0,
-          "created_at": "2026-02-18T10:00:00Z"
+          "created_at": "2026-02-18T10:00:00Z",
         },
         {
           "id": "mock-booking-004",
@@ -54,12 +57,13 @@ class BookingMockData {
           "master_id": "master-003",
           "service_title": "Santexnik xizmati",
           "provider_name": "Aqua Fix Masters",
-          "provider_logo": "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=100",
+          "provider_logo":
+              "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=100",
           "scheduled_date": "2026-02-15",
           "scheduled_time_start": "11:00:00",
           "status": "completed",
           "total_price": 180000.0,
-          "created_at": "2026-02-14T09:45:00Z"
+          "created_at": "2026-02-14T09:45:00Z",
         },
         {
           "id": "mock-booking-005",
@@ -68,12 +72,13 @@ class BookingMockData {
           "master_id": null,
           "service_title": "Elektrik xizmati",
           "provider_name": "Power Electric Co",
-          "provider_logo": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=100",
+          "provider_logo":
+              "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=100",
           "scheduled_date": "2026-02-10",
           "scheduled_time_start": "16:00:00",
           "status": "completed",
           "total_price": 320000.0,
-          "created_at": "2026-02-09T14:30:00Z"
+          "created_at": "2026-02-09T14:30:00Z",
         },
         {
           "id": "mock-booking-006",
@@ -82,12 +87,13 @@ class BookingMockData {
           "master_id": null,
           "service_title": "Mebel yig'ish xizmati",
           "provider_name": "Furniture Masters",
-          "provider_logo": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=100",
+          "provider_logo":
+              "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=100",
           "scheduled_date": "2026-02-08",
           "scheduled_time_start": "13:00:00",
           "status": "canceled",
           "total_price": 150000.0,
-          "created_at": "2026-02-07T11:00:00Z"
+          "created_at": "2026-02-07T11:00:00Z",
         },
         {
           "id": "mock-booking-007",
@@ -96,16 +102,17 @@ class BookingMockData {
           "master_id": "master-004",
           "service_title": "Avtomobil yuvish",
           "provider_name": "Shine Car Wash",
-          "provider_logo": "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=100",
+          "provider_logo":
+              "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=100",
           "scheduled_date": "2026-02-23",
           "scheduled_time_start": "08:00:00",
           "status": "assigned",
           "total_price": 75000.0,
-          "created_at": "2026-02-20T16:00:00Z"
+          "created_at": "2026-02-20T16:00:00Z",
         },
       ],
       "message": "Success",
-      "error": null
+      "error": null,
     };
   }
 
@@ -119,7 +126,8 @@ class BookingMockData {
       "master_id": null,
       "service_title": "Sartaroshlik xizmati",
       "provider_name": "Premium Barber Shop",
-      "provider_logo": "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=100",
+      "provider_logo":
+          "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=100",
       "latitude": 41.2995,
       "longitude": 69.2401,
       "scheduled_date": "2026-02-22",
@@ -142,7 +150,7 @@ class BookingMockData {
       "completed_at": null,
       "canceled_at": null,
       "created_at": "2026-02-20T08:30:00Z",
-      "updated_at": "2026-02-20T08:30:00Z"
+      "updated_at": "2026-02-20T08:30:00Z",
     },
     "mock-booking-002": {
       "id": "mock-booking-002",
@@ -153,7 +161,8 @@ class BookingMockData {
       "master_id": "master-001",
       "service_title": "Uy tozalash xizmati",
       "provider_name": "Clean House Pro",
-      "provider_logo": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=100",
+      "provider_logo":
+          "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=100",
       "latitude": 41.3112,
       "longitude": 69.2797,
       "scheduled_date": "2026-02-21",
@@ -176,7 +185,7 @@ class BookingMockData {
       "completed_at": null,
       "canceled_at": null,
       "created_at": "2026-02-19T15:20:00Z",
-      "updated_at": "2026-02-19T16:00:00Z"
+      "updated_at": "2026-02-19T16:00:00Z",
     },
     "mock-booking-003": {
       "id": "mock-booking-003",
@@ -187,7 +196,8 @@ class BookingMockData {
       "master_id": "master-002",
       "service_title": "Konditsioner ta'mirlash",
       "provider_name": "Cool Tech Service",
-      "provider_logo": "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=100",
+      "provider_logo":
+          "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=100",
       "latitude": 41.2856,
       "longitude": 69.2033,
       "scheduled_date": "2026-02-20",
@@ -210,7 +220,7 @@ class BookingMockData {
       "completed_at": null,
       "canceled_at": null,
       "created_at": "2026-02-18T10:00:00Z",
-      "updated_at": "2026-02-20T09:05:00Z"
+      "updated_at": "2026-02-20T09:05:00Z",
     },
     "mock-booking-004": {
       "id": "mock-booking-004",
@@ -221,7 +231,8 @@ class BookingMockData {
       "master_id": "master-003",
       "service_title": "Santexnik xizmati",
       "provider_name": "Aqua Fix Masters",
-      "provider_logo": "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=100",
+      "provider_logo":
+          "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=100",
       "latitude": 41.3256,
       "longitude": 69.2289,
       "scheduled_date": "2026-02-15",
@@ -244,7 +255,7 @@ class BookingMockData {
       "completed_at": "2026-02-15T12:45:00Z",
       "canceled_at": null,
       "created_at": "2026-02-14T09:45:00Z",
-      "updated_at": "2026-02-15T12:45:00Z"
+      "updated_at": "2026-02-15T12:45:00Z",
     },
     "mock-booking-005": {
       "id": "mock-booking-005",
@@ -255,7 +266,8 @@ class BookingMockData {
       "master_id": null,
       "service_title": "Elektrik xizmati",
       "provider_name": "Power Electric Co",
-      "provider_logo": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=100",
+      "provider_logo":
+          "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=100",
       "latitude": 41.2945,
       "longitude": 69.2156,
       "scheduled_date": "2026-02-10",
@@ -268,7 +280,8 @@ class BookingMockData {
       "status": "completed",
       "status_changed_at": "2026-02-10T17:30:00Z",
       "region_id": "tashkent",
-      "user_comment": "Rozetkalar ishlamayapti, yoritgichlarni ham tekshirish kerak",
+      "user_comment":
+          "Rozetkalar ishlamayapti, yoritgichlarni ham tekshirish kerak",
       "provider_note": "3 ta rozetka almashtirildi, simlar yangilandi",
       "cancellation_reason": null,
       "canceled_by": null,
@@ -278,7 +291,7 @@ class BookingMockData {
       "completed_at": "2026-02-10T17:30:00Z",
       "canceled_at": null,
       "created_at": "2026-02-09T14:30:00Z",
-      "updated_at": "2026-02-10T17:30:00Z"
+      "updated_at": "2026-02-10T17:30:00Z",
     },
     "mock-booking-006": {
       "id": "mock-booking-006",
@@ -289,7 +302,8 @@ class BookingMockData {
       "master_id": null,
       "service_title": "Mebel yig'ish xizmati",
       "provider_name": "Furniture Masters",
-      "provider_logo": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=100",
+      "provider_logo":
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=100",
       "latitude": 41.3089,
       "longitude": 69.2445,
       "scheduled_date": "2026-02-08",
@@ -304,7 +318,8 @@ class BookingMockData {
       "region_id": "tashkent",
       "user_comment": "Shkaf va krovat yig'ish kerak",
       "provider_note": null,
-      "cancellation_reason": "Mijoz bekor qildi - boshqa vaqtga ko'chirish kerak",
+      "cancellation_reason":
+          "Mijoz bekor qildi - boshqa vaqtga ko'chirish kerak",
       "canceled_by": "user",
       "assigned_at": null,
       "accepted_at": null,
@@ -312,7 +327,7 @@ class BookingMockData {
       "completed_at": null,
       "canceled_at": "2026-02-07T18:00:00Z",
       "created_at": "2026-02-07T11:00:00Z",
-      "updated_at": "2026-02-07T18:00:00Z"
+      "updated_at": "2026-02-07T18:00:00Z",
     },
     "mock-booking-007": {
       "id": "mock-booking-007",
@@ -323,7 +338,8 @@ class BookingMockData {
       "master_id": "master-004",
       "service_title": "Avtomobil yuvish",
       "provider_name": "Shine Car Wash",
-      "provider_logo": "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=100",
+      "provider_logo":
+          "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=100",
       "latitude": 41.2778,
       "longitude": 69.1923,
       "scheduled_date": "2026-02-23",
@@ -346,7 +362,7 @@ class BookingMockData {
       "completed_at": null,
       "canceled_at": null,
       "created_at": "2026-02-20T16:00:00Z",
-      "updated_at": "2026-02-20T17:00:00Z"
+      "updated_at": "2026-02-20T17:00:00Z",
     },
   };
 
@@ -358,7 +374,7 @@ class BookingMockData {
         "success": true,
         "data": details,
         "message": "Success",
-        "error": null
+        "error": null,
       };
     }
 
@@ -367,7 +383,7 @@ class BookingMockData {
       "success": true,
       "data": _bookingDetails.values.first,
       "message": "Success",
-      "error": null
+      "error": null,
     };
   }
 }

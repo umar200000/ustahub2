@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,7 +25,6 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
   @override
   void initState() {
     super.initState();
-    // Event is dispatched from HomePage, no need to dispatch here
   }
 
   void _startTimer(int count) {
@@ -68,7 +68,6 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
           builder: (context, state) {
             final banners = state.bannerModel?.data ?? [];
 
-            // Only show shimmer if we don't have data yet
             if (state.status == Status2.loading && banners.isEmpty) {
               return const BannerShimmer();
             }
@@ -91,6 +90,21 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                     itemCount: banners.length,
                     itemBuilder: (context, index) {
                       final banner = banners[index];
+
+                      // Tilga qarab matnlarni tanlash
+                      final lang = context.locale.languageCode;
+                      String title = banner.titleUz ?? '';
+                      if (lang == 'ru')
+                        title = banner.titleRu ?? banner.titleUz ?? '';
+                      if (lang == 'en')
+                        title = banner.titleEn ?? banner.titleUz ?? '';
+
+                      String subtitle = banner.subtitleUz ?? '';
+                      if (lang == 'ru')
+                        subtitle = banner.subtitleRu ?? banner.subtitleUz ?? '';
+                      if (lang == 'en')
+                        subtitle = banner.subtitleEn ?? banner.subtitleUz ?? '';
+
                       return Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         child: GestureDetector(
@@ -110,7 +124,6 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                             child: Stack(
                               fit: StackFit.expand,
                               children: [
-                                // Full image
                                 Image.network(
                                   banner.imageUrl ?? '',
                                   fit: BoxFit.cover,
@@ -127,7 +140,6 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                                     );
                                   },
                                 ),
-                                // Gradient overlay for text readability
                                 Positioned(
                                   bottom: 0,
                                   left: 0,
@@ -146,7 +158,6 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                                     ),
                                   ),
                                 ),
-                                // Title and subtitle at bottom
                                 Positioned(
                                   bottom: 12.h,
                                   left: 16.w,
@@ -156,10 +167,9 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                                         CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      if (banner.title != null &&
-                                          banner.title!.isNotEmpty)
+                                      if (title.isNotEmpty)
                                         Text(
-                                          banner.title!,
+                                          title,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 16.sp,
@@ -168,10 +178,9 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                      if (banner.subtitle != null &&
-                                          banner.subtitle!.isNotEmpty)
+                                      if (subtitle.isNotEmpty)
                                         Text(
-                                          banner.subtitle!,
+                                          subtitle,
                                           style: TextStyle(
                                             color: Colors.white70,
                                             fontSize: 12.sp,
@@ -191,7 +200,6 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                   ),
                 ),
                 SizedBox(height: 12.h),
-                // Page indicators
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
@@ -205,9 +213,7 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                         borderRadius: BorderRadius.circular(4.r),
                         color: _currentPage == index
                             ? colors.blue500
-                            : Colors
-                                  .grey
-                                  .shade400, // O'zgartirildi: neutral300 -> neutral400
+                            : Colors.grey.shade400,
                       ),
                     ),
                   ),

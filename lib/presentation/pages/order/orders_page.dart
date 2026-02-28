@@ -66,7 +66,9 @@ class _OrdersPageState extends State<OrdersPage> {
                     ),
                     Expanded(
                       child: Center(
-                        child: Text(state.errorMessage ?? "Xatolik yuz berdi"),
+                        child: Text(
+                          state.errorMessage ?? "error_occurred".tr(),
+                        ),
                       ),
                     ),
                   ],
@@ -226,14 +228,14 @@ class _OrdersPageState extends State<OrdersPage> {
                               children: [
                                 _buildPriceRow(
                                   "service_fee".tr(),
-                                  "${data.basePrice} UZS",
+                                  "${data.basePrice} ${"uzs".tr()}",
                                   fonts,
                                   colors,
                                 ),
                                 const Divider(),
                                 _buildPriceRow(
                                   "total_price".tr(),
-                                  "${data.totalPrice} UZS",
+                                  "${data.totalPrice} ${"uzs".tr()}",
                                   fonts,
                                   colors,
                                   isTotal: true,

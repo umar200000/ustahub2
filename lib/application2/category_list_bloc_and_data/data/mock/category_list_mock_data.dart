@@ -1,5 +1,5 @@
 class CategoryListMockData {
-  static const bool useMockData = true;
+  static const bool useMockData = false;
 
   static final Map<String, List<Map<String, dynamic>>> _servicesByCategory = {
     "mock-cat-1": [
@@ -13,10 +13,11 @@ class CategoryListMockData {
         "base_price": "50000",
         "max_price": "80000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400",
         "category_name_uz": "Sartaroshlik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-barber-2",
@@ -28,10 +29,11 @@ class CategoryListMockData {
         "base_price": "30000",
         "max_price": "50000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400",
         "category_name_uz": "Sartaroshlik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-barber-3",
@@ -43,10 +45,11 @@ class CategoryListMockData {
         "base_price": "35000",
         "max_price": "45000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400",
         "category_name_uz": "Sartaroshlik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
     ],
     "mock-cat-2": [
@@ -60,10 +63,11 @@ class CategoryListMockData {
         "base_price": "150000",
         "max_price": "250000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400",
         "category_name_uz": "Uy tozalash",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-clean-2",
@@ -75,10 +79,11 @@ class CategoryListMockData {
         "base_price": "300000",
         "max_price": "500000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?w=400",
         "category_name_uz": "Uy tozalash",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-clean-3",
@@ -90,10 +95,11 @@ class CategoryListMockData {
         "base_price": "200000",
         "max_price": "400000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1527515545081-5db817172677?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1527515545081-5db817172677?w=400",
         "category_name_uz": "Uy tozalash",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
     ],
     "mock-cat-3": [
@@ -107,10 +113,11 @@ class CategoryListMockData {
         "base_price": "80000",
         "max_price": "150000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400",
         "category_name_uz": "Santexnik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-plumb-2",
@@ -122,25 +129,27 @@ class CategoryListMockData {
         "base_price": "100000",
         "max_price": "200000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400",
         "category_name_uz": "Santexnik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-plumb-3",
         "provider_id": "provider-006",
         "title_uz": "Unitaz o'rnatish",
-        "title_ru": "Установка унитаза",
+        "title_ru": "Установка униза",
         "title_en": "Toilet Installation",
         "description_uz": "Yangi unitaz o'rnatish xizmati",
         "base_price": "150000",
         "max_price": "250000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400",
         "category_name_uz": "Santexnik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
     ],
     "mock-cat-4": [
@@ -154,10 +163,11 @@ class CategoryListMockData {
         "base_price": "50000",
         "max_price": "100000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400",
         "category_name_uz": "Elektrik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-elec-2",
@@ -169,10 +179,11 @@ class CategoryListMockData {
         "base_price": "80000",
         "max_price": "200000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=400",
         "category_name_uz": "Elektrik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-elec-3",
@@ -184,10 +195,11 @@ class CategoryListMockData {
         "base_price": "200000",
         "max_price": "500000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
         "category_name_uz": "Elektrik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
     ],
     "mock-cat-5": [
@@ -201,10 +213,11 @@ class CategoryListMockData {
         "base_price": "300000",
         "max_price": "500000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=400",
         "category_name_uz": "Konditsioner",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-ac-2",
@@ -216,10 +229,11 @@ class CategoryListMockData {
         "base_price": "150000",
         "max_price": "250000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1625961332771-3f40b0e2bdcf?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1625961332771-3f40b0e2bdcf?w=400",
         "category_name_uz": "Konditsioner",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-ac-3",
@@ -231,10 +245,11 @@ class CategoryListMockData {
         "base_price": "200000",
         "max_price": "350000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400",
         "category_name_uz": "Konditsioner",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
     ],
     "mock-cat-6": [
@@ -248,10 +263,11 @@ class CategoryListMockData {
         "base_price": "40000",
         "max_price": "60000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=400",
         "category_name_uz": "Avtoyuvish",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-car-2",
@@ -263,10 +279,11 @@ class CategoryListMockData {
         "base_price": "80000",
         "max_price": "120000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=400",
         "category_name_uz": "Avtoyuvish",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-car-3",
@@ -278,10 +295,11 @@ class CategoryListMockData {
         "base_price": "500000",
         "max_price": "1500000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=400",
         "category_name_uz": "Avtoyuvish",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
     ],
     "mock-cat-7": [
@@ -295,10 +313,11 @@ class CategoryListMockData {
         "base_price": "100000",
         "max_price": "300000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400",
         "category_name_uz": "Mebel ta'mirlash",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-furn-2",
@@ -310,10 +329,11 @@ class CategoryListMockData {
         "base_price": "80000",
         "max_price": "250000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=400",
         "category_name_uz": "Mebel ta'mirlash",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
     ],
     "mock-cat-8": [
@@ -327,10 +347,11 @@ class CategoryListMockData {
         "base_price": "150000",
         "max_price": "400000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=400",
         "category_name_uz": "Go'zallik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-beauty-2",
@@ -342,10 +363,11 @@ class CategoryListMockData {
         "base_price": "80000",
         "max_price": "200000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400",
         "category_name_uz": "Go'zallik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
       {
         "id": "service-beauty-3",
@@ -357,10 +379,11 @@ class CategoryListMockData {
         "base_price": "200000",
         "max_price": "500000",
         "status": "active",
-        "primary_image_url": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400",
+        "primary_image_url":
+            "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400",
         "category_name_uz": "Go'zallik",
         "currency_code": "UZS",
-        "currency_symbol": "So'm"
+        "currency_symbol": "So'm",
       },
     ],
   };
@@ -377,7 +400,7 @@ class CategoryListMockData {
       "success": true,
       "data": paginatedServices,
       "message": "Success",
-      "error": null
+      "error": null,
     };
   }
 }

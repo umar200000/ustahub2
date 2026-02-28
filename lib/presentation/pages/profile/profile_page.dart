@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
+import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
+import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/pages/profile/screens/info_detail_page.dart';
 import 'package:ustahub/presentation/pages/profile/screens/user_information_page.dart';
@@ -222,6 +224,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 context.locale,
                               ),
                               onChanged: (name, locale) {
+                                // 1. Tilni SharedPrefs'ga saqlash (Interceptor uchun)
+                                sl<SharedPrefService>().setLanguage(
+                                  locale.languageCode,
+                                );
+                                // 2. Ilova lokalini yangilash
                                 context.setLocale(locale);
                                 setState(() {});
                               },

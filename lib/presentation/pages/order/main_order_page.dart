@@ -420,42 +420,40 @@ class _MainOrderPageState extends State<MainOrderPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Total Price',
+                    'total_price'.tr(),
                     style: fonts.paragraphP3Regular.copyWith(
                       color: colors.neutral600,
                     ),
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} UZS',
-                    style: fonts.paragraphP1Bold.copyWith(
+                    '${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} ${"uzs".tr()}',
+                    style: fonts.paragraphP2Bold.copyWith(
                       color: colors.shade100,
-                      fontSize: 16.sp,
                     ),
                   ),
                 ],
               ),
-              ElevatedButton(
-                onPressed: () {
+              GestureDetector(
+                onTap: () {
                   Navigator.push(
                     context,
                     AppRoutes.orders(serviceId: bookingUuid),
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.blue500,
-                  foregroundColor: colors.shade0,
+                child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
+                    horizontal: 16.w,
                     vertical: 10.h,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
+                  decoration: BoxDecoration(
+                    color: colors.blue500,
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
-                ),
-                child: Text(
-                  isActive ? 'View Details' : 'View',
-                  style: fonts.paragraphP2Medium.copyWith(color: colors.shade0),
+                  child: Text(
+                    'view_details'.tr(),
+                    style: fonts.paragraphP3Bold.copyWith(color: colors.shade0),
+                  ),
                 ),
               ),
             ],

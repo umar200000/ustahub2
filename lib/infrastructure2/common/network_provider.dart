@@ -1,12 +1,12 @@
-import 'dart:io'; 
+import 'dart:io';
 
-import 'package:dio/dio.dart'; 
+import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import '../../infrastructure/services/shared_perf/shared_pref_service.dart';
 import '../init/injection.dart';
 import 'api_path.dart';
-import 'interceptor.dart'; 
+import 'interceptor.dart';
 
 Dio createDio() {
   final dio = Dio();
@@ -14,14 +14,14 @@ Dio createDio() {
   return dio
     ..interceptors.addAll([
       DioInterceptor(),
-
       InterceptorsWrapper(
         onRequest: (options, handler) {
           final token =
               sl<SharedPrefService>().getTokenModel()?.accessToken ?? "";
 
+          // Backendga ilova tilini yuborish (hot update uchun request darajasida)
           options.headers['Accept-Language'] = sl<SharedPrefService>()
-              .getLanguageCode(); 
+              .getLanguageCode();
 
           if (token.isNotEmpty) {
             options.headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
@@ -29,7 +29,6 @@ Dio createDio() {
           return handler.next(options);
         },
       ),
-
       PrettyDioLogger(
         requestHeader: true,
         requestBody: true,
@@ -45,13 +44,11 @@ Dio createDio() {
       ),
     ])
     ..options = BaseOptions(
-      baseUrl: baseUrl, 
-      connectTimeout: const Duration(seconds: 1),
-      receiveTimeout: const Duration(seconds: 1),
-      sendTimeout: const Duration(seconds: 1),
-      // 400+ statuslar endi Exception (onError) deb hisoblanadi
+      baseUrl: baseUrl,
+      connectTimeout: const Duration(seconds: 15), // 1s juda kam, 15s qildim
+      receiveTimeout: const Duration(seconds: 15),
+      sendTimeout: const Duration(seconds: 15),
       validateStatus: (status) => status != null && status < 400,
-
       headers: {
         HttpHeaders.acceptHeader: 'application/json',
         HttpHeaders.contentTypeHeader: 'application/json',

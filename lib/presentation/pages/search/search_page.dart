@@ -54,6 +54,7 @@ class _SearchPageState extends State<SearchPage> {
       child: ThemeWrapper(
         builder: (context, colors, fonts, icons, controller) {
           return Scaffold(
+            resizeToAvoidBottomInset: true,
             backgroundColor: colors.shade0,
             body: SafeArea(
               child: Column(
@@ -147,68 +148,72 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildEmptyState(CustomColorSet colors, FontSet fonts) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Lottie Animation
-        SizedBox(
-          width: 250.w,
-          height: 250.w,
-          child: Lottie.asset(
-            'assets/animations/search users.json',
-            delegates: LottieDelegates(
-              values: [
-                // Faqat borderlar (Stroke) va Search icon rangini primary500 qilish
-                ValueDelegate.color(const [
-                  '**',
-                  'Stroke 1',
-                  '**',
-                ], value: colors.primary500),
-                ValueDelegate.color(const [
-                  '**',
-                  'Search Icon',
-                  '**',
-                ], value: colors.primary500),
-                ValueDelegate.color(const [
-                  '**',
-                  'Border',
-                  '**',
-                ], value: colors.primary500),
-              ],
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(height: 40.h),
+          // Lottie Animation
+          SizedBox(
+            width: 250.w,
+            height: 250.w,
+            child: Lottie.asset(
+              'assets/animations/search users.json',
+              delegates: LottieDelegates(
+                values: [
+                  // Faqat borderlar (Stroke) va Search icon rangini primary500 qilish
+                  ValueDelegate.color(const [
+                    '**',
+                    'Stroke 1',
+                    '**',
+                  ], value: colors.primary500),
+                  ValueDelegate.color(const [
+                    '**',
+                    'Search Icon',
+                    '**',
+                  ], value: colors.primary500),
+                  ValueDelegate.color(const [
+                    '**',
+                    'Border',
+                    '**',
+                  ], value: colors.primary500),
+                ],
+              ),
             ),
           ),
-        ),
 
-        SizedBox(height: 12.h),
+          SizedBox(height: 12.h),
 
-        // Title
-        Text(
-          "what_are_you_searching".tr(),
-          textAlign: TextAlign.center,
-          style: fonts.paragraphP1Bold.copyWith(
-            color: colors.neutral800,
-            fontSize: 22.sp,
-            height: 1.3,
-          ),
-        ),
-
-        SizedBox(height: 12.h),
-
-        // Subtitle
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40.w),
-          child: Text(
-            "search_hint".tr(),
+          // Title
+          Text(
+            "what_are_you_searching".tr(),
             textAlign: TextAlign.center,
-            style: fonts.paragraphP3Regular.copyWith(
-              color: colors.neutral500,
-              height: 1.4,
+            style: fonts.paragraphP1Bold.copyWith(
+              color: colors.neutral800,
+              fontSize: 22.sp,
+              height: 1.3,
             ),
           ),
-        ),
 
-        SizedBox(height: 80.h),
-      ],
+          SizedBox(height: 12.h),
+
+          // Subtitle
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40.w),
+            child: Text(
+              "search_hint".tr(),
+              textAlign: TextAlign.center,
+              style: fonts.paragraphP3Regular.copyWith(
+                color: colors.neutral500,
+                height: 1.4,
+              ),
+            ),
+          ),
+
+          SizedBox(height: 20.h),
+        ],
+      ),
     );
   }
 
@@ -315,12 +320,12 @@ class _SearchPageState extends State<SearchPage> {
           onTap: () {
             Navigator.push(context, AppRoutes.detailsPage(item.id ?? ""));
           },
-          name: item.titleUz ?? "Nomsiz xizmat",
-          profession: item.categoryNameUz ?? "Mutaxassis",
+          name: item.titleUz ?? "unnamed_service".tr(),
+          profession: item.categoryNameUz ?? "specialist".tr(),
           distance: 0.0,
           rating: 5.0,
           reviewCount: 0,
-          duration: "Noma'lum",
+          duration: "unknown".tr(),
           priceFrom: double.tryParse(item.basePrice ?? "0")?.toInt() ?? 0,
           isVerified: false,
           isAvailable: item.status == "active",

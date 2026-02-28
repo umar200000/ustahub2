@@ -34,6 +34,38 @@ class _BannerDetailsPageState extends State<BannerDetailsPage> {
             builder: (context, state) {
               final data = state.bannerDetailsModel?.data;
 
+              // 1. Backenddan kelgan tayyor localized matnlarni olamiz
+              String title = data?.title ?? "";
+              String subtitle = data?.subtitle ?? "";
+              String description = data?.description ?? "";
+
+              // 2. Agar ular bo'sh bo'lsa, fallback (tilga qarab tanlash)
+              if (title.isEmpty || subtitle.isEmpty || description.isEmpty) {
+                final lang = context.locale.languageCode;
+                if (lang == 'ru') {
+                  if (title.isEmpty)
+                    title = data?.titleRu ?? data?.titleUz ?? "";
+                  if (subtitle.isEmpty)
+                    subtitle = data?.subtitleRu ?? data?.subtitleUz ?? "";
+                  if (description.isEmpty)
+                    description =
+                        data?.descriptionRu ?? data?.descriptionUz ?? "";
+                } else if (lang == 'en') {
+                  if (title.isEmpty)
+                    title = data?.titleEn ?? data?.titleUz ?? "";
+                  if (subtitle.isEmpty)
+                    subtitle = data?.subtitleEn ?? data?.subtitleUz ?? "";
+                  if (description.isEmpty)
+                    description =
+                        data?.descriptionEn ?? data?.descriptionUz ?? "";
+                } else {
+                  if (title.isEmpty) title = data?.titleUz ?? "";
+                  if (subtitle.isEmpty) subtitle = data?.subtitleUz ?? "";
+                  if (description.isEmpty)
+                    description = data?.descriptionUz ?? "";
+                }
+              }
+
               return Stack(
                 children: [
                   Builder(
@@ -43,7 +75,7 @@ class _BannerDetailsPageState extends State<BannerDetailsPage> {
                       }
                       if (state.detailsStatus == Status2.error) {
                         return Center(
-                          child: Text(state.errorMessage ?? "Xatolik"),
+                          child: Text(state.errorMessage ?? "error".tr()),
                         );
                       }
                       if (data == null) return const SizedBox();
@@ -55,19 +87,26 @@ class _BannerDetailsPageState extends State<BannerDetailsPage> {
                             Gap(110.h),
                             // Banner Image
                             if (data.imageUrl != null)
-                              Image.network(
-                                data.imageUrl!,
-                                width: double.infinity,
-                                height: 250.h,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                      height: 250.h,
-                                      color: colors.neutral200,
-                                      child: const Icon(
-                                        Icons.image_not_supported,
-                                      ),
-                                    ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16.r),
+                                  child: Image.network(
+                                    data.imageUrl!,
+                                    width: double.infinity,
+                                    height: 220.h,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
+                                              height: 220.h,
+                                              color: colors.neutral200,
+                                              child: const Icon(
+                                                Icons.image_not_supported,
+                                              ),
+                                            ),
+                                  ),
+                                ),
                               ),
 
                             // Content
@@ -77,39 +116,40 @@ class _BannerDetailsPageState extends State<BannerDetailsPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // Title
-                                  Text(
-                                    data.title ?? "",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 22.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: colors.shade100,
-                                    ),
-                                  ),
-                                  Gap(8.h),
-                                  // Subtitle
-                                  if (data.subtitle != null &&
-                                      data.subtitle!.isNotEmpty)
+                                  if (title.isNotEmpty)
                                     Text(
-                                      data.subtitle!,
+                                      title,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 22.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: colors.shade100,
+                                      ),
+                                    ),
+                                  if (subtitle.isNotEmpty) ...[
+                                    Gap(8.h),
+                                    Text(
+                                      subtitle,
                                       style: GoogleFonts.poppins(
                                         fontSize: 16.sp,
                                         fontWeight: FontWeight.w600,
                                         color: colors.blue500,
                                       ),
                                     ),
+                                  ],
                                   Gap(16.h),
                                   // Divider
                                   Divider(color: colors.neutral200),
                                   Gap(16.h),
                                   // Description
-                                  Text(
-                                    data.description ?? "",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 15.sp,
-                                      color: colors.neutral700,
-                                      height: 1.6,
+                                  if (description.isNotEmpty)
+                                    Text(
+                                      description,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15.sp,
+                                        color: colors.neutral700,
+                                        height: 1.6,
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -119,10 +159,9 @@ class _BannerDetailsPageState extends State<BannerDetailsPage> {
                     },
                   ),
                   UniversalAppBar(
-                    title: data?.title ?? "banner_details".tr(),
+                    title: title.isNotEmpty ? title : "details".tr(),
                     centerTitle: true,
                     showBackButton: true,
-                    // backgroundColor: const Color(0xFF1A1A1A),
                   ),
                 ],
               );

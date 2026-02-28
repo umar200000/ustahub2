@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -129,7 +130,7 @@ class ServiceProviderCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'From ${priceFrom.formatNumber()} UZS',
+                            '${"from".tr()} ${priceFrom.formatNumber()} ${"uzs".tr()}',
                             style: fonts.paragraphP1SemiBold,
                           ),
                           Container(
@@ -144,7 +145,7 @@ class ServiceProviderCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10.r),
                             ),
                             child: Text(
-                              isAvailable ? 'Available' : 'Busy',
+                              isAvailable ? 'available'.tr() : 'Busy',
                               style: fonts.paragraphP2Medium.copyWith(
                                 color: colors.shade0,
                               ),

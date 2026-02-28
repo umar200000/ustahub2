@@ -1,5 +1,5 @@
 class BannerMockData {
-  static const bool useMockData = true;
+  static const bool useMockData = false;
 
   static Map<String, dynamic> getMockBanners() {
     return {
@@ -9,29 +9,33 @@ class BannerMockData {
           "id": "mock-banner-1",
           "title": "50% chegirma!",
           "subtitle": "Barcha uy tozalash xizmatlariga",
-          "image_url": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800"
+          "image_url":
+              "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
         },
         {
           "id": "mock-banner-2",
           "title": "Yangi foydalanuvchilar uchun",
           "subtitle": "Birinchi buyurtmangizga 30% chegirma",
-          "image_url": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800"
+          "image_url":
+              "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800",
         },
         {
           "id": "mock-banner-3",
           "title": "Premium xizmatlar",
           "subtitle": "Eng yaxshi mutaxassislar sizning xizmatingizda",
-          "image_url": "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800"
+          "image_url":
+              "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800",
         },
         {
           "id": "mock-banner-4",
           "title": "Konditsioner mavsumi",
           "subtitle": "Konditsioner tozalash va ta'mirlash xizmatlari",
-          "image_url": "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=800"
+          "image_url":
+              "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=800",
         },
       ],
       "message": "Success",
-      "error": null
+      "error": null,
     };
   }
 
@@ -62,7 +66,8 @@ Buyurtma berish uchun ilovamiz orqali xizmatni tanlang va "CLEAN50" promo kodini
 
 Toza va qulay uy - baxtli oila!
       """,
-      "image_url": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800"
+      "image_url":
+          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
     },
     "mock-banner-2": {
       "id": "mock-banner-2",
@@ -93,7 +98,8 @@ Eslatma: Chegirma faqat birinchi buyurtma uchun amal qiladi.
 
 UstaHub - ishonchli xizmatlar, sifatli natija!
       """,
-      "image_url": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800"
+      "image_url":
+          "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800",
     },
     "mock-banner-3": {
       "id": "mock-banner-3",
@@ -121,7 +127,8 @@ Premium obuna narxi: oyiga 50,000 so'm
 
 Premium obunaga qo'shiling va eng yaxshi xizmatlardan bahramand bo'ling!
       """,
-      "image_url": "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800"
+      "image_url":
+          "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800",
     },
     "mock-banner-4": {
       "id": "mock-banner-4",
@@ -153,7 +160,8 @@ Hoziroq buyurtma bering va issiq kunlarga tayyor bo'ling!
 
 Aksiya: 2026-yil 31-mart sanasigacha
       """,
-      "image_url": "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=800"
+      "image_url":
+          "https://images.unsplash.com/photo-1631545806609-1de5b6bff814?w=800",
     },
   };
 
@@ -161,18 +169,14 @@ Aksiya: 2026-yil 31-mart sanasigacha
     final details = _bannerDetails[id];
 
     if (details != null) {
-      return {
-        "success": true,
-        "data": details,
-        "message": "Success"
-      };
+      return {"success": true, "data": details, "message": "Success"};
     }
 
     // Fallback to first banner if id not found
     return {
       "success": true,
       "data": _bannerDetails.values.first,
-      "message": "Success"
+      "message": "Success",
     };
   }
 }
