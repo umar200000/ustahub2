@@ -97,6 +97,8 @@ class _HomePageState extends State<HomePage> {
               const HomeAppBar(),
               Expanded(
                 child: RefreshIndicator(
+                  color: colors.primary500,
+                  backgroundColor: colors.shade0,
                   onRefresh: () async {
                     _loadInitialData(forceRefresh: true);
                   },

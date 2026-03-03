@@ -119,20 +119,20 @@ class _PinPutWidgetState extends State<PinPutWidget> {
             final defaultPinTheme = PinTheme(
               width: 50.w,
               height: 56.h,
-              textStyle: fonts.subheadingRegular.copyWith(
-                color: colors.shade0,
+              textStyle: fonts.subheadingBold.copyWith(
+                color: colors.neutral800,
                 fontSize: 22.sp,
               ),
               decoration: BoxDecoration(
-                color: colors.darkMode700,
+                color: colors.neutral100,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colors.shade0.withOpacity(0.1)),
+                border: Border.all(color: colors.neutral200),
               ),
             );
 
             final focusedPinTheme = defaultPinTheme.copyWith(
               decoration: defaultPinTheme.decoration!.copyWith(
-                border: Border.all(color: colors.blue500),
+                border: Border.all(color: colors.blue500, width: 2),
               ),
             );
 
@@ -145,10 +145,10 @@ class _PinPutWidgetState extends State<PinPutWidget> {
                 bottom: MediaQuery.of(context).viewInsets.bottom + 32.h,
               ),
               decoration: BoxDecoration(
-                color: colors.darkMode800,
+                color: colors.shade0,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+                  topLeft: Radius.circular(32),
+                  topRight: Radius.circular(32),
                 ),
               ),
               child: Column(
@@ -158,15 +158,15 @@ class _PinPutWidgetState extends State<PinPutWidget> {
                     width: 40.w,
                     height: 4.h,
                     decoration: BoxDecoration(
-                      color: colors.shade0.withOpacity(0.2),
+                      color: colors.neutral200,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                   24.h.verticalSpace,
                   Text(
                     'enter_sms_code'.tr(),
-                    style: fonts.subheadingRegular.copyWith(
-                      color: colors.shade0,
+                    style: fonts.subheadingBold.copyWith(
+                      color: colors.neutral800,
                       fontSize: 22.sp,
                     ),
                   ),
@@ -201,36 +201,38 @@ class _PinPutWidgetState extends State<PinPutWidget> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    _formatTime(_secondsRemaining),
-                                    style: fonts.paragraphP3Medium.copyWith(
-                                      color: colors.shade0.withOpacity(0.7),
-                                    ),
-                                  ),
-                                  12.w.horizontalSpace,
-                                  GestureDetector(
-                                    onTap: _canResend
-                                        ? () {
-                                            authBloc.add(
-                                              EnterPhoneNumberEvent(
-                                                phoneNumber: authBloc
-                                                    .state
-                                                    .authPhoneNumber!
-                                                    .data!
-                                                    .phone!,
-                                              ),
-                                            );
-                                          }
-                                        : null,
-                                    child: Text(
-                                      'resend_code'.tr(),
-                                      style: fonts.paragraphP3SemiBold.copyWith(
-                                        color: _canResend
-                                            ? colors.blue500
-                                            : colors.shade0.withOpacity(0.3),
+                                  if (_secondsRemaining > 0)
+                                    Text(
+                                      _formatTime(_secondsRemaining),
+                                      style: fonts.paragraphP3Medium.copyWith(
+                                        color: colors.neutral500,
                                       ),
                                     ),
-                                  ),
+                                  if (_secondsRemaining == 0)
+                                    GestureDetector(
+                                      onTap: _canResend
+                                          ? () {
+                                              authBloc.add(
+                                                EnterPhoneNumberEvent(
+                                                  phoneNumber: authBloc
+                                                      .state
+                                                      .authPhoneNumber!
+                                                      .data!
+                                                      .phone!,
+                                                ),
+                                              );
+                                            }
+                                          : null,
+                                      child: Text(
+                                        'resend_code'.tr(),
+                                        style: fonts.paragraphP3SemiBold
+                                            .copyWith(
+                                              color: _canResend
+                                                  ? colors.blue500
+                                                  : colors.neutral300,
+                                            ),
+                                      ),
+                                    ),
                                 ],
                               ),
                               16.h.verticalSpace,
@@ -241,11 +243,12 @@ class _PinPutWidgetState extends State<PinPutWidget> {
                                     width: 24.r,
                                     height: 24.r,
                                     child: CircularProgressIndicator(
-                                      color: colors.shade0,
+                                      color: colors.primary500,
                                       strokeWidth: 2,
                                     ),
                                   ),
                                 ),
+                              24.h.verticalSpace,
                             ],
                           );
                         },

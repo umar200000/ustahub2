@@ -6,7 +6,6 @@ import 'package:ustahub/presentation/pages/notification_page/notification_page.d
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 import '../../../components/animation_effect.dart';
-import '../../../styles/theme.dart';
 
 class HomeAppBar extends StatelessWidget {
   const HomeAppBar({super.key});
@@ -106,27 +105,27 @@ class HomeAppBar extends StatelessWidget {
                   // Action buttons
                   Row(
                     children: [
-                      AnimationButtonEffect(
-                        onTap: () {
-                          context.read<BottomNavBarController>().changeIndex(1);
-                        },
-                        child: Container(
-                          width: 44.w,
-                          height: 44.w,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: colors.neutral100,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.search,
-                              color: colors.shade100,
-                              size: 22.sp,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
+                      // AnimationButtonEffect(
+                      //   onTap: () {
+                      //     context.read<BottomNavBarController>().changeIndex(1);
+                      //   },
+                      //   child: Container(
+                      //     width: 44.w,
+                      //     height: 44.w,
+                      //     decoration: BoxDecoration(
+                      //       shape: BoxShape.circle,
+                      //       color: colors.neutral100,
+                      //     ),
+                      //     child: Center(
+                      //       child: Icon(
+                      //         Icons.search,
+                      //         color: colors.shade100,
+                      //         size: 22.sp,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // SizedBox(width: 8.w),
                       AnimationButtonEffect(
                         onTap: () {
                           Navigator.push(

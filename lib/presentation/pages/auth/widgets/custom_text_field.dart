@@ -28,36 +28,36 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ThemeWrapper(
-      builder: (context, colors, fonts, icons, controller) => Container(
-        height: 56.h,
+      builder: (context, colors, fonts, icons, themeController) => Container(
+        height: 60.h,
         decoration: BoxDecoration(
-          color: colors.darkMode700,
-          borderRadius: BorderRadius.circular(16),
+          color: colors.neutral50,
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: error ? Colors.red : colors.shade0.withOpacity(0.1),
-            width: error ? 1.5 : 1,
+            color: error ? colors.red500 : colors.neutral200,
+            width: 1.5,
           ),
         ),
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         alignment: Alignment.center,
         child: Row(
           children: [
-            if (prefix != null) ...[prefix!, 8.w.horizontalSpace],
+            if (prefix != null) ...[prefix!, 12.w.horizontalSpace],
             Expanded(
               child: TextField(
-                controller: this.controller,
+                controller: controller,
                 keyboardType: keyboardType,
                 inputFormatters: inputFormatters,
                 readOnly: readOnly,
                 onTap: onTap,
-                style: fonts.paragraphP2SemiBold.copyWith(
-                  color: colors.shade0,
+                style: fonts.paragraphP2Bold.copyWith(
+                  color: Colors.black87,
                   fontSize: 16.sp,
                 ),
                 decoration: InputDecoration(
                   hintText: hintText,
-                  hintStyle: fonts.paragraphP2SemiBold.copyWith(
-                    color: colors.shade0.withOpacity(0.3),
+                  hintStyle: fonts.paragraphP2Medium.copyWith(
+                    color: colors.neutral500,
                     fontSize: 16.sp,
                   ),
                   border: InputBorder.none,

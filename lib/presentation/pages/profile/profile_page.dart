@@ -139,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Text(
                         'yes'.tr(),
                         style: const TextStyle(
-                          color: Colors.black,
+                          color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),

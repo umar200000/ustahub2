@@ -56,19 +56,14 @@ class _CategoryGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lang = context.locale.languageCode;
-    String title = category.nameUz ?? '';
-    if (lang == 'ru') title = category.nameRu ?? category.nameUz ?? '';
-    if (lang == 'en') title = category.nameEn ?? category.nameUz ?? '';
-
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return AnimationButtonEffect(
           onTap: () {
-            if (category.id != null && category.nameUz != null) {
+            if (category.id != null && category.name != null) {
               Navigator.push(
                 context,
-                AppRoutes.categoryListPage(category.id!, category.nameUz!),
+                AppRoutes.categoryListPage(category.id!, category.name!),
               );
             }
           },
@@ -100,7 +95,7 @@ class _CategoryGridItem extends StatelessWidget {
               ),
               SizedBox(height: 8.h),
               Text(
-                title,
+                category.name ?? "",
                 style: fonts.paragraphP3SemiBold.copyWith(
                   color: colors.neutral800,
                   fontSize: 12.sp,

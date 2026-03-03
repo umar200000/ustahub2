@@ -92,12 +92,7 @@ class _DetailsPageState extends State<DetailsPage>
                   );
                 }
 
-                final locale = context.locale.languageCode;
-                final title = locale == 'uz'
-                    ? data.titleUz
-                    : locale == 'ru'
-                    ? data.titleRu
-                    : data.titleEn ?? data.titleUz ?? "";
+                final title = data.title;
 
                 return Column(
                   children: [
@@ -144,7 +139,7 @@ class _DetailsPageState extends State<DetailsPage>
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 20.w),
                               child: Text(
-                                "${data.basePrice ?? '0'} ${data.currencySymbol ?? 'So\'m'}",
+                                "${data.basePrice ?? '0'} ${"uzs".tr()}",
                                 style: TextStyle(
                                   fontSize: 20.sp,
                                   fontWeight: FontWeight.bold,
@@ -484,18 +479,9 @@ class _DetailsPageState extends State<DetailsPage>
     CustomColorSet colors,
     FontSet fonts,
   ) {
-    final locale = context.locale.languageCode;
-    final description = locale == 'uz'
-        ? data.descriptionUz
-        : locale == 'ru'
-        ? data.descriptionRu
-        : data.descriptionEn ?? data.descriptionUz ?? "";
+    final description = data.description;
 
-    final categoryName = locale == 'uz'
-        ? data.category?.nameUz
-        : locale == 'ru'
-        ? data.category?.nameRu
-        : data.category?.nameEn ?? data.category?.nameUz ?? "";
+    final categoryName = data.category?.name ?? "";
 
     final shouldTruncate = (description ?? "").length > 150;
     final displayText = shouldTruncate && !_isDescriptionExpanded
@@ -840,7 +826,7 @@ class _DetailsPageState extends State<DetailsPage>
                           ),
                           Gap(4.h),
                           Text(
-                            "${item.basePrice} ${item.currencySymbol ?? "So'm"}",
+                            "${item.basePrice} ${"uzs".tr()}",
                             style: fonts.paragraphP3Bold.copyWith(
                               color: colors.blue500,
                             ),

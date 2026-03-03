@@ -26,12 +26,8 @@ class ServiceData {
   final String? id;
   final String? providerId;
   final String? categoryId;
-  final String? titleUz;
-  final String? titleRu;
-  final String? titleEn;
-  final String? descriptionUz;
-  final String? descriptionRu;
-  final String? descriptionEn;
+  final String? title;
+  final String? description;
   final String? basePrice;
   final String? maxPrice;
   final String? status;
@@ -48,12 +44,8 @@ class ServiceData {
     this.id,
     this.providerId,
     this.categoryId,
-    this.titleUz,
-    this.titleRu,
-    this.titleEn,
-    this.descriptionUz,
-    this.descriptionRu,
-    this.descriptionEn,
+    this.title,
+    this.description,
     this.basePrice,
     this.maxPrice,
     this.status,
@@ -71,12 +63,8 @@ class ServiceData {
     id: json["id"],
     providerId: json["provider_id"],
     categoryId: json["category_id"],
-    titleUz: json["title_uz"],
-    titleRu: json["title_ru"],
-    titleEn: json["title_en"],
-    descriptionUz: json["description_uz"],
-    descriptionRu: json["description_ru"],
-    descriptionEn: json["description_en"],
+    title: json["title"],
+    description: json["description"],
     basePrice: json["base_price"],
     maxPrice: json["max_price"],
     status: json["status"],
@@ -102,12 +90,8 @@ class ServiceData {
     "id": id,
     "provider_id": providerId,
     "category_id": categoryId,
-    "title_uz": titleUz,
-    "title_ru": titleRu,
-    "title_en": titleEn,
-    "description_uz": descriptionUz,
-    "description_ru": descriptionRu,
-    "description_en": descriptionEn,
+    "title": title,
+    "description": description,
     "base_price": basePrice,
     "max_price": maxPrice,
     "status": status,
@@ -126,36 +110,23 @@ class ServiceData {
 
 class ServiceCategory {
   final String? id;
-  final String? nameUz;
-  final String? nameRu;
-  final String? nameEn;
+  final String? name;
   final String? iconUrl;
   final String? parentId;
 
-  ServiceCategory({
-    this.id,
-    this.nameUz,
-    this.nameRu,
-    this.nameEn,
-    this.iconUrl,
-    this.parentId,
-  });
+  ServiceCategory({this.id, this.name, this.iconUrl, this.parentId});
 
   factory ServiceCategory.fromJson(Map<String, dynamic> json) =>
       ServiceCategory(
         id: json["id"],
-        nameUz: json["name_uz"],
-        nameRu: json["name_ru"],
-        nameEn: json["name_en"],
+        name: json["name"],
         iconUrl: json["icon_url"],
         parentId: json["parent_id"],
       );
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "name_uz": nameUz,
-    "name_ru": nameRu,
-    "name_en": nameEn,
+    "name": name,
     "icon_url": iconUrl,
     "parent_id": parentId,
   };

@@ -24,10 +24,6 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
           final categoryData = CategoryData.fromJson(response.data);
 
           if (categoryData.success == true) {
-            print("------work-----");
-            categoryData.categoryModel?.forEach((value) {
-              print("value.nameUz: ${value.nameUz}");
-            });
             emit(
               state.copyWith(
                 status: Status2.success,

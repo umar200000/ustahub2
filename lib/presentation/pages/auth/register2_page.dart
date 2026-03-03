@@ -29,7 +29,6 @@ class _Register2PageState extends State<Register2Page> {
   final registerBloc = sl<RegisterBloc>();
   final authBloc = sl<AuthBloc>();
 
-  bool _isPhoneError = false;
   bool _isFirstNameEmpty = false;
   bool _isLastNameEmpty = false;
   bool _isDobEmpty = false;
@@ -43,16 +42,27 @@ class _Register2PageState extends State<Register2Page> {
       context: context,
       builder: (context) => Container(
         height: 300.h,
-        color: colors.darkMode800,
+        decoration: BoxDecoration(
+          color: colors.shade0,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
         child: Column(
           children: [
+            12.h.verticalSpace,
             Container(
-              height: 200.h,
+              width: 40.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: colors.neutral200,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Expanded(
               child: CupertinoTheme(
                 data: CupertinoThemeData(
                   textTheme: CupertinoTextThemeData(
                     dateTimePickerTextStyle: TextStyle(
-                      color: colors.shade0,
+                      color: colors.neutral800,
                       fontSize: 18.sp,
                     ),
                   ),
@@ -68,14 +78,19 @@ class _Register2PageState extends State<Register2Page> {
                 ),
               ),
             ),
-            CupertinoButton(
-              child: Text("OK", style: TextStyle(color: colors.blue500)),
-              onPressed: () {
-                _dobController.text = DateFormat(
-                  'dd-MM-yyyy',
-                ).format(_selectedDate);
-                Navigator.pop(context);
-              },
+            Padding(
+              padding: EdgeInsets.all(20.w),
+              child: AuthButton(
+                title: "OK",
+                onTap: () {
+                  _dobController.text = DateFormat(
+                    'dd-MM-yyyy',
+                  ).format(_selectedDate);
+                  Navigator.pop(context);
+                },
+                color: colors.primary500,
+                textColor: colors.shade0,
+              ),
             ),
           ],
         ),
@@ -102,55 +117,62 @@ class _Register2PageState extends State<Register2Page> {
         builder: (context, state) {
           return ThemeWrapper(
             builder: (context, colors, fonts, icons, controller) => Scaffold(
-              backgroundColor: colors.darkMode900,
+              backgroundColor: colors.shade0,
               appBar: AppBar(
-                backgroundColor: Colors.transparent,
+                backgroundColor: colors.shade0,
                 elevation: 0,
+                centerTitle: true,
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: colors.shade0),
+                  icon: Icon(Icons.arrow_back_ios_new, color: Colors.black87),
                   onPressed: () => Navigator.pop(context),
                 ),
                 title: Text(
                   "registration".tr(),
-                  style: fonts.subheadingRegular.copyWith(color: colors.shade0),
+                  style: fonts.subheadingBold.copyWith(color: Colors.black87),
                 ),
               ),
               body: SingleChildScrollView(
-                padding: EdgeInsets.all(20.w),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
                 child: Column(
                   children: [
+                    20.h.verticalSpace,
                     CustomTextField(
                       controller: _firstNameController,
                       hintText: "first_name".tr(),
                       keyboardType: TextInputType.name,
                       error: _isFirstNameEmpty,
                     ),
-                    16.h.verticalSpace,
+                    20.h.verticalSpace,
                     CustomTextField(
                       controller: _lastNameController,
                       hintText: "last_name".tr(),
                       keyboardType: TextInputType.name,
                       error: _isLastNameEmpty,
                     ),
-                    16.h.verticalSpace,
+                    20.h.verticalSpace,
                     CustomTextField(
                       controller: _dobController,
                       hintText: "date_of_birth".tr(),
                       readOnly: true,
                       onTap: () => _showDatePicker(context, colors, fonts),
                       error: _isDobEmpty,
+                      prefix: Icon(
+                        Icons.calendar_today_outlined,
+                        color: Colors.grey,
+                        size: 20.sp,
+                      ),
                     ),
                     if (state.status == Status2.error)
                       Padding(
                         padding: EdgeInsets.only(top: 20.h),
                         child: Text(
                           state.errorMessage!,
-                          style: TextStyle(color: Colors.red),
+                          style: TextStyle(color: colors.red500),
                         ),
                       ),
-                    40.h.verticalSpace,
+                    60.h.verticalSpace,
                     AuthButton(
-                      color: colors.blue500,
+                      color: colors.primary500,
                       onTap: () {
                         if (state.status == Status2.success &&
                             state.statusUser == Status2.error) {
@@ -166,8 +188,7 @@ class _Register2PageState extends State<Register2Page> {
                           _isLastNameEmpty = _lastNameController.text.isEmpty;
                           _isDobEmpty = _dobController.text.isEmpty;
                         });
-                        if (!_isPhoneError &&
-                            !_isFirstNameEmpty &&
+                        if (!_isFirstNameEmpty &&
                             !_isLastNameEmpty &&
                             !_isDobEmpty) {
                           registerBloc.add(

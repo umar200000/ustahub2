@@ -27,7 +27,7 @@ class ServicesGrid extends StatelessWidget {
                   Text(
                     'select_category'.tr(),
                     style: fonts.paragraphP1Bold.copyWith(
-                      color: colors.shade100,
+                      color: Colors.black87,
                       fontSize: 18.sp,
                     ),
                   ),
@@ -78,19 +78,14 @@ class _CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lang = context.locale.languageCode;
-    String title = service.nameUz ?? '';
-    if (lang == 'ru') title = service.nameRu ?? service.nameUz ?? '';
-    if (lang == 'en') title = service.nameEn ?? service.nameUz ?? '';
-
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return AnimationButtonEffect(
           onTap: () {
-            if (service.id != null && service.nameUz != null) {
+            if (service.id != null && service.name != null) {
               Navigator.push(
                 context,
-                AppRoutes.categoryListPage(service.id!, service.nameUz!),
+                AppRoutes.categoryListPage(service.id!, service.name!),
               );
             }
           },
@@ -128,7 +123,7 @@ class _CategoryItem extends StatelessWidget {
                 SizedBox(height: 10.h),
                 // Label
                 Text(
-                  title,
+                  service.name ?? "",
                   style: fonts.paragraphP3Regular.copyWith(
                     color: colors.neutral700,
                     fontWeight: FontWeight.w500,
@@ -159,11 +154,6 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lang = context.locale.languageCode;
-    String title = service.nameUz ?? '';
-    if (lang == 'ru') title = service.nameRu ?? service.nameUz ?? '';
-    if (lang == 'en') title = service.nameEn ?? service.nameUz ?? '';
-
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return Container(
@@ -187,7 +177,7 @@ class ServiceCard extends StatelessWidget {
                 Icon(Icons.category, size: 40.w, color: colors.blue500),
               SizedBox(height: 8.h),
               Text(
-                title,
+                service.name ?? "",
                 style: fonts.paragraphP3Bold.copyWith(color: colors.shade100),
                 textAlign: TextAlign.center,
                 maxLines: 2,

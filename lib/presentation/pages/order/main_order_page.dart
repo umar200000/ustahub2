@@ -265,7 +265,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
               Icon(
                 Icons.receipt_long_outlined,
                 size: 80.sp,
-                color: colors.neutral400,
+                color: colors.neutral500,
               ),
               SizedBox(height: 16.h),
               Text(

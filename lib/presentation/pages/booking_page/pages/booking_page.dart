@@ -221,7 +221,7 @@ class _BookingPageState extends State<BookingPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.service.titleUz ?? "Xizmat nomi",
+                                widget.service.title ?? "Xizmat nomi",
                                 style: GoogleFonts.poppins(
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.bold,

@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
-import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 class BannerDetailsPage extends StatefulWidget {
@@ -32,136 +31,182 @@ class _BannerDetailsPageState extends State<BannerDetailsPage> {
           backgroundColor: colors.shade0,
           body: BlocBuilder<BannerBloc, BannerState>(
             builder: (context, state) {
-              final data = state.bannerDetailsModel?.data;
-
-              // 1. Backenddan kelgan tayyor localized matnlarni olamiz
-              String title = data?.title ?? "";
-              String subtitle = data?.subtitle ?? "";
-              String description = data?.description ?? "";
-
-              // 2. Agar ular bo'sh bo'lsa, fallback (tilga qarab tanlash)
-              if (title.isEmpty || subtitle.isEmpty || description.isEmpty) {
-                final lang = context.locale.languageCode;
-                if (lang == 'ru') {
-                  if (title.isEmpty)
-                    title = data?.titleRu ?? data?.titleUz ?? "";
-                  if (subtitle.isEmpty)
-                    subtitle = data?.subtitleRu ?? data?.subtitleUz ?? "";
-                  if (description.isEmpty)
-                    description =
-                        data?.descriptionRu ?? data?.descriptionUz ?? "";
-                } else if (lang == 'en') {
-                  if (title.isEmpty)
-                    title = data?.titleEn ?? data?.titleUz ?? "";
-                  if (subtitle.isEmpty)
-                    subtitle = data?.subtitleEn ?? data?.subtitleUz ?? "";
-                  if (description.isEmpty)
-                    description =
-                        data?.descriptionEn ?? data?.descriptionUz ?? "";
-                } else {
-                  if (title.isEmpty) title = data?.titleUz ?? "";
-                  if (subtitle.isEmpty) subtitle = data?.subtitleUz ?? "";
-                  if (description.isEmpty)
-                    description = data?.descriptionUz ?? "";
-                }
+              if (state.detailsStatus == Status2.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (state.detailsStatus == Status2.error) {
+                return Center(child: Text(state.errorMessage ?? "error".tr()));
               }
 
-              return Stack(
-                children: [
-                  Builder(
-                    builder: (context) {
-                      if (state.detailsStatus == Status2.loading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (state.detailsStatus == Status2.error) {
-                        return Center(
-                          child: Text(state.errorMessage ?? "error".tr()),
-                        );
-                      }
-                      if (data == null) return const SizedBox();
+              final data = state.bannerDetailsModel?.data;
+              if (data == null) return const SizedBox();
 
-                      return SingleChildScrollView(
+              // Localized matnlarni olish
+              String title = data.title ?? "";
+              String subtitle = data.subtitle ?? "";
+              String description = data.description ?? "";
+
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Modern Silver App Bar
+                  SliverAppBar(
+                    expandedHeight: 300.h,
+                    pinned: true,
+                    stretch: true,
+                    backgroundColor: colors.primary500,
+                    leadingWidth: 70.w,
+                    leading: Padding(
+                      padding: EdgeInsets.only(left: 10.w),
+                      child: Center(
+                        child: Container(
+                          height: 36.w,
+                          width: 36.w,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(
+                              Icons.arrow_back_ios_new,
+                              color: Colors.white,
+                              size: 20.sp,
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                      ),
+                    ),
+                    flexibleSpace: FlexibleSpaceBar(
+                      stretchModes: const [
+                        StretchMode.zoomBackground,
+                        StretchMode.blurBackground,
+                      ],
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          if (data.imageUrl != null)
+                            Image.network(
+                              data.imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                    color: colors.neutral200,
+                                    child: const Icon(
+                                      Icons.image_not_supported,
+                                    ),
+                                  ),
+                            ),
+                          // Gradient Overlay
+                          const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.transparent, Colors.black45],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Content
+                  SliverToBoxAdapter(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: colors.shade0,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(30.r),
+                        ),
+                      ),
+                      transform: Matrix4.translationValues(0, -30.r, 0),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 24.h),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Gap(110.h),
-                            // Banner Image
-                            if (data.imageUrl != null)
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(16.r),
-                                  child: Image.network(
-                                    data.imageUrl!,
-                                    width: double.infinity,
-                                    height: 220.h,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
-                                              height: 220.h,
-                                              color: colors.neutral200,
-                                              child: const Icon(
-                                                Icons.image_not_supported,
-                                              ),
-                                            ),
+                            // Badge or Label
+                            if (subtitle.isNotEmpty)
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12.w,
+                                  vertical: 6.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colors.blue500.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Text(
+                                  subtitle.toUpperCase(),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: colors.blue500,
+                                    letterSpacing: 1,
                                   ),
                                 ),
                               ),
+                            Gap(16.h),
 
-                            // Content
-                            Padding(
-                              padding: EdgeInsets.all(20.w),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Title
-                                  if (title.isNotEmpty)
-                                    Text(
-                                      title,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 22.sp,
-                                        fontWeight: FontWeight.bold,
-                                        color: colors.shade100,
-                                      ),
-                                    ),
-                                  if (subtitle.isNotEmpty) ...[
-                                    Gap(8.h),
-                                    Text(
-                                      subtitle,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: colors.blue500,
-                                      ),
-                                    ),
-                                  ],
-                                  Gap(16.h),
-                                  // Divider
-                                  Divider(color: colors.neutral200),
-                                  Gap(16.h),
-                                  // Description
-                                  if (description.isNotEmpty)
-                                    Text(
-                                      description,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 15.sp,
-                                        color: colors.neutral700,
-                                        height: 1.6,
-                                      ),
-                                    ),
-                                ],
+                            // Title
+                            if (title.isNotEmpty)
+                              Text(
+                                title,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 26.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.neutral800,
+                                  height: 1.2,
+                                ),
                               ),
+
+                            Gap(24.h),
+                            Divider(color: colors.neutral100, thickness: 1),
+                            Gap(24.h),
+
+                            // Description Section
+                            Row(
+                              children: [
+                                Container(
+                                  width: 4.w,
+                                  height: 24.h,
+                                  decoration: BoxDecoration(
+                                    color: colors.blue500,
+                                    borderRadius: BorderRadius.circular(2.r),
+                                  ),
+                                ),
+                                Gap(12.w),
+                                Text(
+                                  "description".tr(),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: colors.neutral800,
+                                  ),
+                                ),
+                              ],
                             ),
+                            Gap(16.h),
+
+                            if (description.isNotEmpty)
+                              Text(
+                                description,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16.sp,
+                                  color: colors.neutral600,
+                                  height: 1.7,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+
+                            Gap(100.h), // Bottom spacing
                           ],
                         ),
-                      );
-                    },
-                  ),
-                  UniversalAppBar(
-                    title: title.isNotEmpty ? title : "details".tr(),
-                    centerTitle: true,
-                    showBackButton: true,
+                      ),
+                    ),
                   ),
                 ],
               );

@@ -2,9 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ustahub/presentation/pages/auth/widgets/pin_put_widget.dart';
+import 'package:ustahub/presentation/pages/auth/widgets/uz_phone_formatter.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
+import '../../../../application2/auth_bloc_and_data/bloc/auth_bloc.dart';
 import '../../../../application2/register_bloc_and_data/bloc/register_bloc.dart';
 import '../../../../infrastructure/services/enum_status/status_enum.dart';
 import '../../../../infrastructure2/init/injection.dart';
@@ -13,6 +16,7 @@ import 'enter_phone_number_box.dart';
 
 class AuthContentBox extends StatefulWidget {
   final bool showGuestOption;
+
   const AuthContentBox({super.key, this.showGuestOption = true});
 
   @override
@@ -21,6 +25,25 @@ class AuthContentBox extends StatefulWidget {
 
 class _AuthContentBoxState extends State<AuthContentBox> {
   final registerBloc = sl<RegisterBloc>();
+
+  final TextEditingController _controller = TextEditingController();
+  final authBloc = sl<AuthBloc>();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void showPinPutWidget(BuildContext context) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return const PinPutWidget();
+      },
+    );
+  }
 
   void showEnterNumber(BuildContext context) {
     showModalBottomSheet(
@@ -34,101 +57,189 @@ class _AuthContentBoxState extends State<AuthContentBox> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: registerBloc,
-      child: BlocConsumer<RegisterBloc, RegisterState>(
-        listenWhen: (previous, current) =>
-            previous.status != current.status &&
-            current.status == Status2.success,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: registerBloc),
+        BlocProvider.value(value: authBloc),
+      ],
+      child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              Navigator.of(
-                context,
-                rootNavigator: true,
-              ).pushAndRemoveUntil(AppRoutes.main(), (route) => false);
-            }
-          });
+          if (ModalRoute.of(context)?.isCurrent != true) return;
+          if (state.phoneStatus == Status2.success) {
+            showPinPutWidget(context);
+          } else if (state.phoneStatus == Status2.error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage ?? "Xatolik"),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         },
         builder: (context, state) {
-          return ThemeWrapper(
-            builder: (context, colors, fonts, icons, controller) => Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              decoration: BoxDecoration(
-                color: colors.shade0,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  16.h.verticalSpace,
-                  Text(
-                    textAlign: TextAlign.center,
-                    'login_or_create_account'.tr(),
-                    style: fonts.subheadingRegular.copyWith(
-                      color: colors.shade100,
-                      fontSize: 24.sp,
-                      height: 1.2,
+          return BlocConsumer<RegisterBloc, RegisterState>(
+            listenWhen: (previous, current) =>
+                previous.status != current.status &&
+                current.status == Status2.success,
+            listener: (context, state) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  Navigator.of(
+                    context,
+                    rootNavigator: true,
+                  ).pushAndRemoveUntil(AppRoutes.main(), (route) => false);
+                }
+              });
+            },
+            builder: (context, state) {
+              return ThemeWrapper(
+                builder: (context, colors, fonts, icons, controller) => Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  decoration: BoxDecoration(
+                    color: colors.shade0,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(32),
+                      topRight: Radius.circular(32),
                     ),
                   ),
-                  SizedBox(height: 24.h),
-                  // AuthButton(
-                  //   color: colors.shade100,
-                  //   icon: Icons.apple,
-                  //   onTap: () {},
-                  //   textColor: colors.shade0,
-                  //   title: "continue_with_apple".tr(),
-                  // ),
-                  // AuthButton(
-                  //   color: colors.primary500,
-                  //   icon: Icons.g_mobiledata,
-                  //   onTap: () {},
-                  //   textColor: colors.shade0,
-                  //   title: "continue_with_google".tr(),
-                  // ),
-                  // AuthButton(
-                  //   color: const Color(0xFF1877F2),
-                  //   icon: Icons.facebook,
-                  //   onTap: () {},
-                  //   textColor: colors.shade0,
-                  //   title: "continue_with_facebook".tr(),
-                  // ),
-                  AuthButton(
-                    color: colors.neutral100,
-                    icon: Icons.phone_android,
-                    onTap: () {
-                      showEnterNumber(context);
-                    },
-                    textColor: colors.primary500,
-                    title: "continue_with_phone".tr(),
-                  ),
-                  if (widget.showGuestOption)
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {
-                        // Fire event in background, navigate immediately
-                        registerBloc.add(VisiteGuestEvent());
-                        Navigator.of(context, rootNavigator: true)
-                            .pushAndRemoveUntil(AppRoutes.main(), (route) => false);
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.h),
-                        child: Text(
-                          "continue_as_guest".tr(),
-                          style: fonts.paragraphP3SemiBold.copyWith(
-                            color: colors.primary500,
-                          ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      12.h.verticalSpace,
+                      // Drag indicator
+                      Container(
+                        width: 40.w,
+                        height: 4.h,
+                        decoration: BoxDecoration(
+                          color: colors.neutral200,
+                          borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                    ),
-                  SizedBox(height: 32.h),
-                ],
-              ),
-            ),
+                      24.h.verticalSpace,
+
+                      // Title
+                      Text(
+                        'login_or_create_account'.tr(),
+                        textAlign: TextAlign.center,
+                        style: fonts.subheadingBold.copyWith(
+                          color: colors.neutral800,
+                          fontSize: 22.sp,
+                          height: 1.2,
+                        ),
+                      ),
+
+                      24.h.verticalSpace,
+
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colors.neutral100,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: colors.neutral200),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Row(
+                          children: [
+                            Text(
+                              "+998 ",
+                              style: fonts.paragraphP2SemiBold.copyWith(
+                                color: colors.shade100,
+                                fontSize: 18.sp,
+                              ),
+                            ),
+                            Expanded(
+                              child: TextField(
+                                controller: _controller,
+                                autofocus: true,
+                                keyboardType: TextInputType.phone,
+                                inputFormatters: [UzPhoneFormatter()],
+                                style: fonts.paragraphP2SemiBold.copyWith(
+                                  color: colors.shade100,
+                                  fontSize: 18.sp,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: "(_ _) _ _ _  _ _  _ _",
+                                  hintStyle: fonts.paragraphP2SemiBold.copyWith(
+                                    color: colors.neutral500,
+                                  ),
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      24.h.verticalSpace,
+                      BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) {
+                          final isLoading =
+                              state.phoneStatus == Status2.loading;
+                          return AuthButton(
+                            color: colors.primary500,
+                            onTap: isLoading
+                                ? () {}
+                                : () {
+                                    final phoneNumber =
+                                        "+998${_controller.text.replaceAll(' ', '')}";
+
+                                    if (phoneNumber.length == 13) {
+                                      authBloc.add(
+                                        EnterPhoneNumberEvent(
+                                          phoneNumber: phoneNumber,
+                                        ),
+                                      );
+                                    }
+                                  },
+                            textColor: colors.shade0,
+                            title: "continue".tr(),
+                            child: isLoading
+                                ? Center(
+                                    child: SizedBox(
+                                      width: 24.r,
+                                      height: 24.r,
+                                      child: CircularProgressIndicator(
+                                        color: colors.shade0,
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                          );
+                        },
+                      ),
+
+                      if (widget.showGuestOption)
+                        Padding(
+                          padding: EdgeInsets.only(top: 8.h),
+                          child: TextButton(
+                            onPressed: () {
+                              registerBloc.add(VisiteGuestEvent());
+                              Navigator.of(
+                                context,
+                                rootNavigator: true,
+                              ).pushAndRemoveUntil(
+                                AppRoutes.main(),
+                                (route) => false,
+                              );
+                            },
+                            style: TextButton.styleFrom(
+                              minimumSize: Size(double.infinity, 44.h),
+                            ),
+                            child: Text(
+                              "continue_as_guest".tr(),
+                              style: fonts.paragraphP3SemiBold.copyWith(
+                                color: colors.primary500,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      10.h.verticalSpace,
+                    ],
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

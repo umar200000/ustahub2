@@ -29,35 +29,22 @@ class CategoryData {
 
 class CategoryModel {
   final String? id;
-  final String? nameUz;
-  final String? nameRu;
-  final String? nameEn;
+  final String? name;
   final String? iconUrl;
   final dynamic parentId;
 
-  CategoryModel({
-    this.id,
-    this.nameUz,
-    this.nameRu,
-    this.nameEn,
-    this.iconUrl,
-    this.parentId,
-  });
+  CategoryModel({this.id, this.name, this.iconUrl, this.parentId});
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) => CategoryModel(
     id: json["id"],
-    nameUz: json["name_uz"],
-    nameRu: json["name_ru"],
-    nameEn: json["name_en"],
+    name: json["name"],
     iconUrl: json["icon_url"],
     parentId: json["parent_id"],
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "name_uz": nameUz,
-    "name_ru": nameRu,
-    "name_en": nameEn,
+    "name": name,
     "icon_url": iconUrl,
     "parent_id": parentId,
   };
