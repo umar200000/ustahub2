@@ -571,9 +571,21 @@ class CardNumberFormatter extends TextInputFormatter {
         buffer.write(' ');
       }
     }
+
+    final formattedText = buffer.toString();
+    int cursorOffset = newValue.selection.baseOffset;
+
+    // Calculate spaces added before current cursor position
+    int spacesBefore = 0;
+    for (int i = 0; i < cursorOffset; i++) {
+      if (i > 0 && i % 4 == 0) {
+        spacesBefore++;
+      }
+    }
+
     return TextEditingValue(
-      text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: cursorOffset + spacesBefore),
     );
   }
 }
@@ -622,9 +634,13 @@ class CardMMYYFormatter extends TextInputFormatter {
       }
     }
 
+    final formattedText = buffer.toString();
+    int cursorOffset = newValue.selection.baseOffset;
+    int spacesBefore = (cursorOffset > 2) ? 1 : 0;
+
     return TextEditingValue(
-      text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: cursorOffset + spacesBefore),
     );
   }
 }

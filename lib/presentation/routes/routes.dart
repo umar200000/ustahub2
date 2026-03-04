@@ -23,6 +23,7 @@ import '../pages/booking_page/pages/booking_page.dart';
 import '../pages/category_list_page/category_list_page.dart';
 import '../pages/company_details_page/pages/company_details_page.dart';
 import '../pages/home/details_page.dart';
+import '../pages/my_card/presentation/pages/my_card_page.dart';
 
 // Cache repositories to avoid recreating them
 class _RepositoryCache {
@@ -94,6 +95,11 @@ class AppRoutes {
   // Onboarding screen - second screen
   static MaterialPageRoute getOnboarding() {
     return MaterialPageRoute(builder: (_) => const OnboardingPage());
+  }
+
+  // Onboarding screen - second screen
+  static MaterialPageRoute myCardPage() {
+    return MaterialPageRoute(builder: (_) => MyCardPage());
   }
 
   // AuthOptions screen

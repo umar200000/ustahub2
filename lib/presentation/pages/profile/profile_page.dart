@@ -203,6 +203,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               colors: colors,
                             ),
                           ),
+                          Divider(height: 1, color: colors.neutral200),
+                          SettingsMenuItem(
+                            icon: Icons.credit_card_outlined,
+                            title: 'my_card'.tr(),
+                            showTrailing: true,
+                            onTap: () {
+                              Navigator.push(context, AppRoutes.myCardPage());
+                            },
+                            fonts: fonts,
+                            colors: colors,
+                          ),
                         ],
                       ),
                       _SectionHeader(
