@@ -32,7 +32,8 @@ class SuccessCardPage extends StatelessWidget {
 
                 // Title
                 Text(
-                  "card_added_successfully".tr(),
+                  "card_added_successfully"
+                      .tr(), // "Karta muvaffaqiyatli qo'shildi"
                   textAlign: TextAlign.center,
                   style: fonts.headingH4Bold.copyWith(
                     color: colors.neutral800,
@@ -43,7 +44,7 @@ class SuccessCardPage extends StatelessWidget {
 
                 // Subtitle
                 Text(
-                  "card_added_description".tr(),
+                  "card_added_message".tr(),
                   textAlign: TextAlign.center,
                   style: fonts.paragraphP2Regular.copyWith(
                     color: colors.neutral500,
@@ -56,7 +57,6 @@ class SuccessCardPage extends StatelessWidget {
                 AuthButton(
                   title: "back_to_home".tr(),
                   onTap: () {
-                    // Navigate to main and switch to profile tab (assuming index 3 or similar)
                     Navigator.of(
                       context,
                       rootNavigator: true,
