@@ -20,7 +20,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // Endi to'g'ridan-to'g'ri dio emas, repo orqali chaqiramiz
         final response = await _authRepo.requestOtp(event.phoneNumber);
 
-        if (response.statusCode == 200) {
+        if (response.data['success']) {
           final authData = AuthPhoneNumber.fromJson(response.data);
 
           if (authData.success == true) {

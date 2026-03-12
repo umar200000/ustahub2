@@ -19,11 +19,147 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersPageState extends State<OrdersPage> {
+  double? _rating;
+  String? _reviewText;
+
   @override
   void initState() {
     super.initState();
     context.read<BookingBloc>().add(
       GetBookingDetailsEvent(id: widget.bookingId),
+    );
+  }
+
+  void _showReviewSheet(
+    BuildContext context,
+    CustomColorSet colors,
+    FontSet fonts,
+  ) {
+    double tempRating = 0;
+    final TextEditingController reviewController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: EdgeInsets.only(
+                left: 20.w,
+                right: 20.w,
+                top: 20.h,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
+              ),
+              decoration: BoxDecoration(
+                color: colors.shade0,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: colors.neutral300,
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ),
+                  Gap(24.h),
+                  Text(
+                    "leave_review".tr(), //"Fikr qoldiring"
+                    style: fonts.paragraphP1Bold,
+                  ),
+                  Gap(16.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        onPressed: () {
+                          setModalState(() {
+                            tempRating = index + 1.0;
+                          });
+                        },
+                        icon: Icon(
+                          index < tempRating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 36.sp,
+                        ),
+                      );
+                    }),
+                  ),
+                  Gap(16.h),
+                  TextField(
+                    controller: reviewController,
+                    maxLines: 4,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "write_your_opinion"
+                          .tr(), //"Fikringizni yozing..."
+                      hintStyle: fonts.paragraphP2Regular.copyWith(
+                        color: colors.neutral500, // Hint rangini to'qroq qildim
+                      ),
+                      filled: true,
+                      fillColor: colors.shade0, // Oq fon
+                      contentPadding: EdgeInsets.all(16.w),
+
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(
+                          color: colors.neutral500,
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide(
+                          color: colors.primary500,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Gap(24.h),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50.h,
+                    child: ElevatedButton(
+                      onPressed: tempRating == 0
+                          ? null
+                          : () {
+                              setState(() {
+                                _rating = tempRating;
+                                _reviewText = reviewController.text;
+                              });
+                              Navigator.pop(context);
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.primary500,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      child: Text(
+                        "send".tr(), //Yuborish
+                        style: fonts.paragraphP2SemiBold.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Gap(MediaQuery.of(context).padding.bottom),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -181,6 +317,72 @@ class _OrdersPageState extends State<OrdersPage> {
                             ),
                           ),
                           Gap(16.h),
+
+                          // Review Section (New)
+                          if (data.status?.toLowerCase() == 'completed')
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              child: _rating == null
+                                  ? SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () => _showReviewSheet(
+                                          context,
+                                          colors,
+                                          fonts,
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: colors.primary500,
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 12.h,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12.r,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "leave_review".tr(), //Fikr qoldirish
+                                          style: fonts.paragraphP2SemiBold
+                                              .copyWith(color: Colors.white),
+                                        ),
+                                      ),
+                                    )
+                                  : _buildSectionCard(
+                                      colors,
+                                      title: "your_review"
+                                          .tr(), //Sizning fikringiz
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: List.generate(5, (index) {
+                                              return Icon(
+                                                index < _rating!
+                                                    ? Icons.star
+                                                    : Icons.star_border,
+                                                color: Colors.amber,
+                                                size: 20.sp,
+                                              );
+                                            }),
+                                          ),
+                                          if (_reviewText != null &&
+                                              _reviewText!.isNotEmpty) ...[
+                                            Gap(8.h),
+                                            Text(
+                                              _reviewText!,
+                                              style: fonts.paragraphP2Regular
+                                                  .copyWith(
+                                                    color: colors.neutral700,
+                                                  ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                            ),
 
                           // Schedule Info
                           _buildSectionCard(
