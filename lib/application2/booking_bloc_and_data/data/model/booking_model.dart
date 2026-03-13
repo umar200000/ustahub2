@@ -19,6 +19,20 @@ class BookingModel {
     "message": message,
     "error": error,
   };
+
+  BookingModel copyWith({
+    bool? success,
+    BookingData? data,
+    String? message,
+    dynamic error,
+  }) {
+    return BookingModel(
+      success: success ?? this.success,
+      data: data ?? this.data,
+      message: message ?? this.message,
+      error: error ?? this.error,
+    );
+  }
 }
 
 class BookingData {
@@ -54,6 +68,8 @@ class BookingData {
   final dynamic canceledAt;
   final String? createdAt;
   final String? updatedAt;
+  final Review? review;
+  final String? address;
 
   BookingData({
     this.id,
@@ -88,6 +104,8 @@ class BookingData {
     this.canceledAt,
     this.createdAt,
     this.updatedAt,
+    this.review,
+    this.address,
   });
 
   factory BookingData.fromJson(Map<String, dynamic> json) => BookingData(
@@ -123,6 +141,8 @@ class BookingData {
     canceledAt: json["canceled_at"],
     createdAt: json["created_at"],
     updatedAt: json["updated_at"],
+    review: json["review"] == null ? null : Review.fromJson(json["review"]),
+    address: json["address"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -158,5 +178,101 @@ class BookingData {
     "canceled_at": canceledAt,
     "created_at": createdAt,
     "updated_at": updatedAt,
+    "review": review?.toJson(),
+    "address": address,
+  };
+
+  BookingData copyWith({
+    String? id,
+    int? bookingNumber,
+    String? userId,
+    String? providerId,
+    String? serviceId,
+    dynamic masterId,
+    String? serviceTitle,
+    String? providerName,
+    String? providerLogo,
+    double? latitude,
+    double? longitude,
+    String? scheduledDate,
+    String? scheduledTimeStart,
+    dynamic scheduledTimeEnd,
+    bool? isInstantBooking,
+    double? basePrice,
+    double? totalPrice,
+    dynamic finalPrice,
+    String? status,
+    dynamic statusChangedAt,
+    String? regionId,
+    String? userComment,
+    dynamic providerNote,
+    dynamic cancellationReason,
+    dynamic canceledBy,
+    dynamic assignedAt,
+    dynamic acceptedAt,
+    dynamic startedAt,
+    dynamic completedAt,
+    dynamic canceledAt,
+    String? createdAt,
+    String? updatedAt,
+    Review? review,
+    String? address,
+  }) {
+    return BookingData(
+      id: id ?? this.id,
+      bookingNumber: bookingNumber ?? this.bookingNumber,
+      userId: userId ?? this.userId,
+      providerId: providerId ?? this.providerId,
+      serviceId: serviceId ?? this.serviceId,
+      masterId: masterId ?? this.masterId,
+      serviceTitle: serviceTitle ?? this.serviceTitle,
+      providerName: providerName ?? this.providerName,
+      providerLogo: providerLogo ?? this.providerLogo,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      scheduledDate: scheduledDate ?? this.scheduledDate,
+      scheduledTimeStart: scheduledTimeStart ?? this.scheduledTimeStart,
+      scheduledTimeEnd: scheduledTimeEnd ?? this.scheduledTimeEnd,
+      isInstantBooking: isInstantBooking ?? this.isInstantBooking,
+      basePrice: basePrice ?? this.basePrice,
+      totalPrice: totalPrice ?? this.totalPrice,
+      finalPrice: finalPrice ?? this.finalPrice,
+      status: status ?? this.status,
+      statusChangedAt: statusChangedAt ?? this.statusChangedAt,
+      regionId: regionId ?? this.regionId,
+      userComment: userComment ?? this.userComment,
+      providerNote: providerNote ?? this.providerNote,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
+      canceledBy: canceledBy ?? this.canceledBy,
+      assignedAt: assignedAt ?? this.assignedAt,
+      acceptedAt: acceptedAt ?? this.acceptedAt,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      canceledAt: canceledAt ?? this.canceledAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      review: review ?? this.review,
+      address: address ?? this.address,
+    );
+  }
+}
+
+class Review {
+  final int? rating;
+  final String? comment;
+  final String? createdAt;
+
+  Review({this.rating, this.comment, this.createdAt});
+
+  factory Review.fromJson(Map<String, dynamic> json) => Review(
+    rating: json["rating"],
+    comment: json["comment"],
+    createdAt: json["created_at"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "rating": rating,
+    "comment": comment,
+    "created_at": createdAt,
   };
 }

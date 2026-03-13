@@ -6,6 +6,18 @@ import '../mock/booking_mock_data.dart';
 class BookingRepo {
   final _dio = sl<Dio>();
 
+  Future<Response> setReview({
+    required String bookingId,
+    required int rating,
+    required String comment,
+  }) async {
+    final response = await _dio.post(
+      "api/v1/client/reviews/",
+      data: {"booking_id": bookingId, "rating": rating, "comment": comment},
+    );
+    return response;
+  }
+
   Future<Response> getBookingDetails({required String id}) async {
     // Use mock data
     if (BookingMockData.useMockData) {
@@ -34,10 +46,7 @@ class BookingRepo {
       return Response(
         requestOptions: RequestOptions(path: ''),
         statusCode: 200,
-        data: {
-          ...mockData,
-          'data': paginatedItems,
-        },
+        data: {...mockData, 'data': paginatedItems},
       );
     }
 
@@ -65,7 +74,6 @@ class BookingRepo {
         "longitude": longitude,
         "scheduled_date": scheduledDate,
         "scheduled_time_start": scheduledTimeStart,
-        "address": address,
         "user_comment": userComment,
       },
     );

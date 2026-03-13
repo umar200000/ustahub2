@@ -4,6 +4,7 @@ class BookingState extends Equatable {
   final Status2 status;
   final Status2 listStatus;
   final Status2 detailsStatus;
+  final Status2 reviewStatus;
   final List<BookingListItem> items;
   final BookingModel? bookingModel;
   final bool hasReachedMax;
@@ -14,6 +15,7 @@ class BookingState extends Equatable {
     this.status = Status2.initial,
     this.listStatus = Status2.initial,
     this.detailsStatus = Status2.initial,
+    this.reviewStatus = Status2.initial,
     this.items = const [],
     this.bookingModel,
     this.hasReachedMax = false,
@@ -25,6 +27,7 @@ class BookingState extends Equatable {
     Status2? status,
     Status2? listStatus,
     Status2? detailsStatus,
+    Status2? reviewStatus,
     List<BookingListItem>? items,
     BookingModel? bookingModel,
     bool? hasReachedMax,
@@ -35,6 +38,7 @@ class BookingState extends Equatable {
       status: status ?? this.status,
       listStatus: listStatus ?? this.listStatus,
       detailsStatus: detailsStatus ?? this.detailsStatus,
+      reviewStatus: reviewStatus ?? this.reviewStatus,
       items: items ?? this.items,
       bookingModel: bookingModel ?? this.bookingModel,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
@@ -48,6 +52,7 @@ class BookingState extends Equatable {
     status,
     listStatus,
     detailsStatus,
+    reviewStatus,
     items,
     bookingModel,
     hasReachedMax,

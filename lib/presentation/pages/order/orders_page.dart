@@ -19,9 +19,6 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersPageState extends State<OrdersPage> {
-  double? _rating;
-  String? _reviewText;
-
   @override
   void initState() {
     super.initState();
@@ -42,120 +39,164 @@ class _OrdersPageState extends State<OrdersPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Container(
-              padding: EdgeInsets.only(
-                left: 20.w,
-                right: 20.w,
-                top: 20.h,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
-              ),
-              decoration: BoxDecoration(
-                color: colors.shade0,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40.w,
-                    height: 4.h,
-                    decoration: BoxDecoration(
-                      color: colors.neutral300,
-                      borderRadius: BorderRadius.circular(2.r),
+      builder: (bottomSheetContext) {
+        return BlocConsumer<BookingBloc, BookingState>(
+          listener: (context, state) {
+            if (state.reviewStatus == Status2.success) {
+              Navigator.pop(bottomSheetContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.successMessage ?? "review_saved".tr()),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            } else if (state.reviewStatus == Status2.error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage ?? "error_occurred".tr()),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            return StatefulBuilder(
+              builder: (context, setModalState) {
+                return Container(
+                  padding: EdgeInsets.only(
+                    left: 20.w,
+                    right: 20.w,
+                    top: 20.h,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.shade0,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24.r),
                     ),
                   ),
-                  Gap(24.h),
-                  Text(
-                    "leave_review".tr(), //"Fikr qoldiring"
-                    style: fonts.paragraphP1Bold,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 40.w,
+                        height: 4.h,
+                        decoration: BoxDecoration(
+                          color: colors.neutral300,
+                          borderRadius: BorderRadius.circular(2.r),
+                        ),
+                      ),
+                      Gap(24.h),
+                      Text("leave_review".tr(), style: fonts.paragraphP1Bold),
+                      Gap(16.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(5, (index) {
+                          return IconButton(
+                            onPressed: state.reviewStatus == Status2.loading
+                                ? null
+                                : () {
+                                    setModalState(() {
+                                      tempRating = index + 1.0;
+                                    });
+                                  },
+                            icon: Icon(
+                              index < tempRating
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: Colors.amber,
+                              size: 36.sp,
+                            ),
+                          );
+                        }),
+                      ),
+                      Gap(16.h),
+                      TextField(
+                        controller: reviewController,
+                        maxLines: 4,
+                        enabled: state.reviewStatus != Status2.loading,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "write_your_opinion".tr(),
+                          hintStyle: fonts.paragraphP2Regular.copyWith(
+                            color: colors.neutral500,
+                          ),
+                          filled: true,
+                          fillColor: colors.shade0,
+                          contentPadding: EdgeInsets.all(16.w),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide(
+                              color: colors.neutral500,
+                              width: 1.5,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide(
+                              color: colors.primary500,
+                              width: 1.5,
+                            ),
+                          ),
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide(
+                              color: colors.neutral300,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Gap(24.h),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50.h,
+                        child: ElevatedButton(
+                          onPressed:
+                              (tempRating == 0 ||
+                                  state.reviewStatus == Status2.loading)
+                              ? null
+                              : () {
+                                  context.read<BookingBloc>().add(
+                                    SetReviewEvent(
+                                      bookingId: widget.bookingId,
+                                      rating: tempRating.toInt(),
+                                      comment: reviewController.text,
+                                    ),
+                                  );
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.primary500,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: state.reviewStatus == Status2.loading
+                              ? SizedBox(
+                                  width: 24.w,
+                                  height: 24.w,
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  "send".tr(),
+                                  style: fonts.paragraphP2SemiBold.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      Gap(MediaQuery.of(context).padding.bottom),
+                    ],
                   ),
-                  Gap(16.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      return IconButton(
-                        onPressed: () {
-                          setModalState(() {
-                            tempRating = index + 1.0;
-                          });
-                        },
-                        icon: Icon(
-                          index < tempRating ? Icons.star : Icons.star_border,
-                          color: Colors.amber,
-                          size: 36.sp,
-                        ),
-                      );
-                    }),
-                  ),
-                  Gap(16.h),
-                  TextField(
-                    controller: reviewController,
-                    maxLines: 4,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "write_your_opinion"
-                          .tr(), //"Fikringizni yozing..."
-                      hintStyle: fonts.paragraphP2Regular.copyWith(
-                        color: colors.neutral500, // Hint rangini to'qroq qildim
-                      ),
-                      filled: true,
-                      fillColor: colors.shade0, // Oq fon
-                      contentPadding: EdgeInsets.all(16.w),
-
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(
-                          color: colors.neutral500,
-                          width: 1.5,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(
-                          color: colors.primary500,
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Gap(24.h),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50.h,
-                    child: ElevatedButton(
-                      onPressed: tempRating == 0
-                          ? null
-                          : () {
-                              setState(() {
-                                _rating = tempRating;
-                                _reviewText = reviewController.text;
-                              });
-                              Navigator.pop(context);
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.primary500,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: Text(
-                        "send".tr(), //Yuborish
-                        style: fonts.paragraphP2SemiBold.copyWith(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Gap(MediaQuery.of(context).padding.bottom),
-                ],
-              ),
+                );
+              },
             );
           },
         );
@@ -318,12 +359,14 @@ class _OrdersPageState extends State<OrdersPage> {
                           ),
                           Gap(16.h),
 
-                          // Review Section (New)
+                          // Review Section
                           if (data.status?.toLowerCase() == 'completed')
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 16.h),
-                              child: _rating == null
-                                  ? SizedBox(
+                            Builder(
+                              builder: (context) {
+                                if (data.review == null) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(bottom: 16.h),
+                                    child: SizedBox(
                                       width: double.infinity,
                                       child: ElevatedButton(
                                         onPressed: () => _showReviewSheet(
@@ -343,45 +386,54 @@ class _OrdersPageState extends State<OrdersPage> {
                                           ),
                                         ),
                                         child: Text(
-                                          "leave_review".tr(), //Fikr qoldirish
+                                          "leave_review".tr(),
                                           style: fonts.paragraphP2SemiBold
                                               .copyWith(color: Colors.white),
                                         ),
                                       ),
-                                    )
-                                  : _buildSectionCard(
-                                      colors,
-                                      title: "your_review"
-                                          .tr(), //Sizning fikringiz
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: List.generate(5, (index) {
-                                              return Icon(
-                                                index < _rating!
-                                                    ? Icons.star
-                                                    : Icons.star_border,
-                                                color: Colors.amber,
-                                                size: 20.sp,
-                                              );
-                                            }),
-                                          ),
-                                          if (_reviewText != null &&
-                                              _reviewText!.isNotEmpty) ...[
-                                            Gap(8.h),
-                                            Text(
-                                              _reviewText!,
-                                              style: fonts.paragraphP2Regular
-                                                  .copyWith(
-                                                    color: colors.neutral700,
-                                                  ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
                                     ),
+                                  );
+                                }
+
+                                return Padding(
+                                  padding: EdgeInsets.only(bottom: 16.h),
+                                  child: _buildSectionCard(
+                                    colors,
+                                    title: "your_review".tr(),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: List.generate(5, (index) {
+                                            return Icon(
+                                              index < (data.review?.rating ?? 0)
+                                                  ? Icons.star
+                                                  : Icons.star_border,
+                                              color: Colors.amber,
+                                              size: 20.sp,
+                                            );
+                                          }),
+                                        ),
+                                        if (data.review?.comment != null &&
+                                            data
+                                                .review!
+                                                .comment!
+                                                .isNotEmpty) ...[
+                                          Gap(8.h),
+                                          Text(
+                                            data.review!.comment!,
+                                            style: fonts.paragraphP2Regular
+                                                .copyWith(
+                                                  color: colors.neutral700,
+                                                ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
 
                           // Schedule Info
@@ -413,7 +465,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                 _buildInfoRow(
                                   Icons.location_on_outlined,
                                   "address".tr(),
-                                  "Tashkent city",
+                                  data.address ?? "address_not_found".tr(),
                                   colors,
                                   fonts,
                                 ),
@@ -524,17 +576,24 @@ class _OrdersPageState extends State<OrdersPage> {
       children: [
         Icon(icon, size: 20.sp, color: colors.blue500),
         Gap(12.w),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: fonts.paragraphP3Regular.copyWith(
-                color: colors.neutral500,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: fonts.paragraphP3Regular.copyWith(
+                  color: colors.neutral500,
+                ),
               ),
-            ),
-            Text(value, style: fonts.paragraphP2SemiBold),
-          ],
+              Text(
+                value,
+                style: fonts.paragraphP2SemiBold,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ],
     );

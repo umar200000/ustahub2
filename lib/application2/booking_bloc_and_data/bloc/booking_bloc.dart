@@ -80,11 +80,13 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       }
 
       if (event.isRefresh) {
-        emit(state.copyWith(
-          listStatus: Status2.loading,
-          items: [],
-          hasReachedMax: false,
-        ));
+        emit(
+          state.copyWith(
+            listStatus: Status2.loading,
+            items: [],
+            hasReachedMax: false,
+          ),
+        );
       } else {
         emit(state.copyWith(listStatus: Status2.loading));
       }
@@ -104,8 +106,9 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           if (bookingModelList.success == true) {
             final List<BookingListItem> newList = bookingModelList.data ?? [];
 
-            final List<BookingListItem> currentItems =
-                event.isRefresh ? [] : List.of(state.items);
+            final List<BookingListItem> currentItems = event.isRefresh
+                ? []
+                : List.of(state.items);
 
             int newAddedCount = 0;
             for (var item in newList) {
@@ -115,7 +118,8 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
               }
             }
 
-            final bool reachedMax = newList.length < limit || newAddedCount == 0;
+            final bool reachedMax =
+                newList.length < limit || newAddedCount == 0;
 
             emit(
               state.copyWith(
@@ -134,10 +138,13 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           }
         }
       } on DioException catch (e) {
-        emit(state.copyWith(listStatus: Status2.error, errorMessage: e.message));
+        emit(
+          state.copyWith(listStatus: Status2.error, errorMessage: e.message),
+        );
       } catch (e) {
-        emit(state.copyWith(
-            listStatus: Status2.error, errorMessage: e.toString()));
+        emit(
+          state.copyWith(listStatus: Status2.error, errorMessage: e.toString()),
+        );
       }
     });
 
@@ -192,6 +199,79 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           state.copyWith(
             detailsStatus: Status2.error,
             errorMessage: "Kutilmagan xatolik: ${e.toString()}",
+          ),
+        );
+      }
+    });
+
+    on<SetReviewEvent>((event, emit) async {
+      emit(state.copyWith(reviewStatus: Status2.loading));
+
+      try {
+        final response = await _bookingRepo.setReview(
+          bookingId: event.bookingId,
+          rating: event.rating,
+          comment: event.comment,
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // Kelgan javobdan Review ob'ektini o'qiymiz
+          Review? newReview;
+          if (response.data != null && response.data['data'] != null) {
+            newReview = Review.fromJson(response.data['data']);
+          } else {
+            // Agar response bo'sh bo'lsa, yuborgan ma'lumotlarimizdan vaqtinchalik review yaratamiz
+            newReview = Review(
+              rating: event.rating,
+              comment: event.comment,
+              createdAt: DateTime.now().toIso8601String(),
+            );
+          }
+
+          if (state.bookingModel != null && state.bookingModel!.data != null) {
+            final updatedData = state.bookingModel!.data!.copyWith(
+              review: newReview,
+            );
+            final updatedModel = state.bookingModel!.copyWith(
+              data: updatedData,
+            );
+
+            emit(
+              state.copyWith(
+                reviewStatus: Status2.success,
+                bookingModel: updatedModel,
+                successMessage: "Review muvaffaqiyatli saqlandi",
+              ),
+            );
+          } else {
+            emit(state.copyWith(reviewStatus: Status2.success));
+          }
+        } else {
+          emit(
+            state.copyWith(
+              reviewStatus: Status2.error,
+              errorMessage: response.data["message"] ?? "Xatolik yuz berdi",
+            ),
+          );
+        }
+      } on DioException catch (e) {
+        String? serverErrorMessage;
+        if (e.response?.data != null && e.response?.data is Map) {
+          serverErrorMessage =
+              e.response?.data['message'] ??
+              e.response?.data['error']?['message'];
+        }
+        emit(
+          state.copyWith(
+            reviewStatus: Status2.error,
+            errorMessage: serverErrorMessage ?? e.message ?? "Tarmoq xatoligi",
+          ),
+        );
+      } catch (e) {
+        emit(
+          state.copyWith(
+            reviewStatus: Status2.error,
+            errorMessage: e.toString(),
           ),
         );
       }

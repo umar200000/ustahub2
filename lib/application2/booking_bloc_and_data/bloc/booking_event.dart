@@ -53,3 +53,18 @@ class GetBookingDetailsEvent extends BookingEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class SetReviewEvent extends BookingEvent {
+  final String bookingId;
+  final int rating;
+  final String comment;
+
+  const SetReviewEvent({
+    required this.bookingId,
+    required this.rating,
+    required this.comment,
+  });
+
+  @override
+  List<Object?> get props => [bookingId, rating, comment];
+}
