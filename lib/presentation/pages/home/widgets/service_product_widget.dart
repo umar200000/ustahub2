@@ -22,6 +22,7 @@ class ServiceProviderCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onFavorite;
   final bool isFavorite;
+  final String? provinceName;
 
   const ServiceProviderCard({
     super.key,
@@ -38,6 +39,7 @@ class ServiceProviderCard extends StatelessWidget {
     this.onTap,
     this.onFavorite,
     this.isFavorite = false,
+    this.provinceName,
   });
 
   @override
@@ -57,20 +59,65 @@ class ServiceProviderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(24.r),
-                  ),
-                  child: SizedBox(
-                    height: 200.h,
-                    width: double.infinity,
-                    child: (mainImageUrl != null && mainImageUrl!.isNotEmpty)
-                        ? UniversalImage(
-                            image: mainImageUrl!,
-                            fit: BoxFit.cover,
-                          )
-                        : _placeholderBig(colors),
-                  ),
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(24.r),
+                      ),
+                      child: SizedBox(
+                        height: 200.h,
+                        width: double.infinity,
+                        child:
+                            (mainImageUrl != null && mainImageUrl!.isNotEmpty)
+                            ? UniversalImage(
+                                image: mainImageUrl!,
+                                fit: BoxFit.cover,
+                              )
+                            : _placeholderBig(colors),
+                      ),
+                    ),
+                    if (provinceName != null && provinceName!.isNotEmpty)
+                      Positioned(
+                        top: 12.h,
+                        left: 12.w,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 6.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.primary500.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                size: 16.sp,
+                                color: Colors.white,
+                              ),
+                              Gap(4.w),
+                              Text(
+                                provinceName!,
+                                style: fonts.paragraphP2SemiBold.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 Padding(
                   padding: EdgeInsets.all(16.r),
@@ -168,4 +215,14 @@ class ServiceProviderCard extends StatelessWidget {
     color: colors.neutral200,
     child: Icon(Icons.construction, size: 60.sp, color: colors.neutral400),
   );
+}
+
+class Gap extends StatelessWidget {
+  final double width;
+  const Gap(this.width, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(width: width);
+  }
 }

@@ -9,8 +9,8 @@ abstract class BookingEvent extends Equatable {
 
 class CreateBookingEvent extends BookingEvent {
   final String serviceId;
-  final int latitude;
-  final int longitude;
+  final double latitude;
+  final double longitude;
   final String scheduledDate;
   final String scheduledTimeStart;
   final String address;

@@ -44,6 +44,7 @@ class ServicesModel {
   final String? categoryNameUz;
   final String? currencyCode;
   final String? currencySymbol;
+  final String? provinceName;
 
   ServicesModel({
     this.id,
@@ -62,6 +63,7 @@ class ServicesModel {
     this.categoryNameUz,
     this.currencyCode,
     this.currencySymbol,
+    this.provinceName,
   });
 
   factory ServicesModel.fromJson(Map<String, dynamic> json) => ServicesModel(
@@ -83,6 +85,7 @@ class ServicesModel {
     categoryNameUz: json["category_name_uz"],
     currencyCode: json["currency_code"],
     currencySymbol: json["currency_symbol"],
+    provinceName: json["province_name"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -102,5 +105,6 @@ class ServicesModel {
     "category_name_uz": categoryNameUz,
     "currency_code": currencyCode,
     "currency_symbol": currencySymbol,
+    "province_name": provinceName,
   };
 }

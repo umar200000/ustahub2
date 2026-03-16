@@ -132,7 +132,7 @@
   "weekly_items": "Hafta mahsulotlari",
   "recommended": "Tavsiya etilgan",
   "exclusive": "Eksklyuziv",
-  "items_from_my_list": "Mening ro'yxatimdagi mahsulotlar",
+  "items_from_my_list": "Mening ro'yxatimdaki mahsulotlar",
   "discounted_items": "Chegirmali mahsulotlar",
   "brand": "Brend",
   "invalid_credential": "noto'g'ri hisob ma'lovatlari",
@@ -563,5 +563,6 @@
   "active": "Faol",
   "busy": "Band",
   "today": "Bugun",
-  "yesterday": "Kecha"
+  "yesterday": "Kecha",
+  "provides_service_in": "Xizmat ko'rsatadi"
 }

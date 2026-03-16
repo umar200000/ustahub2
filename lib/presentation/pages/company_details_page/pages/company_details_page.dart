@@ -5,7 +5,8 @@ import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
-import 'package:ustahub/presentation/pages/home/widgets/service_product_widget.dart';
+import 'package:ustahub/presentation/pages/home/widgets/service_product_widget.dart'
+    hide Gap;
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';

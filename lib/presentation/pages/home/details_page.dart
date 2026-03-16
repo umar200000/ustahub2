@@ -20,7 +20,6 @@ import '../company_details_page/pages/company_details_page.dart';
 class DetailsPage extends StatefulWidget {
   const DetailsPage({super.key, required this.serviceId});
   final String serviceId;
-
   @override
   State<DetailsPage> createState() => _DetailsPageState();
 }
@@ -127,6 +126,22 @@ class _DetailsPageState extends State<DetailsPage>
                                 ),
                               ),
                             ),
+
+                            if (data.provinceName != null &&
+                                data.provinceName!.isNotEmpty) ...[
+                              Gap(4.h),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                                child: Text(
+                                  "${"provides_service_in".tr()}: ${data.provinceName}",
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: colors.neutral700,
+                                  ),
+                                ),
+                              ),
+                            ],
 
                             Gap(12.h),
 

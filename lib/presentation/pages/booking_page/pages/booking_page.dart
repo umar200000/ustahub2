@@ -432,8 +432,8 @@ class _BookingPageState extends State<BookingPage> {
                                   context.read<BookingBloc>().add(
                                     CreateBookingEvent(
                                       serviceId: widget.service.id ?? "",
-                                      latitude: selectedLat?.toInt() ?? 0,
-                                      longitude: selectedLng?.toInt() ?? 0,
+                                      latitude: selectedLat ?? 0,
+                                      longitude: selectedLng ?? 0,
                                       scheduledDate: DateFormat(
                                         'yyyy-MM-dd',
                                       ).format(selectedDate!),

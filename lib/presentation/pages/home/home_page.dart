@@ -84,10 +84,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(
-      "token here: ${sl<SharedPrefService>().getTokenModel()?.accessToken ?? ""}",
-    );
-
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
@@ -204,6 +200,7 @@ class _HomePageState extends State<HomePage> {
                                       profession:
                                           service.categoryName ??
                                           "specialist".tr(),
+                                      provinceName: service.provinceName,
                                       distance: 0.0,
                                       rating: 5.0,
                                       reviewCount: 0,

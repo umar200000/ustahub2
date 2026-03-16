@@ -59,8 +59,8 @@ class BookingRepo {
 
   Future<Response> bookingService({
     required String serviceId,
-    required int latitude,
-    required int longitude,
+    required double latitude,
+    required double longitude,
     required String scheduledDate,
     required String scheduledTimeStart,
     required String address,

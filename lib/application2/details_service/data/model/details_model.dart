@@ -39,6 +39,7 @@ class ServiceData {
   final ServiceProvider? provider;
   final String? currencyCode;
   final String? currencySymbol;
+  final String? provinceName;
 
   ServiceData({
     this.id,
@@ -57,6 +58,7 @@ class ServiceData {
     this.provider,
     this.currencyCode,
     this.currencySymbol,
+    this.provinceName,
   });
 
   factory ServiceData.fromJson(Map<String, dynamic> json) => ServiceData(
@@ -84,6 +86,7 @@ class ServiceData {
         : ServiceProvider.fromJson(json["provider"]),
     currencyCode: json["currency_code"],
     currencySymbol: json["currency_symbol"],
+    provinceName: json["province_name"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -105,6 +108,7 @@ class ServiceData {
     "provider": provider?.toJson(),
     "currency_code": currencyCode,
     "currency_symbol": currencySymbol,
+    "province_name": provinceName,
   };
 }
 
