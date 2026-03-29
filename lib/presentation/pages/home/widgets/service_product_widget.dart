@@ -145,14 +145,18 @@ class ServiceProviderCard extends StatelessWidget {
                       4.h.verticalSpace,
                       Row(
                         children: [
-                          Text(
-                            profession,
-                            style: fonts.paragraphP2Regular.copyWith(
-                              color: colors.neutral500,
-                              fontFamily: GoogleFonts.balsamiqSans().fontFamily,
+                          Expanded(
+                            child: Text(
+                              profession,
+                              style: fonts.paragraphP2Regular.copyWith(
+                                color: colors.neutral500,
+                                fontFamily: GoogleFonts.balsamiqSans().fontFamily,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const Spacer(),
+                          SizedBox(width: 8.w),
                           Icon(
                             Icons.star,
                             size: 14.sp,

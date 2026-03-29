@@ -8,6 +8,7 @@ import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/pages/profile/screens/info_detail_page.dart';
 import 'package:ustahub/presentation/pages/profile/screens/user_information_page.dart';
+import 'package:ustahub/presentation/pages/payment_history/payment_history_page.dart';
 import 'package:ustahub/presentation/pages/profile/widgets/custom_switch.dart';
 import 'package:ustahub/presentation/pages/profile/widgets/language_selector.dart';
 import 'package:ustahub/presentation/pages/profile/widgets/logout_button.dart';
@@ -210,6 +211,22 @@ class _ProfilePageState extends State<ProfilePage> {
                             showTrailing: true,
                             onTap: () {
                               Navigator.push(context, AppRoutes.myCardPage());
+                            },
+                            fonts: fonts,
+                            colors: colors,
+                          ),
+                          Divider(height: 1, color: colors.neutral200),
+                          SettingsMenuItem(
+                            icon: Icons.receipt_long_outlined,
+                            title: 'payment_history'.tr(),
+                            showTrailing: true,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const PaymentHistoryPage(),
+                                ),
+                              );
                             },
                             fonts: fonts,
                             colors: colors,

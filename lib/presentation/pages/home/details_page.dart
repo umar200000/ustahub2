@@ -10,6 +10,7 @@ import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/pages/auth/auth_options.dart';
 import 'package:ustahub/presentation/pages/booking_page/pages/booking_page.dart';
+import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/pages/home/widgets/details_shimmer_widget.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
@@ -755,7 +756,7 @@ class _DetailsPageState extends State<DetailsPage>
     return BlocBuilder<CategoryListBloc, CategoryListState>(
       builder: (context, catState) {
         if (catState.status == Status2.loading) {
-          return const Center(child: CircularProgressIndicator());
+          return const ServiceListShimmer();
         }
 
         final filteredItems = catState.items

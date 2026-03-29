@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/category_list_bloc_and_data/bloc/category_list_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
+import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_product_widget.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
@@ -40,22 +42,22 @@ class CategoryListPage extends StatelessWidget {
                     builder: (context, state) {
                       if (state.status == Status2.loading &&
                           state.items.isEmpty) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: colors.blue500,
-                          ),
-                        );
+                        return const CategoryListShimmer();
                       }
                       if (state.status == Status2.error &&
                           state.items.isEmpty) {
                         return Center(
-                          child: Text(state.errorMessage ?? "Xatolik"),
+                          child: Text(state.errorMessage ?? "error".tr()),
                         );
                       }
                       if (state.items.isEmpty &&
                           state.status == Status2.success) {
-                        return const Center(child: Text("Xizmatlar topilmadi"));
+                        return Center(
+                          child: Text("no_services_found".tr()),
+                        );
                       }
+
+                      final lang = context.locale.languageCode;
 
                       return NotificationListener<ScrollNotification>(
                         onNotification: (ScrollNotification scrollInfo) {
@@ -79,16 +81,32 @@ class CategoryListPage extends StatelessWidget {
                               : state.items.length + 1,
                           itemBuilder: (context, index) {
                             if (index >= state.items.length) {
-                              return Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: CircularProgressIndicator(
-                                    color: colors.blue500,
-                                  ),
-                                ),
-                              );
+                              return const PaginationShimmer();
                             }
                             final service = state.items[index];
+                            String title;
+                            if (lang == 'ru') {
+                              title = service.titleRu ??
+                                  service.titleUz ??
+                                  service.titleEn ??
+                                  "";
+                            } else if (lang == 'en') {
+                              title = service.titleEn ??
+                                  service.titleUz ??
+                                  service.titleRu ??
+                                  "";
+                            } else {
+                              title = service.titleUz ??
+                                  service.titleRu ??
+                                  service.titleEn ??
+                                  "";
+                            }
+                            String category;
+                            if (lang == 'ru' || lang == 'en') {
+                              category = service.categoryNameUz ?? "";
+                            } else {
+                              category = service.categoryNameUz ?? "";
+                            }
                             return ServiceProviderCard(
                               onTap: () {
                                 Navigator.push(
@@ -96,8 +114,12 @@ class CategoryListPage extends StatelessWidget {
                                   AppRoutes.detailsPage(service.id ?? ""),
                                 );
                               },
-                              name: service.titleUz ?? "",
-                              profession: service.categoryNameUz ?? "",
+                              name: title.isNotEmpty
+                                  ? title
+                                  : "unnamed_service".tr(),
+                              profession: category.isNotEmpty
+                                  ? category
+                                  : "specialist".tr(),
                               mainImageUrl: service.primaryImageUrl,
                               priceFrom:
                                   int.tryParse(

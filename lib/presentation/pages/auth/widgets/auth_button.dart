@@ -13,7 +13,7 @@ class AuthButton extends StatelessWidget {
   });
   final Widget? child;
   final String title;
-  final Function() onTap;
+  final VoidCallback? onTap;
   final IconData? icon;
   final Color color;
   final Color textColor;

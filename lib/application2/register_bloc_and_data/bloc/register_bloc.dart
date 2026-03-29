@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
 import '../../../infrastructure/services/shared_perf/shared_pref_service.dart';
+import '../../../infrastructure2/common/error_helper.dart';
 import '../data/model/profile_model.dart';
 import '../data/model/register_model.dart';
 import '../data/repo/register_repo.dart';
@@ -51,13 +52,12 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         } else {
           emit(
             state.copyWith(
-              errorMessage:
-                  event.data?["error"]?["message"] ?? "Xatolik yuz berdi",
+              errorMessage: extractFromResponseData(event.data),
             ),
           );
         }
       } catch (e) {
-        emit(state.copyWith(errorMessage: e.toString()));
+        emit(state.copyWith(errorMessage: extractErrorMessage(e)));
       }
     });
 
@@ -125,12 +125,12 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           emit(
             state.copyWith(
               status: Status2.error,
-              errorMessage: data["error"]?["message"] ?? "Xatolik",
+              errorMessage: extractFromResponseData(data),
             ),
           );
         }
       } catch (e) {
-        emit(state.copyWith(status: Status2.error, errorMessage: e.toString()));
+        emit(state.copyWith(status: Status2.error, errorMessage: extractErrorMessage(e)));
       }
     });
 
@@ -154,7 +154,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           emit(
             state.copyWith(
               statusUser: Status2.error,
-              errorMessageUser: "Profil xatosi",
+              errorMessageUser: extractFromResponseData(data),
             ),
           );
         }
@@ -162,7 +162,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         emit(
           state.copyWith(
             statusUser: Status2.error,
-            errorMessageUser: e.toString(),
+            errorMessageUser: extractErrorMessage(e),
           ),
         );
       }
@@ -209,12 +209,18 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           );
         } else {
           emit(
-            state.copyWith(statusUser: Status2.error, errorMessage: "Xatolik"),
+            state.copyWith(
+              statusUser: Status2.error,
+              errorMessage: extractFromResponseData(response),
+            ),
           );
         }
       } on DioException catch (e) {
         emit(
-          state.copyWith(statusUser: Status2.error, errorMessage: e.toString()),
+          state.copyWith(
+            statusUser: Status2.error,
+            errorMessage: extractErrorMessage(e),
+          ),
         );
       }
     });

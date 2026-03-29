@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:ustahub/presentation/pages/auth/widgets/auth_button.dart';
-import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
+
+import '../../../main/main_page.dart';
 
 class SuccessCardPage extends StatelessWidget {
   const SuccessCardPage({super.key});
@@ -13,7 +14,20 @@ class SuccessCardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
-        return Scaffold(
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MainPage(index: 3),
+                ),
+                (route) => false,
+              );
+            }
+          },
+          child: Scaffold(
           backgroundColor: colors.shade0,
           body: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -57,10 +71,13 @@ class SuccessCardPage extends StatelessWidget {
                 AuthButton(
                   title: "back_to_home".tr(),
                   onTap: () {
-                    Navigator.of(
+                    Navigator.pushAndRemoveUntil(
                       context,
-                      rootNavigator: true,
-                    ).pushAndRemoveUntil(AppRoutes.main(), (route) => false);
+                      MaterialPageRoute(
+                        builder: (context) => const MainPage(index: 3),
+                      ),
+                      (route) => false,
+                    );
                   },
                   color: colors.primary500,
                   textColor: colors.shade0,
@@ -69,7 +86,7 @@ class SuccessCardPage extends StatelessWidget {
               ],
             ),
           ),
-        );
+        ));
       },
     );
   }

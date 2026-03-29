@@ -22,6 +22,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
+  bool _isFirstOpen = true;
 
   @override
   void initState() {
@@ -33,6 +35,7 @@ class _SearchPageState extends State<SearchPage> {
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -106,7 +109,8 @@ class _SearchPageState extends State<SearchPage> {
       ),
       child: TextField(
         controller: _searchController,
-        autofocus: true,
+        focusNode: _focusNode,
+        autofocus: _isFirstOpen,
         style: fonts.paragraphP2Regular.copyWith(color: colors.neutral800),
         decoration: InputDecoration(
           hintText: "search".tr(),
@@ -316,12 +320,29 @@ class _SearchPageState extends State<SearchPage> {
         }
 
         final item = state.items[index];
+        final lang = context.locale.languageCode;
+        String title;
+        if (lang == 'ru') {
+          title = item.titleRu ?? item.title ?? item.titleUz ?? "";
+        } else if (lang == 'en') {
+          title = item.titleEn ?? item.title ?? item.titleUz ?? "";
+        } else {
+          title = item.titleUz ?? item.title ?? "";
+        }
+        String category;
+        if (lang == 'ru' || lang == 'en') {
+          category = item.categoryName ?? item.categoryNameUz ?? "";
+        } else {
+          category = item.categoryNameUz ?? item.categoryName ?? "";
+        }
         return ServiceProviderCard(
           onTap: () {
+            _focusNode.unfocus();
+            _isFirstOpen = false;
             Navigator.push(context, AppRoutes.detailsPage(item.id ?? ""));
           },
-          name: item.titleUz ?? "unnamed_service".tr(),
-          profession: item.categoryNameUz ?? "specialist".tr(),
+          name: title.isNotEmpty ? title : "unnamed_service".tr(),
+          profession: category.isNotEmpty ? category : "specialist".tr(),
           distance: 0.0,
           rating: 5.0,
           reviewCount: 0,
@@ -332,6 +353,7 @@ class _SearchPageState extends State<SearchPage> {
           mainImageUrl: item.primaryImageUrl,
           isFavorite: false,
           onFavorite: () {},
+          provinceName: item.provinceName,
         );
       },
     );

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
+import 'package:ustahub/infrastructure/services/notification_provider.dart';
 import 'package:ustahub/presentation/pages/notification_page/notification_page.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
@@ -126,30 +128,72 @@ class HomeAppBar extends StatelessWidget {
                       //   ),
                       // ),
                       // SizedBox(width: 8.w),
-                      AnimationButtonEffect(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NotificationPage(),
+                      Consumer<NotificationProvider>(
+                        builder: (context, provider, _) {
+                          return AnimationButtonEffect(
+                            onTap: () {
+                              provider.markAllAsRead();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotificationPage(),
+                                ),
+                              );
+                            },
+                            child: SizedBox(
+                              width: 44.w,
+                              height: 44.w,
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    width: 44.w,
+                                    height: 44.w,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: colors.neutral100,
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.notifications_none_outlined,
+                                        color: colors.shade100,
+                                        size: 24.sp,
+                                      ),
+                                    ),
+                                  ),
+                                  if (provider.unreadCount > 0)
+                                    Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      child: Container(
+                                        padding: EdgeInsets.all(4.r),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        constraints: BoxConstraints(
+                                          minWidth: 18.w,
+                                          minHeight: 18.w,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            provider.unreadCount > 9
+                                                ? '9+'
+                                                : '${provider.unreadCount}',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           );
                         },
-                        child: Container(
-                          width: 44.w,
-                          height: 44.w,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: colors.neutral100,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.notifications_none_outlined,
-                              color: colors.shade100,
-                              size: 24.sp,
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                   ),

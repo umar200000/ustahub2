@@ -11,7 +11,6 @@ import 'package:ustahub/presentation/pages/auth/register_page.dart';
 import 'package:ustahub/presentation/pages/core/no_connection.dart';
 import 'package:ustahub/presentation/pages/core/register_page.dart';
 import 'package:ustahub/presentation/pages/main/main_page.dart';
-import 'package:ustahub/presentation/pages/notification/notification_page.dart';
 import 'package:ustahub/presentation/pages/order/orders_page.dart';
 import 'package:ustahub/presentation/pages/splash/splash_screen.dart';
 
@@ -150,9 +149,9 @@ class AppRoutes {
     return MaterialPageRoute(builder: (_) => OrdersPage(bookingId: serviceId));
   }
 
-  static MaterialPageRoute notification() {
-    return MaterialPageRoute(builder: (_) => const NotificationPage());
-  }
+  // static MaterialPageRoute notification() {
+  //   return MaterialPageRoute(builder: (_) => const NotificationPage());
+  // }
 
   static MaterialPageRoute getRegister() {
     return _registerRoute ??= MaterialPageRoute(

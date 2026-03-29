@@ -57,19 +57,22 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDyEwx6jcjl2EbrZ_T8oQDbcK3B4HtU7nE',
-    appId: '1:37658256206:android:967251596586c4da56b41f',
-    messagingSenderId: '37658256206',
-    projectId: 'sazu-market',
-    storageBucket: 'sazu-market.firebasestorage.app',
+    apiKey: 'AIzaSyBD9COxshFb-9hyHzI6VgfFcjM638bmsNw',
+    appId: '1:67442890500:android:2b83787c47c1d55f65a251',
+    messagingSenderId: '67442890500',
+    projectId: 'fir-app-93058',
+    databaseURL: 'https://fir-app-93058-default-rtdb.firebaseio.com',
+    storageBucket: 'fir-app-93058.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCkbiJ0_tKrNsN0PhahpX7Ucssd8kPfNN4',
-    appId: '1:37658256206:ios:3270033dc38af9ce56b41f',
-    messagingSenderId: '37658256206',
-    projectId: 'sazu-market',
-    storageBucket: 'sazu-market.firebasestorage.app',
-    iosBundleId: 'com.asoschi.sazu-market',
+    apiKey: 'AIzaSyBznjzMWbmbMMuCJIk1sAw6SerPwER7UrM',
+    appId: '1:67442890500:ios:ec96ccc772a1630565a251',
+    messagingSenderId: '67442890500',
+    projectId: 'fir-app-93058',
+    databaseURL: 'https://fir-app-93058-default-rtdb.firebaseio.com',
+    storageBucket: 'fir-app-93058.firebasestorage.app',
+    iosBundleId: 'com.brownfish.ustahubb',
   );
+
 }

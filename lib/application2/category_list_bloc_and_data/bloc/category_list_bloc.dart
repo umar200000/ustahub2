@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
+import '../../../infrastructure2/common/error_helper.dart';
 import '../data/model/category_list_model.dart';
 import '../data/repo/category_list_repo.dart';
 
@@ -70,20 +71,19 @@ class CategoryListBloc extends Bloc<CategoryListEvent, CategoryListState> {
           }
         }
       } on DioException catch (e) {
-        String? serverErrorMessage;
-        if (e.response?.data != null && e.response?.data is Map) {
-          serverErrorMessage =
-              e.response?.data['error']?['message'] ??
-              e.response?.data['message'];
-        }
         emit(
           state.copyWith(
             status: Status2.error,
-            errorMessage: serverErrorMessage ?? e.message ?? "Xatolik",
+            errorMessage: extractErrorMessage(e),
           ),
         );
       } catch (e) {
-        emit(state.copyWith(status: Status2.error, errorMessage: e.toString()));
+        emit(
+          state.copyWith(
+            status: Status2.error,
+            errorMessage: extractErrorMessage(e),
+          ),
+        );
       }
     });
   }

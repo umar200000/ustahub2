@@ -7,7 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
-import 'package:ustahub/presentation/pages/booking_page/pages/booking_success_page.dart';
+import 'package:ustahub/presentation/pages/booking_page/pages/payment_page.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
@@ -171,14 +171,14 @@ class _BookingPageState extends State<BookingPage> {
           listenWhen: (previous, current) => previous.status != current.status,
           listener: (context, state) {
             if (state.status == Status2.success) {
-              context.read<BookingBloc>().add(
-                const GetBookingsListEvent(isRefresh: true),
-              );
-
+              final bookingId = state.bookingModel?.data?.id ?? "";
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const BookingSuccessPage(),
+                  builder: (context) => PaymentPage(
+                    bookingId: bookingId,
+                    serviceName: widget.service.title ?? "",
+                  ),
                 ),
               );
             } else if (state.status == Status2.error) {

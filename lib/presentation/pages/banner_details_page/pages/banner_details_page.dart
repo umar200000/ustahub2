@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
+import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 class BannerDetailsPage extends StatefulWidget {
@@ -32,7 +33,7 @@ class _BannerDetailsPageState extends State<BannerDetailsPage> {
           body: BlocBuilder<BannerBloc, BannerState>(
             builder: (context, state) {
               if (state.detailsStatus == Status2.loading) {
-                return const Center(child: CircularProgressIndicator());
+                return const BannerDetailsShimmer();
               }
               if (state.detailsStatus == Status2.error) {
                 return Center(child: Text(state.errorMessage ?? "error".tr()));

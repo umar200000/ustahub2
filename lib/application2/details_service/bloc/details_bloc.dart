@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
 import '../../../infrastructure/services/mock_data/mock_data.dart';
+import '../../../infrastructure2/common/error_helper.dart';
 import '../data/model/details_model.dart';
 import '../data/repo/details_repo.dart';
 
@@ -44,13 +45,13 @@ class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
               emit(
                 state.copyWith(
                   status: Status2.error,
-                  errorMessage: detailsModel.message ?? "Xatolik yuz berdi",
+                  errorMessage: extractFromResponseData(response.data),
                 ),
               );
             }
           }
         }
-      } on DioException catch (_) {
+      } on DioException catch (e) {
         // Use mock data on network error
         final mockDetails = MockData.getServiceDetails(event.serviceId);
         if (mockDetails != null) {
@@ -64,11 +65,11 @@ class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
           emit(
             state.copyWith(
               status: Status2.error,
-              errorMessage: "Tarmoq xatoligi",
+              errorMessage: extractErrorMessage(e),
             ),
           );
         }
-      } catch (_) {
+      } catch (e) {
         // Use mock data on any error
         final mockDetails = MockData.getServiceDetails(event.serviceId);
         if (mockDetails != null) {
@@ -82,7 +83,7 @@ class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
           emit(
             state.copyWith(
               status: Status2.error,
-              errorMessage: "Kutilmagan xatolik",
+              errorMessage: extractErrorMessage(e),
             ),
           );
         }

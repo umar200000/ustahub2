@@ -6,6 +6,7 @@ import 'package:ustahub/application2/auth_bloc_and_data/data/repo/auth_repo.dart
 import 'package:ustahub/application2/register_bloc_and_data/data/model/register_model.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
+import '../../../infrastructure2/common/error_helper.dart';
 import '../../../infrastructure2/init/injection.dart';
 import '../../register_bloc_and_data/bloc/register_bloc.dart';
 
@@ -110,28 +111,17 @@ class AuthPinPutBloc extends Bloc<AuthPinPutEvent, AuthPinPutState> {
           }
         }
       } on DioException catch (e) {
-        String? serverErrorMessage;
-        if (e.response?.data != null) {
-          final responseData = e.response?.data;
-          if (responseData is Map) {
-            if (responseData.containsKey('error')) {
-              serverErrorMessage = responseData['error']['message'];
-            } else if (responseData.containsKey('message')) {
-              serverErrorMessage = responseData['message'];
-            }
-          }
-        }
         emit(
           state.copyWith(
             status: Status2.error,
-            errorMessage: serverErrorMessage ?? e.message ?? "Tarmoq xatoligi",
+            errorMessage: extractErrorMessage(e),
           ),
         );
       } catch (e) {
         emit(
           state.copyWith(
             status: Status2.error,
-            errorMessage: "Kutilmagan xatolik",
+            errorMessage: extractErrorMessage(e),
           ),
         );
       }

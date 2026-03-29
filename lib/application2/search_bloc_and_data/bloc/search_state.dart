@@ -2,7 +2,7 @@ part of 'search_bloc.dart';
 
 class SearchState extends Equatable {
   final Status2 status;
-  final List<SearchListItem> items;
+  final List<ServicesModel> items;
   final bool hasReachedMax;
   final String? errorMessage;
   final String query;
@@ -17,7 +17,7 @@ class SearchState extends Equatable {
 
   SearchState copyWith({
     Status2? status,
-    List<SearchListItem>? items,
+    List<ServicesModel>? items,
     bool? hasReachedMax,
     String? errorMessage,
     String? query,

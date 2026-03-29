@@ -13,21 +13,33 @@ import 'package:ustahub/infrastructure/services/log_service.dart';
 import 'package:timezone/data/latest_all.dart' as tzd;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:ustahub/infrastructure/services/notification_provider.dart';
+import 'package:ustahub/presentation/pages/notification_page/notification_page.dart';
 import 'package:ustahub/utils/firebase_options.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
   final BuildContext _context;
+  final NotificationProvider? _notificationProvider;
   String darwinNotificationCategoryPlain = 'plainCategory';
 
-  NotificationService._(this._context, this._flutterLocalNotificationsPlugin);
+  NotificationService._(
+    this._context,
+    this._flutterLocalNotificationsPlugin,
+    this._notificationProvider,
+  );
 
   static NotificationService create({
     required BuildContext context,
     required FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+    NotificationProvider? notificationProvider,
   }) {
-    return NotificationService._(context, flutterLocalNotificationsPlugin);
+    return NotificationService._(
+      context,
+      flutterLocalNotificationsPlugin,
+      notificationProvider,
+    );
   }
 
   Future<String?> getToken() async {
@@ -208,67 +220,19 @@ class NotificationService {
     LogService.i("Notification settings: ${detailedSettings.toString()}");
   }
 
-  void firebaseCloudMessagingListeners() async {
-    try {
-      // Ensure Firebase is initialized first
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions().getOptions(),
-        );
-        debugPrint("Firebase initialized in firebaseCloudMessagingListeners");
-      }
+  void firebaseCloudMessagingListeners() {
+    // AVVAL listener'larni o'rnatamiz - xatolik bo'lsa ham ishlaydi
+    // ignore: avoid_print
+    print('🔔 FCM foreground listener o\'rnatilmoqda...');
 
-      if (Platform.isIOS) {
-        debugPrint(
-          "iOS: Requesting permissions in firebaseCloudMessagingListeners",
-        );
-        await _iosPermission();
-
-        // Wait for APNS token on iOS
-        debugPrint("iOS: Checking APNS token availability...");
-        final apnsToken = await _waitForAPNSToken(maxRetries: 5, delayMs: 1000);
-        if (apnsToken != null) {
-          debugPrint(
-            "iOS: APNS token available: ${apnsToken.substring(0, 10)}...",
-          );
-        } else {
-          debugPrint("iOS: APNS token not yet available");
-        }
-      }
-
-      // Get and log the token - use a safer logging approach
-      debugPrint("Getting FCM token in firebaseCloudMessagingListeners...");
-      final token = await _firebaseMessaging.getToken();
-      if (token != null && token.isNotEmpty) {
-        final maskedToken =
-            "${token.substring(0, 8)}...${token.substring(token.length - 4)}";
-        LogService.i("FCM token obtained: $maskedToken");
-        debugPrint("FCM token obtained: $maskedToken");
-      } else {
-        LogService.w("FCM token is null or empty");
-        debugPrint("FCM token is null or empty");
-      }
-
-      // Configure foreground notification presentation options for iOS
-      // This ensures notifications are shown even when app is in foreground
-      if (Platform.isIOS) {
-        await FirebaseMessaging.instance
-            .setForegroundNotificationPresentationOptions(
-              alert: true,
-              badge: true,
-              sound: true,
-            );
-        debugPrint(
-          "iOS foreground notification presentation options configured",
-        );
-      }
-    } catch (e) {
-      LogService.e("Error in firebaseCloudMessagingListeners: $e");
-      debugPrint("Firebase messaging error: $e");
-    }
-
-    // Set up message handlers...
+    // Foreground message handler
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      // ignore: avoid_print
+      print('🔔 FOREGROUND MESSAGE KELDI!');
+      // ignore: avoid_print
+      print('Title: ${message.notification?.title}');
+      // ignore: avoid_print
+      print('Body: ${message.notification?.body}');
       LogService.i(
         'Message received in foreground: ${message.notification?.toMap()} ${message.data}',
       );
@@ -280,6 +244,19 @@ class NotificationService {
 
       // Show notification for both Android and iOS when app is in foreground
       // iOS will also show via AppDelegate, but we show local notification as backup
+      // Habarnomani provider'ga qo'shish
+      final title = message.notification?.title ?? message.data['title'] ?? '';
+      final body = message.notification?.body ?? message.data['body'] ?? '';
+
+      if (title.isNotEmpty || body.isNotEmpty) {
+        _notificationProvider?.addNotification(
+          title: title,
+          body: body,
+          data: message.data,
+        );
+        debugPrint('✅ Notification added to provider');
+      }
+
       if (message.notification != null) {
         try {
           // For Android, ensure notification channel exists before showing
@@ -290,7 +267,6 @@ class NotificationService {
                 >();
 
             if (androidImplementation != null) {
-              // Ensure channel exists (it should already be created, but double-check)
               await androidImplementation.createNotificationChannel(
                 const AndroidNotificationChannel(
                   'sazu_market_notifications',
@@ -302,11 +278,9 @@ class NotificationService {
                   enableVibration: true,
                 ),
               );
-              debugPrint("Android notification channel verified/created");
             }
           }
 
-          // Generate a valid 32-bit integer ID (max value: 2147483647)
           final notificationId =
               DateTime.now().millisecondsSinceEpoch % 2147483647;
 
@@ -332,11 +306,25 @@ class NotificationService {
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       LogService.e(' onMessageOpenedApp data: ${message.data}');
+
+      // Habarnomani provider'ga qo'shish
+      final openedTitle =
+          message.notification?.title ?? message.data['title'] ?? '';
+      final openedBody =
+          message.notification?.body ?? message.data['body'] ?? '';
+
+      if (openedTitle.isNotEmpty || openedBody.isNotEmpty) {
+        _notificationProvider?.addNotification(
+          title: openedTitle,
+          body: openedBody,
+          data: message.data,
+        );
+      }
+
       if (message.notification != null) {
         LogService.e(
           'onMessageOpenedApp Message also contained a notification: ${message.notification}',
         );
-        // Generate a valid 32-bit integer ID
         final notificationId =
             DateTime.now().millisecondsSinceEpoch % 2147483647;
         showNotification(
@@ -462,18 +450,12 @@ class NotificationService {
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse message) {
         LogService.i(message.payload ?? "");
-        if (message.payload != null && message.payload!.isNotEmpty) {
-          if (message.payload == "Alice") {
-            alice.showInspector();
-            return;
-          }
-          try {
-            Map<String, dynamic> map = json.decode(message.payload ?? "{}");
-            handleMessage(map['deeplink']);
-          } catch (e) {
-            LogService.e(e.toString());
-          }
-        } else {}
+        if (message.payload == "Alice") {
+          alice.showInspector();
+          return;
+        }
+        // Notification bosilganda NotificationPage'ga o'tish
+        _navigateToNotificationPage();
       },
       onDidReceiveBackgroundNotificationResponse: _notificationTapBackground,
     );
@@ -620,8 +602,15 @@ class NotificationService {
       return;
     }
     tzd.initializeTimeZones();
-    final TimezoneInfo timeZoneName = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZoneName.toString()));
+    try {
+      final TimezoneInfo timeZoneInfo =
+          await FlutterTimezone.getLocalTimezone();
+      final String timeZoneName = timeZoneInfo.identifier;
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+    } catch (e) {
+      debugPrint('Timezone xatolik: $e, default UTC ishlatiladi');
+      tz.setLocalLocation(tz.getLocation('Asia/Tashkent'));
+    }
   }
 
   @pragma('vm:entry-point')
@@ -770,6 +759,14 @@ class NotificationService {
       presentList: true,
       threadIdentifier: 'thread_id',
       categoryIdentifier: darwinNotificationCategoryPlain,
+    );
+  }
+
+  void _navigateToNotificationPage() {
+    Navigator.of(_context).push(
+      MaterialPageRoute(
+        builder: (_) => const NotificationPage(),
+      ),
     );
   }
 

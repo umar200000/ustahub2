@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
 import '../../../infrastructure/services/mock_data/mock_data.dart';
+import '../../../infrastructure2/common/error_helper.dart';
 import '../data/model/banner_details_model.dart';
 import '../data/model/banner_model.dart';
 import '../data/repo/banner_repo.dart';
@@ -78,20 +79,23 @@ class BannerBloc extends Bloc<BannerEvent, BannerState> {
             emit(
               state.copyWith(
                 detailsStatus: Status2.error,
-                errorMessage: bannerDetailsModel.message ?? "Xatolik",
+                errorMessage: extractFromResponseData(response.data),
               ),
             );
           }
         }
       } on DioException catch (e) {
         emit(
-          state.copyWith(detailsStatus: Status2.error, errorMessage: e.message),
+          state.copyWith(
+            detailsStatus: Status2.error,
+            errorMessage: extractErrorMessage(e),
+          ),
         );
       } catch (e) {
         emit(
           state.copyWith(
             detailsStatus: Status2.error,
-            errorMessage: e.toString(),
+            errorMessage: extractErrorMessage(e),
           ),
         );
       }

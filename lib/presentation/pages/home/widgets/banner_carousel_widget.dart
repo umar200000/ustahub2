@@ -124,8 +124,9 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                             child: Stack(
                               fit: StackFit.expand,
                               children: [
-                                Image.network(
-                                  banner.imageUrl ?? '',
+                                (banner.imageUrl != null && banner.imageUrl!.isNotEmpty)
+                                ? Image.network(
+                                  banner.imageUrl!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
@@ -139,7 +140,17 @@ class _BannerCarouselWidgetState extends State<BannerCarouselWidget> {
                                       ),
                                     );
                                   },
-                                ),
+                                )
+                                : Container(
+                                    color: colors.neutral200,
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.image_not_supported_outlined,
+                                        size: 48.sp,
+                                        color: colors.neutral400,
+                                      ),
+                                    ),
+                                  ),
                                 Positioned(
                                   bottom: 0,
                                   left: 0,

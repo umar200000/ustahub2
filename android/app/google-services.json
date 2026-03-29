@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "67442890500",
+    "firebase_url": "https://fir-app-93058-default-rtdb.firebaseio.com",
+    "project_id": "fir-app-93058",
+    "storage_bucket": "fir-app-93058.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67442890500:android:2b83787c47c1d55f65a251",
+        "android_client_info": {
+          "package_name": "uz.ustahub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD9COxshFb-9hyHzI6VgfFcjM638bmsNw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

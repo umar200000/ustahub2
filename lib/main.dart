@@ -3,11 +3,12 @@ import 'dart:io' show Platform;
 
 import 'package:clarity_flutter/clarity_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
+import 'package:ustahub/application2/card_bloc_and_data/bloc/card_bloc.dart';
+import 'package:ustahub/application2/payment_bloc_and_data/bloc/payment_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
 import 'package:ustahub/application2/category_list_bloc_and_data/bloc/category_list_bloc.dart';
 import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
@@ -20,7 +21,6 @@ import 'package:ustahub/presentation/pages/core/app_init.dart';
 import 'package:ustahub/presentation/pages/core/app_widget.dart';
 import 'package:ustahub/utils/app_config.dart';
 import 'package:ustahub/utils/constants.dart';
-import 'package:ustahub/utils/firebase_options.dart';
 import 'package:ustahub/utils/sms_helper.dart';
 
 import 'application2/booking_bloc_and_data/bloc/booking_bloc.dart';
@@ -38,9 +38,7 @@ Future<void> main() async {
       DeviceOrientation.portraitDown,
     ]);
 
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions().getOptions(),
-    );
+    // Firebase initialization is handled inside AppInit.create
     final deviceInfo = await DeviceInfoService().getDeviceData();
 
     AppConfig.create(
@@ -117,6 +115,8 @@ Future<void> main() async {
             BlocProvider.value(value: sl<CompanyBloc>()),
             BlocProvider.value(value: sl<BannerBloc>()),
             BlocProvider.value(value: sl<BookingBloc>()),
+            BlocProvider.value(value: sl<CardBloc>()),
+            BlocProvider.value(value: sl<PaymentBloc>()),
           ],
           child: ClarityWidget(
             clarityConfig: config,

@@ -1,5 +1,11 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
+import 'package:ustahub/infrastructure/services/notification_provider.dart';
+import 'package:ustahub/infrastructure/services/notification_service.dart';
+import 'package:ustahub/presentation/pages/core/app_widget.dart';
+import 'package:ustahub/presentation/pages/notification_page/notification_page.dart';
 import 'package:ustahub/presentation/components/custom_bottom_nav_bar.dart';
 import 'package:ustahub/presentation/pages/home/home_page.dart';
 import 'package:ustahub/presentation/pages/order/main_order_page.dart';
@@ -30,6 +36,7 @@ class _MainPageState extends State<MainPage>
   void initState() {
     super.initState();
     _initializeNavBar();
+    _initializeNotifications();
   }
 
   void _initializeNavBar() {
@@ -43,6 +50,68 @@ class _MainPageState extends State<MainPage>
         controller.changeIndex(widget.index!);
       }
     });
+  }
+
+  void _initializeNotifications() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      final notificationProvider = context.read<NotificationProvider>();
+      final plugin = FlutterLocalNotificationsPlugin();
+
+      final notificationService = NotificationService.create(
+        context: context,
+        flutterLocalNotificationsPlugin: plugin,
+        notificationProvider: notificationProvider,
+      );
+
+      // AVVAL listener'larni o'rnatamiz - bu xatosiz ishlaydi
+      notificationService.firebaseCloudMessagingListeners();
+
+      // Keyin init (xato bo'lsa ham listener ishlayveradi)
+      try {
+        await notificationService.notificationInit();
+      } catch (e) {
+        // ignore: avoid_print
+        print('notificationInit xatolik (lekin listener ishlayapti): $e');
+      }
+
+      // Background'dan notification bosilganda NotificationPage'ga o'tish
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        _openNotificationPage();
+      });
+
+      // App terminated holatda notification bosilgan bo'lsa
+      final initialMessage =
+          await FirebaseMessaging.instance.getInitialMessage();
+      if (initialMessage != null) {
+        _openNotificationPage();
+      }
+
+      // FCM Token ni olish
+      try {
+        final token = await FirebaseMessaging.instance.getToken();
+        // ignore: avoid_print
+        print('');
+        // ignore: avoid_print
+        print('========== FCM TOKEN ==========');
+        // ignore: avoid_print
+        print(token ?? 'TOKEN OLINMADI');
+        // ignore: avoid_print
+        print('===============================');
+        // ignore: avoid_print
+        print('');
+      } catch (e) {
+        // ignore: avoid_print
+        print('FCM TOKEN XATOLIK: $e');
+      }
+    });
+  }
+
+  void _openNotificationPage() {
+    alice.getNavigatorKey()?.currentState?.push(
+      MaterialPageRoute(builder: (_) => const NotificationPage()),
+    );
   }
 
   void _onTabSelected(int index) {

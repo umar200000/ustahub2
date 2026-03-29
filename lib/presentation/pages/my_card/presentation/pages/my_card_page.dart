@@ -1,7 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:ustahub/application2/card_bloc_and_data/bloc/card_bloc.dart';
+import 'package:ustahub/application2/card_bloc_and_data/data/model/card_model.dart';
+import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
@@ -16,37 +21,10 @@ class MyCardPage extends StatefulWidget {
 }
 
 class _MyCardPageState extends State<MyCardPage> {
-  // Mock data for cards
-  final List<Map<String, dynamic>> _mockCards = [
-    {
-      "id": "1",
-      "number": "**** **** **** 4589",
-      "holder": "Umarov Umar",
-      "expiry": "12/26",
-      "type": "Humo",
-      "color": const Color(0xFF1A237E), // Dark Blue
-    },
-    {
-      "id": "2",
-      "number": "**** **** **** 1234",
-      "holder": "Umarov Umar",
-      "expiry": "05/25",
-      "type": "Uzcard",
-      "color": const Color(0xFF2E7D32), // Green
-    },
-  ];
-
-  void _deleteCard(String id) {
-    setState(() {
-      _mockCards.removeWhere((card) => card["id"] == id);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("card_deleted".tr()),
-        backgroundColor: Colors.redAccent,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    context.read<CardBloc>().add(const GetCardsEvent());
   }
 
   void _showDeleteConfirmation(
@@ -56,7 +34,7 @@ class _MyCardPageState extends State<MyCardPage> {
   ) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: colors.shade0,
           shape: RoundedRectangleBorder(
@@ -72,7 +50,7 @@ class _MyCardPageState extends State<MyCardPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 "cancel".tr(),
                 style: fonts.paragraphP2Bold.copyWith(color: colors.neutral500),
@@ -80,8 +58,8 @@ class _MyCardPageState extends State<MyCardPage> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
-                _deleteCard(id);
+                Navigator.pop(dialogContext);
+                context.read<CardBloc>().add(DeleteCardEvent(cardId: id));
               },
               child: Text(
                 "delete".tr(),
@@ -109,16 +87,99 @@ class _MyCardPageState extends State<MyCardPage> {
                 backgroundColor: colors.primary500,
               ),
               Expanded(
-                child: ListView.separated(
-                  padding: EdgeInsets.all(20.w),
-                  itemCount: _mockCards.length + 1, // +1 for Add Card button
-                  separatorBuilder: (context, index) => Gap(16.h),
-                  itemBuilder: (context, index) {
-                    if (index == _mockCards.length) {
-                      return _buildAddCardButton(colors, fonts);
+                child: BlocConsumer<CardBloc, CardState>(
+                  listenWhen: (previous, current) =>
+                      previous.deleteStatus != current.deleteStatus,
+                  listener: (context, state) {
+                    if (state.deleteStatus == Status2.success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            state.successMessage ?? "card_deleted".tr(),
+                          ),
+                          backgroundColor: Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    } else if (state.deleteStatus == Status2.error) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            state.errorMessage ?? "error".tr(),
+                          ),
+                          backgroundColor: Colors.red,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
                     }
-                    final card = _mockCards[index];
-                    return _buildCardItem(card, colors, fonts);
+                  },
+                  builder: (context, state) {
+                    if (state.listStatus == Status2.loading) {
+                      return _buildShimmer();
+                    }
+
+                    if (state.listStatus == Status2.error) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(state.errorMessage ?? "error".tr()),
+                            Gap(16.h),
+                            TextButton(
+                              onPressed: () {
+                                context
+                                    .read<CardBloc>()
+                                    .add(const GetCardsEvent());
+                              },
+                              child: Text("retry".tr()),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    final isDeleting =
+                        state.deleteStatus == Status2.loading;
+
+                    return Stack(
+                      children: [
+                        ListView.separated(
+                          padding: EdgeInsets.all(20.w),
+                          itemCount: state.cards.length + 1,
+                          separatorBuilder: (context, index) => Gap(16.h),
+                          itemBuilder: (context, index) {
+                            if (index == state.cards.length) {
+                              return _buildAddCardButton(colors, fonts);
+                            }
+                            final card = state.cards[index];
+                            return _buildCardItem(card, colors, fonts);
+                          },
+                        ),
+                        if (isDeleting)
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              child: Center(
+                                child: Container(
+                                  padding: EdgeInsets.all(24.w),
+                                  decoration: BoxDecoration(
+                                    color: colors.shade0,
+                                    borderRadius: BorderRadius.circular(16.r),
+                                  ),
+                                  child: SizedBox(
+                                    width: 36.w,
+                                    height: 36.w,
+                                    child: CircularProgressIndicator(
+                                      color: colors.primary500,
+                                      strokeWidth: 3,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
                   },
                 ),
               ),
@@ -129,20 +190,56 @@ class _MyCardPageState extends State<MyCardPage> {
     );
   }
 
+  Widget _buildShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.separated(
+        padding: EdgeInsets.all(20.w),
+        itemCount: 2,
+        separatorBuilder: (_, __) => Gap(16.h),
+        itemBuilder: (_, __) => Container(
+          height: 180.h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20.r),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _getCardColor(String? cardType) {
+    switch (cardType?.toLowerCase()) {
+      case 'humo':
+        return const Color(0xFF1A237E);
+      case 'uzcard':
+        return const Color(0xFF2E7D32);
+      case 'visa':
+        return const Color(0xFF1565C0);
+      case 'mastercard':
+        return const Color(0xFFE65100);
+      default:
+        return const Color(0xFF37474F);
+    }
+  }
+
   Widget _buildCardItem(
-    Map<String, dynamic> card,
+    CardItem card,
     CustomColorSet colors,
     FontSet fonts,
   ) {
+    final cardColor = _getCardColor(card.cardType);
+
     return Container(
       width: double.infinity,
       height: 180.h,
       decoration: BoxDecoration(
-        color: card["color"],
+        color: cardColor,
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: card["color"].withOpacity(0.3),
+            color: cardColor.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -150,14 +247,13 @@ class _MyCardPageState extends State<MyCardPage> {
       ),
       child: Stack(
         children: [
-          // Background Pattern
           Positioned(
             right: -20.w,
             bottom: -20.h,
             child: Icon(
               Icons.credit_card,
               size: 150.sp,
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
             ),
           ),
           Padding(
@@ -170,7 +266,7 @@ class _MyCardPageState extends State<MyCardPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      card["type"],
+                      (card.cardType ?? "").toUpperCase(),
                       style: fonts.paragraphP1Bold.copyWith(
                         color: Colors.white,
                         fontSize: 20.sp,
@@ -181,13 +277,16 @@ class _MyCardPageState extends State<MyCardPage> {
                         Icons.delete_outline,
                         color: Colors.white,
                       ),
-                      onPressed: () =>
-                          _showDeleteConfirmation(card["id"], colors, fonts),
+                      onPressed: () => _showDeleteConfirmation(
+                        card.id ?? "",
+                        colors,
+                        fonts,
+                      ),
                     ),
                   ],
                 ),
                 Text(
-                  card["number"],
+                  card.cardNumber ?? "",
                   style: fonts.headingH4Bold.copyWith(
                     color: Colors.white,
                     letterSpacing: 2.0,
@@ -197,34 +296,11 @@ class _MyCardPageState extends State<MyCardPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          card["holder"],
-                          style: fonts.paragraphP2Bold.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "expiry".tr().toUpperCase(),
-                          style: fonts.paragraphP3Regular.copyWith(
-                            color: Colors.white70,
-                            fontSize: 10.sp,
-                          ),
-                        ),
-                        Text(
-                          card["expiry"],
-                          style: fonts.paragraphP2Bold.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      card.cardHolder ?? "",
+                      style: fonts.paragraphP2Bold.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -238,11 +314,14 @@ class _MyCardPageState extends State<MyCardPage> {
 
   Widget _buildAddCardButton(CustomColorSet colors, FontSet fonts) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => AddCardPage()),
+          MaterialPageRoute(builder: (context) => const AddCardPage()),
         );
+        if (mounted) {
+          context.read<CardBloc>().add(const GetCardsEvent());
+        }
       },
       child: Container(
         height: 60.h,
@@ -251,7 +330,6 @@ class _MyCardPageState extends State<MyCardPage> {
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: colors.neutral200,
-            style: BorderStyle.solid,
             width: 1.5,
           ),
         ),

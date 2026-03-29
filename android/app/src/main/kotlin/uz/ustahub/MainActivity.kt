@@ -1,4 +1,4 @@
-package com.example.ustahub
+package uz.ustahub
 
 import io.flutter.embedding.android.FlutterActivity
 

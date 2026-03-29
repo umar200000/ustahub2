@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_product_widget.dart'
@@ -67,7 +69,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
-              "Kompaniya haqida",
+              "about_company".tr(),
               style: GoogleFonts.poppins(
                 color: Colors.black,
                 fontSize: 18.sp,
@@ -79,18 +81,19 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
             builder: (context, state) {
               if (state.status == Status2.loading &&
                   state.companyDetailsResponse == null) {
-                return const Center(child: CircularProgressIndicator());
+                return _buildPageShimmer(colors);
               }
 
               if (state.status == Status2.error &&
                   state.companyDetailsResponse == null) {
-                return Center(child: Text(state.errorMessage ?? "Xatolik"));
+                return Center(child: Text(state.errorMessage ?? "error".tr()));
               }
 
               final data = state.companyDetailsResponse?.data;
               if (data == null) return const SizedBox.shrink();
 
               final services = state.servicesData?.servicesModel ?? [];
+              final lang = context.locale.languageCode;
 
               return ListView(
                 controller: _scrollController,
@@ -104,7 +107,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                         height: 180.h,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: colors.blue500.withOpacity(0.1),
+                          color: colors.blue500.withValues(alpha: 0.1),
                           image: data.coverImageUrl != null
                               ? DecorationImage(
                                   image: NetworkImage(data.coverImageUrl!),
@@ -123,7 +126,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 blurRadius: 10,
                               ),
                             ],
@@ -150,7 +153,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                           left: 85.w,
                           child: Container(
                             padding: EdgeInsets.all(2.w),
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
@@ -171,7 +174,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          data.name ?? "Nomsiz",
+                          data.name ?? "unnamed".tr(),
                           style: GoogleFonts.poppins(
                             fontSize: 24.sp,
                             fontWeight: FontWeight.bold,
@@ -180,7 +183,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                         ),
                         Gap(4.h),
                         Text(
-                          "Provider",
+                          "provider".tr(),
                           style: fonts.paragraphP2Regular.copyWith(
                             color: Colors.black54,
                           ),
@@ -192,20 +195,20 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             _buildStatItem(
-                              "Xizmatlar",
+                              "services_label".tr(),
                               data.totalServices?.toString() ?? "0",
                               colors,
                               fonts,
                             ),
                             _buildStatItem(
-                              "Ustalar",
+                              "masters_label".tr(),
                               data.totalMasters?.toString() ?? "0",
                               colors,
                               fonts,
                             ),
                             _buildStatItem(
-                              "Reyting",
-                              data.rating?.toString() ?? "0.0",
+                              "rating_label".tr(),
+                              data.rating?.toString() ?? "5",
                               colors,
                               fonts,
                             ),
@@ -214,7 +217,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                         Gap(24.h),
 
                         Text(
-                          "Kompaniya haqida",
+                          "about_company".tr(),
                           style: GoogleFonts.poppins(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w600,
@@ -223,7 +226,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                         ),
                         Gap(8.h),
                         Text(
-                          data.description ?? "Tavsif mavjud emas.",
+                          data.description ?? "no_description".tr(),
                           style: fonts.paragraphP2Regular.copyWith(
                             color: Colors.black87,
                             height: 1.5,
@@ -231,30 +234,29 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                         ),
                         Gap(24.h),
 
-                        // Contact Info
-                        _buildContactTile(
-                          Icons.phone_outlined,
-                          data.phone ?? "Ko'rsatilmagan",
-                          colors,
-                          fonts,
-                        ),
-                        _buildContactTile(
-                          Icons.email_outlined,
-                          data.email ?? "Ko'rsatilmagan",
-                          colors,
-                          fonts,
-                        ),
-                        if (data.website != null)
-                          _buildContactTile(
-                            Icons.language,
-                            data.website!,
-                            colors,
-                            fonts,
-                          ),
-
+                        // // Contact Info
+                        // _buildContactTile(
+                        //   Icons.phone_outlined,
+                        //   data.phone ?? "not_specified".tr(),
+                        //   colors,
+                        //   fonts,
+                        // ),
+                        // _buildContactTile(
+                        //   Icons.email_outlined,
+                        //   data.email ?? "not_specified".tr(),
+                        //   colors,
+                        //   fonts,
+                        // ),
+                        // if (data.website != null)
+                        //   _buildContactTile(
+                        //     Icons.language,
+                        //     data.website!,
+                        //     colors,
+                        //     fonts,
+                        //   ),
                         Gap(32.h),
                         Text(
-                          "Barcha xizmatlar",
+                          "all_services".tr(),
                           style: GoogleFonts.poppins(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w600,
@@ -268,7 +270,9 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
 
                   // Services List
                   if (services.isEmpty && state.status == Status2.success)
-                    const Center(child: Text("Xizmatlar topilmadi"))
+                    Center(child: Text("no_services_found".tr()))
+                  else if (services.isEmpty && state.status == Status2.loading)
+                    _buildServicesShimmer(colors)
                   else
                     ListView.builder(
                       shrinkWrap: true,
@@ -276,6 +280,34 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                       itemCount: services.length,
                       itemBuilder: (context, index) {
                         final service = services[index];
+                        String title;
+                        if (lang == 'ru') {
+                          title =
+                              service.titleRu ??
+                              service.title ??
+                              service.titleUz ??
+                              "";
+                        } else if (lang == 'en') {
+                          title =
+                              service.titleEn ??
+                              service.title ??
+                              service.titleUz ??
+                              "";
+                        } else {
+                          title = service.titleUz ?? service.title ?? "";
+                        }
+                        String category;
+                        if (lang == 'ru' || lang == 'en') {
+                          category =
+                              service.categoryName ??
+                              service.categoryNameUz ??
+                              "";
+                        } else {
+                          category =
+                              service.categoryNameUz ??
+                              service.categoryName ??
+                              "";
+                        }
                         return ServiceProviderCard(
                           onTap: () {
                             Navigator.push(
@@ -283,12 +315,16 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                               AppRoutes.detailsPage(service.id ?? ""),
                             );
                           },
-                          name: service.titleUz ?? "Nomsiz",
-                          profession: "Mutaxassis",
+                          name: title.isNotEmpty
+                              ? title
+                              : "unnamed_service".tr(),
+                          profession: category.isNotEmpty
+                              ? category
+                              : "specialist".tr(),
                           distance: 0.0,
                           rating: 5.0,
                           reviewCount: 0,
-                          duration: "Noma'lum",
+                          duration: "unknown".tr(),
                           priceFrom:
                               int.tryParse(service.basePrice ?? "0") ?? 0,
                           isVerified: false,
@@ -296,17 +332,13 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                           mainImageUrl: service.primaryImageUrl,
                           isFavorite: false,
                           onFavorite: () {},
+                          provinceName: service.provinceName,
                         );
                       },
                     ),
 
                   if (state.status == Status2.loading && services.isNotEmpty)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
+                    _buildServicesShimmer(colors),
                   Gap(40.h),
                 ],
               );
@@ -314,6 +346,104 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildPageShimmer(CustomColorSet colors) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          Container(height: 180.h, color: Colors.white),
+          Gap(60.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 200.w,
+                  height: 24.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                ),
+                Gap(8.h),
+                Container(
+                  width: 120.w,
+                  height: 14.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                ),
+                Gap(20.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(
+                    3,
+                    (_) => Container(
+                      width: 100.w,
+                      height: 60.h,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                  ),
+                ),
+                Gap(24.h),
+                Container(
+                  width: 180.w,
+                  height: 18.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                ),
+                Gap(8.h),
+                ...List.generate(
+                  3,
+                  (_) => Padding(
+                    padding: EdgeInsets.only(bottom: 8.h),
+                    child: Container(
+                      width: double.infinity,
+                      height: 14.h,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildServicesShimmer(CustomColorSet colors) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: List.generate(
+          2,
+          (_) => Container(
+            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            height: 280.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24.r),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -363,7 +493,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
           Container(
             padding: EdgeInsets.all(8.w),
             decoration: BoxDecoration(
-              color: colors.blue500.withOpacity(0.1),
+              color: colors.blue500.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: colors.blue500, size: 20.sp),

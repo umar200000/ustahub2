@@ -4,8 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
+import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
@@ -221,13 +223,7 @@ class _OrdersPageState extends State<OrdersPage> {
                       showBackButton: true,
                       backgroundColor: colors.primary500,
                     ),
-                    const Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xff02BDC6),
-                        ),
-                      ),
-                    ),
+                    const Expanded(child: OrderDetailsShimmer()),
                   ],
                 );
               }
@@ -469,6 +465,65 @@ class _OrdersPageState extends State<OrdersPage> {
                                   colors,
                                   fonts,
                                 ),
+                                if (data.contactPhone != null &&
+                                    data.contactPhone!.isNotEmpty) ...[
+                                  Gap(12.h),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.phone_outlined,
+                                        size: 20.sp,
+                                        color: colors.blue500,
+                                      ),
+                                      Gap(12.w),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "contact_phone".tr(),
+                                              style: fonts.paragraphP3Regular
+                                                  .copyWith(
+                                                color: colors.neutral500,
+                                              ),
+                                            ),
+                                            Text(
+                                              data.contactPhone!,
+                                              style: fonts.paragraphP2SemiBold,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          final uri = Uri(
+                                            scheme: 'tel',
+                                            path: data.contactPhone,
+                                          );
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri);
+                                          }
+                                        },
+                                        borderRadius:
+                                            BorderRadius.circular(20.r),
+                                        child: Container(
+                                          padding: EdgeInsets.all(8.w),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green,
+                                            borderRadius:
+                                                BorderRadius.circular(20.r),
+                                          ),
+                                          child: Icon(
+                                            Icons.call,
+                                            color: Colors.white,
+                                            size: 20.sp,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ],
                             ),
                           ),

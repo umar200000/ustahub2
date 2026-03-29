@@ -35,6 +35,14 @@ class BookingModel {
   }
 }
 
+double? _toDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
 class BookingData {
   final String? id;
   final int? bookingNumber;
@@ -70,6 +78,7 @@ class BookingData {
   final String? updatedAt;
   final Review? review;
   final String? address;
+  final String? contactPhone;
 
   BookingData({
     this.id,
@@ -106,6 +115,7 @@ class BookingData {
     this.updatedAt,
     this.review,
     this.address,
+    this.contactPhone,
   });
 
   factory BookingData.fromJson(Map<String, dynamic> json) => BookingData(
@@ -118,14 +128,14 @@ class BookingData {
     serviceTitle: json["service_title"],
     providerName: json["provider_name"],
     providerLogo: json["provider_logo"],
-    latitude: json["latitude"]?.toDouble(),
-    longitude: json["longitude"]?.toDouble(),
+    latitude: _toDouble(json["latitude"]),
+    longitude: _toDouble(json["longitude"]),
     scheduledDate: json["scheduled_date"],
     scheduledTimeStart: json["scheduled_time_start"],
     scheduledTimeEnd: json["scheduled_time_end"],
     isInstantBooking: json["is_instant_booking"],
-    basePrice: json["base_price"]?.toDouble(),
-    totalPrice: json["total_price"]?.toDouble(),
+    basePrice: _toDouble(json["base_price"]),
+    totalPrice: _toDouble(json["total_price"]),
     finalPrice: json["final_price"],
     status: json["status"],
     statusChangedAt: json["status_changed_at"],
@@ -143,6 +153,7 @@ class BookingData {
     updatedAt: json["updated_at"],
     review: json["review"] == null ? null : Review.fromJson(json["review"]),
     address: json["address"],
+    contactPhone: json["contact_phone"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -180,6 +191,7 @@ class BookingData {
     "updated_at": updatedAt,
     "review": review?.toJson(),
     "address": address,
+    "contact_phone": contactPhone,
   };
 
   BookingData copyWith({
@@ -217,6 +229,7 @@ class BookingData {
     String? updatedAt,
     Review? review,
     String? address,
+    String? contactPhone,
   }) {
     return BookingData(
       id: id ?? this.id,
@@ -253,6 +266,7 @@ class BookingData {
       updatedAt: updatedAt ?? this.updatedAt,
       review: review ?? this.review,
       address: address ?? this.address,
+      contactPhone: contactPhone ?? this.contactPhone,
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dar
 import 'package:ustahub/application2/booking_bloc_and_data/data/model/booking_model_list.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/components/custom_toggle.dart';
+import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
@@ -66,6 +67,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
               final activeOrders = state.items.where((item) {
                 return [
                   'pending',
+                  'active',
                   'accepted',
                   'assigned',
                   'started',
@@ -151,17 +153,13 @@ class _MainOrderPageState extends State<MainOrderPage> {
     FontSet fonts,
   ) {
     if (state.listStatus == Status2.loading && state.items.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xff02BDC6)),
-      );
+      return const OrderListShimmer();
     }
 
     if (orders.isEmpty &&
         !state.hasReachedMax &&
         state.listStatus != Status2.loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xff02BDC6)),
-      );
+      return const OrderListShimmer();
     }
 
     if (orders.isEmpty) {
@@ -187,12 +185,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
       separatorBuilder: (context, index) => SizedBox(height: 12.h),
       itemBuilder: (context, index) {
         if (index >= orders.length) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: CircularProgressIndicator(color: Color(0xff02BDC6)),
-            ),
-          );
+          return const PaginationShimmer();
         }
 
         final order = orders[index];

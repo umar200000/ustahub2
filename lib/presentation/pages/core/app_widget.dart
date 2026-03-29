@@ -9,6 +9,7 @@ import 'package:ustahub/infrastructure/core/interceptors.dart';
 import 'package:ustahub/infrastructure/services/alice/alice.dart';
 import 'package:ustahub/infrastructure/services/alice/model/alice_configuration.dart';
 import 'package:ustahub/infrastructure/services/local_database/db_service.dart';
+import 'package:ustahub/infrastructure/services/notification_provider.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/presentation/components/un_focus_widget.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
@@ -70,6 +71,10 @@ class MyApp extends StatelessWidget {
             ),
             Provider<DBService>.value(value: dbService),
             Provider<SharedPrefService>.value(value: sharedPrefService),
+            ChangeNotifierProvider(
+              create: (_) => NotificationProvider(),
+              lazy: false,
+            ),
           ],
           child: OnUnFocusTap(
             child: MaterialApp(

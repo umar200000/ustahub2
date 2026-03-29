@@ -4,6 +4,8 @@ import 'package:equatable/equatable.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
+import '../../../infrastructure2/common/error_helper.dart';
+import '../../service_bloc_and_data/data/model/service_model.dart';
 import '../data/model/search_model.dart';
 import '../data/repo/search_repo.dart';
 
@@ -68,20 +70,19 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         );
       }
     } on DioException catch (e) {
-      String? serverErrorMessage;
-      if (e.response?.data != null && e.response?.data is Map) {
-        serverErrorMessage =
-            e.response?.data['error']?['message'] ??
-            e.response?.data['message'];
-      }
       emit(
         state.copyWith(
           status: Status2.error,
-          errorMessage: serverErrorMessage ?? e.message ?? "Xatolik",
+          errorMessage: extractErrorMessage(e),
         ),
       );
     } catch (e) {
-      emit(state.copyWith(status: Status2.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          status: Status2.error,
+          errorMessage: extractErrorMessage(e),
+        ),
+      );
     }
   }
 }

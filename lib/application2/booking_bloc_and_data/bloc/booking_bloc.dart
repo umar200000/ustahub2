@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
+import '../../../infrastructure2/common/error_helper.dart';
 import '../data/model/booking_model.dart';
 import '../data/model/booking_model_list.dart';
 import '../data/repo/booking_repo.dart';
@@ -29,45 +30,34 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
         );
 
         if (response.statusCode == 200 || response.statusCode == 201) {
+          final bookingModel = BookingModel.fromJson(response.data);
           emit(
             state.copyWith(
               status: Status2.success,
-              successMessage: "Buyurtma muvaffaqiyatli yaratildi",
+              bookingModel: bookingModel,
+              successMessage: bookingModel.message ?? "Buyurtma muvaffaqiyatli yaratildi",
             ),
           );
         } else {
           emit(
             state.copyWith(
               status: Status2.error,
-              errorMessage: response.data["message"] ?? "Xatolik yuz berdi",
+              errorMessage: extractFromResponseData(response.data),
             ),
           );
         }
       } on DioException catch (e) {
-        String? serverErrorMessage;
-
-        if (e.response?.data != null) {
-          final responseData = e.response?.data;
-          if (responseData is Map) {
-            if (responseData.containsKey('error')) {
-              serverErrorMessage = responseData['error']['message'];
-            } else if (responseData.containsKey('message')) {
-              serverErrorMessage = responseData['message'];
-            }
-          }
-        }
-
         emit(
           state.copyWith(
             status: Status2.error,
-            errorMessage: serverErrorMessage ?? e.message ?? "Tarmoq xatoligi",
+            errorMessage: extractErrorMessage(e),
           ),
         );
       } catch (e) {
         emit(
           state.copyWith(
             status: Status2.error,
-            errorMessage: "Kutilmagan xatolik: ${e.toString()}",
+            errorMessage: extractErrorMessage(e),
           ),
         );
       }
@@ -132,18 +122,24 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
             emit(
               state.copyWith(
                 listStatus: Status2.error,
-                errorMessage: bookingModelList.error?.toString() ?? "Xatolik",
+                errorMessage: extractFromResponseData(response.data),
               ),
             );
           }
         }
       } on DioException catch (e) {
         emit(
-          state.copyWith(listStatus: Status2.error, errorMessage: e.message),
+          state.copyWith(
+            listStatus: Status2.error,
+            errorMessage: extractErrorMessage(e),
+          ),
         );
       } catch (e) {
         emit(
-          state.copyWith(listStatus: Status2.error, errorMessage: e.toString()),
+          state.copyWith(
+            listStatus: Status2.error,
+            errorMessage: extractErrorMessage(e),
+          ),
         );
       }
     });
@@ -168,37 +164,23 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
             emit(
               state.copyWith(
                 detailsStatus: Status2.error,
-                errorMessage:
-                    bookingModel.error?.toString() ?? "Xatolik yuz berdi",
+                errorMessage: extractFromResponseData(response.data),
               ),
             );
           }
         }
       } on DioException catch (e) {
-        String? serverErrorMessage;
-
-        if (e.response?.data != null) {
-          final responseData = e.response?.data;
-          if (responseData is Map) {
-            if (responseData.containsKey('error')) {
-              serverErrorMessage = responseData['error']['message'];
-            } else if (responseData.containsKey('message')) {
-              serverErrorMessage = responseData['message'];
-            }
-          }
-        }
-
         emit(
           state.copyWith(
             detailsStatus: Status2.error,
-            errorMessage: serverErrorMessage ?? e.message ?? "Tarmoq xatoligi",
+            errorMessage: extractErrorMessage(e),
           ),
         );
       } catch (e) {
         emit(
           state.copyWith(
             detailsStatus: Status2.error,
-            errorMessage: "Kutilmagan xatolik: ${e.toString()}",
+            errorMessage: extractErrorMessage(e),
           ),
         );
       }
@@ -250,28 +232,22 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           emit(
             state.copyWith(
               reviewStatus: Status2.error,
-              errorMessage: response.data["message"] ?? "Xatolik yuz berdi",
+              errorMessage: extractFromResponseData(response.data),
             ),
           );
         }
       } on DioException catch (e) {
-        String? serverErrorMessage;
-        if (e.response?.data != null && e.response?.data is Map) {
-          serverErrorMessage =
-              e.response?.data['message'] ??
-              e.response?.data['error']?['message'];
-        }
         emit(
           state.copyWith(
             reviewStatus: Status2.error,
-            errorMessage: serverErrorMessage ?? e.message ?? "Tarmoq xatoligi",
+            errorMessage: extractErrorMessage(e),
           ),
         );
       } catch (e) {
         emit(
           state.copyWith(
             reviewStatus: Status2.error,
-            errorMessage: e.toString(),
+            errorMessage: extractErrorMessage(e),
           ),
         );
       }
