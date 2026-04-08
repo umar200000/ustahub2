@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze:*)",
+      "Bash(git add:*)",
+      "Bash(find /c/Users/Umar/Desktop/ustahub2/lib -type f -name *mock* -o -name *fake* -o -name *dummy* -o -name *sample*)",
+      "Bash(xargs grep:*)",
+      "Bash(find /c/Users/Umar/Desktop/ustahub2 -type f -name *service*bloc* -o -name *service*state* -o -name *service*event*)"
+    ]
+  }
+}
