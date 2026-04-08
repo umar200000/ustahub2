@@ -14,9 +14,6 @@ import 'package:ustahub/presentation/pages/home/widgets/service_widget.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
-import '../../../infrastructure/services/shared_perf/shared_pref_service.dart';
-import '../../../infrastructure2/init/injection.dart';
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -191,6 +188,7 @@ class _HomePageState extends State<HomePage> {
                                           context,
                                           AppRoutes.detailsPage(
                                             service.id ?? "",
+                                            providerName: service.providerName,
                                           ),
                                         );
                                       },

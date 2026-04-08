@@ -7,10 +7,10 @@ import 'package:ustahub/application2/category_list_bloc_and_data/bloc/category_l
 import 'package:ustahub/application2/details_service/bloc/details_bloc.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
+import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/pages/auth/auth_options.dart';
 import 'package:ustahub/presentation/pages/booking_page/pages/booking_page.dart';
-import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/pages/home/widgets/details_shimmer_widget.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
@@ -19,8 +19,9 @@ import '../../../application2/details_service/data/model/details_model.dart';
 import '../company_details_page/pages/company_details_page.dart';
 
 class DetailsPage extends StatefulWidget {
-  const DetailsPage({super.key, required this.serviceId});
+  const DetailsPage({super.key, required this.serviceId, this.providerName});
   final String serviceId;
+  final String? providerName;
   @override
   State<DetailsPage> createState() => _DetailsPageState();
 }
@@ -128,18 +129,29 @@ class _DetailsPageState extends State<DetailsPage>
                               ),
                             ),
 
-                            if (data.provinceName != null &&
-                                data.provinceName!.isNotEmpty) ...[
+                            if (widget.providerName != null &&
+                                widget.providerName!.isNotEmpty) ...[
                               Gap(4.h),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 20.w),
-                                child: Text(
-                                  "${"provides_service_in".tr()}: ${data.provinceName}",
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: colors.neutral700,
-                                  ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.person_outline,
+                                      size: 18.sp,
+                                      color: colors.neutral600,
+                                    ),
+                                    Gap(6.w),
+                                    Text(
+                                      "${"specialist_name".tr()}: ${widget.providerName}",
+                                      style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: colors.neutral700,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -354,22 +366,25 @@ class _DetailsPageState extends State<DetailsPage>
   }
 
   Widget _buildInfoRow(dynamic data, CustomColorSet colors, FontSet fonts) {
-    return Padding(
+    return SizedBox();
+    /*
+
+    Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         children: [
           // Distance
-          Icon(
-            Icons.location_on_outlined,
-            size: 16.sp,
-            color: colors.neutral500,
-          ),
-          Gap(4.w),
-          Text(
-            "1.2 km",
-            style: fonts.paragraphP3Regular.copyWith(color: colors.neutral500),
-          ),
-          Gap(16.w),
+          // Icon(
+          //   Icons.location_on_outlined,
+          //   size: 16.sp,
+          //   color: colors.neutral500,
+          // ),
+          // Gap(4.w),
+          // Text(
+          //   "1.2 km",
+          //   style: fonts.paragraphP3Regular.copyWith(color: colors.neutral500),
+          // ),
+         // Gap(16.w),
 
           // Rating
           Icon(Icons.star, size: 16.sp, color: colors.yellow500),
@@ -430,7 +445,8 @@ class _DetailsPageState extends State<DetailsPage>
           ),
         ],
       ),
-    );
+    )
+     */
   }
 
   Widget _buildTabBar(CustomColorSet colors, FontSet fonts) {

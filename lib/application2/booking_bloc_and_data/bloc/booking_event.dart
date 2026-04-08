@@ -54,6 +54,28 @@ class GetBookingDetailsEvent extends BookingEvent {
   List<Object?> get props => [id];
 }
 
+class ConfirmArrivalEvent extends BookingEvent {
+  final String bookingId;
+
+  const ConfirmArrivalEvent({required this.bookingId});
+
+  @override
+  List<Object?> get props => [bookingId];
+}
+
+class CancelBookingEvent extends BookingEvent {
+  final String bookingId;
+  final String cancellationReason;
+
+  const CancelBookingEvent({
+    required this.bookingId,
+    required this.cancellationReason,
+  });
+
+  @override
+  List<Object?> get props => [bookingId, cancellationReason];
+}
+
 class SetReviewEvent extends BookingEvent {
   final String bookingId;
   final int rating;

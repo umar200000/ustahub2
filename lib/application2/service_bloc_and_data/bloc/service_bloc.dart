@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
-import '../../../infrastructure/services/mock_data/mock_data.dart';
+import '../../../infrastructure2/common/error_helper.dart';
 import '../data/model/service_model.dart';
 import '../data/repo/service_repo.dart';
 
@@ -69,32 +69,26 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
               ),
             );
           } else {
-            // Use mock data on API failure
             emit(
               state.copyWith(
-                status: Status2.success,
-                isLastPage: true,
-                servicesData: MockData.services,
+                status: Status2.error,
+                errorMessage: extractFromResponseData(response.data),
               ),
             );
           }
         }
       } on DioException catch (e) {
-        // Use mock data on network error
         emit(
           state.copyWith(
-            status: Status2.success,
-            isLastPage: true,
-            servicesData: MockData.services,
+            status: Status2.error,
+            errorMessage: extractErrorMessage(e),
           ),
         );
       } catch (e) {
-        // Use mock data on any error
         emit(
           state.copyWith(
-            status: Status2.success,
-            isLastPage: true,
-            servicesData: MockData.services,
+            status: Status2.error,
+            errorMessage: extractErrorMessage(e),
           ),
         );
       }

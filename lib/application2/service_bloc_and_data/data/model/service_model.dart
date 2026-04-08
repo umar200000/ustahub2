@@ -45,8 +45,10 @@ class ServicesModel {
   final String? currencyCode;
   final String? currencySymbol;
   final String? provinceName;
+  final String? providerName;
 
   ServicesModel({
+    this.providerName,
     this.id,
     this.providerId,
     this.title,
@@ -86,6 +88,7 @@ class ServicesModel {
     currencyCode: json["currency_code"],
     currencySymbol: json["currency_symbol"],
     provinceName: json["province_name"],
+    providerName: json["provider_name"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -106,5 +109,6 @@ class ServicesModel {
     "currency_code": currencyCode,
     "currency_symbol": currencySymbol,
     "province_name": provinceName,
+    "provider_name": providerName,
   };
 }

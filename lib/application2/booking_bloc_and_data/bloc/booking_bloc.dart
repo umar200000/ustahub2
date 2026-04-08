@@ -186,6 +186,123 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       }
     });
 
+    on<ConfirmArrivalEvent>((event, emit) async {
+      emit(state.copyWith(confirmArrivalStatus: Status2.loading));
+
+      try {
+        final response = await _bookingRepo.confirmArrival(
+          bookingId: event.bookingId,
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final bookingModel = BookingModel.fromJson(response.data);
+
+          // Update the items list
+          final updatedItems = state.items.map((item) {
+            if (item.id == event.bookingId) {
+              return item.copyWith(status: bookingModel.data?.status ?? 'in_progress');
+            }
+            return item;
+          }).toList();
+
+          emit(
+            state.copyWith(
+              confirmArrivalStatus: Status2.success,
+              bookingModel: bookingModel,
+              items: updatedItems,
+              successMessage: bookingModel.message ?? "Usta kelgani tasdiqlandi",
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              confirmArrivalStatus: Status2.error,
+              errorMessage: extractFromResponseData(response.data),
+            ),
+          );
+        }
+      } on DioException catch (e) {
+        emit(
+          state.copyWith(
+            confirmArrivalStatus: Status2.error,
+            errorMessage: extractErrorMessage(e),
+          ),
+        );
+      } catch (e) {
+        emit(
+          state.copyWith(
+            confirmArrivalStatus: Status2.error,
+            errorMessage: extractErrorMessage(e),
+          ),
+        );
+      }
+    });
+
+    on<CancelBookingEvent>((event, emit) async {
+      emit(state.copyWith(cancelStatus: Status2.loading));
+
+      try {
+        final response = await _bookingRepo.cancelBooking(
+          bookingId: event.bookingId,
+          cancellationReason: event.cancellationReason,
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // Update booking model status if it's the current detail
+          if (state.bookingModel?.data?.id == event.bookingId) {
+            final updatedData = state.bookingModel!.data!.copyWith(
+              status: 'canceled',
+            );
+            final updatedModel = state.bookingModel!.copyWith(data: updatedData);
+            emit(
+              state.copyWith(
+                cancelStatus: Status2.success,
+                bookingModel: updatedModel,
+                successMessage: response.data?['message'] ?? "Buyurtma bekor qilindi",
+              ),
+            );
+          } else {
+            emit(
+              state.copyWith(
+                cancelStatus: Status2.success,
+                successMessage: response.data?['message'] ?? "Buyurtma bekor qilindi",
+              ),
+            );
+          }
+
+          // Update the item in the list
+          final updatedItems = state.items.map((item) {
+            if (item.id == event.bookingId) {
+              return item.copyWith(status: 'canceled');
+            }
+            return item;
+          }).toList();
+          emit(state.copyWith(items: updatedItems));
+        } else {
+          emit(
+            state.copyWith(
+              cancelStatus: Status2.error,
+              errorMessage: extractFromResponseData(response.data),
+            ),
+          );
+        }
+      } on DioException catch (e) {
+        emit(
+          state.copyWith(
+            cancelStatus: Status2.error,
+            errorMessage: extractErrorMessage(e),
+          ),
+        );
+      } catch (e) {
+        emit(
+          state.copyWith(
+            cancelStatus: Status2.error,
+            errorMessage: extractErrorMessage(e),
+          ),
+        );
+      }
+    });
+
     on<SetReviewEvent>((event, emit) async {
       emit(state.copyWith(reviewStatus: Status2.loading));
 

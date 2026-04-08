@@ -68,9 +68,10 @@ class _MainOrderPageState extends State<MainOrderPage> {
                 return [
                   'pending',
                   'active',
+                  'in_progress',
                   'accepted',
                   'assigned',
-                  'started',
+                  'awaiting_payment',
                 ].contains(item.status);
               }).toList();
 
@@ -199,9 +200,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
           time: order.scheduledTimeStart ?? "",
           status: order.status ?? "",
           price: (order.totalPrice ?? 0).toInt(),
-          statusColor: order.status == 'started'
-              ? colors.yellow500
-              : colors.blue500,
+          statusColor: _getStatusColor(order.status ?? '', colors),
           colors: colors,
           fonts: fonts,
           isActive: selectedTab == OrderTab.active,
@@ -281,6 +280,29 @@ class _MainOrderPageState extends State<MainOrderPage> {
     );
   }
 
+  Color _getStatusColor(String status, CustomColorSet colors) {
+    switch (status) {
+      case 'pending':
+        return const Color(0xFFF59E0B); // orange/amber
+      case 'active':
+        return colors.blue500;
+      case 'in_progress':
+        return const Color(0xFF8B5CF6); // purple
+      case 'accepted':
+        return const Color(0xFF10B981); // green
+      case 'assigned':
+        return const Color(0xFF06B6D4); // cyan
+      case 'awaiting_payment':
+        return const Color(0xFFFF6B00); // deep orange
+      case 'completed':
+        return const Color(0xFF22C55E); // green
+      case 'canceled':
+        return const Color(0xFFEF4444); // red
+      default:
+        return colors.neutral600;
+    }
+  }
+
   Widget _buildOrderCard({
     required String bookingUuid,
     required String orderId,
@@ -356,17 +378,23 @@ class _MainOrderPageState extends State<MainOrderPage> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(4.r),
-                child: Image.network(
-                  providerLogo,
-                  width: 20.w,
-                  height: 20.w,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Icon(
-                    Icons.business,
-                    size: 18.sp,
-                    color: colors.neutral600,
-                  ),
-                ),
+                child: providerLogo.startsWith('http')
+                    ? Image.network(
+                        providerLogo,
+                        width: 20.w,
+                        height: 20.w,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.business,
+                          size: 18.sp,
+                          color: colors.neutral600,
+                        ),
+                      )
+                    : Icon(
+                        Icons.business,
+                        size: 18.sp,
+                        color: colors.neutral600,
+                      ),
               ),
               SizedBox(width: 8.w),
               Text(

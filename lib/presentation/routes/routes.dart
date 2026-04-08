@@ -131,11 +131,11 @@ class AppRoutes {
   }
 
   // DetailsPage - service
-  static MaterialPageRoute detailsPage(String id) {
+  static MaterialPageRoute detailsPage(String id, {String? providerName}) {
     return MaterialPageRoute(
       builder: (_) => BlocProvider.value(
         value: sl<DetailsBloc>(),
-        child: DetailsPage(serviceId: id),
+        child: DetailsPage(serviceId: id, providerName: providerName),
       ),
     );
   }

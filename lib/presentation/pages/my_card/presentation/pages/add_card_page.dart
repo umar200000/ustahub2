@@ -15,7 +15,8 @@ import 'package:ustahub/utils/extensions.dart';
 import 'card_pin_put_page.dart';
 
 class AddCardPage extends StatefulWidget {
-  const AddCardPage({super.key});
+  final bool fromPayment;
+  const AddCardPage({super.key, this.fromPayment = false});
 
   @override
   State<AddCardPage> createState() => _AddCardPageState();
@@ -71,6 +72,7 @@ class _AddCardPageState extends State<AddCardPage> {
           backgroundColor: colors.shade0,
           body: BlocConsumer<CardBloc, CardState>(
             listener: (context, state) {
+              if (ModalRoute.of(context)?.isCurrent != true) return;
               if (state.bindStatus == Status2.success) {
                 Navigator.push(
                   context,
@@ -78,6 +80,7 @@ class _AddCardPageState extends State<AddCardPage> {
                     builder: (context) => CardPinPutPage(
                       transactionId: state.transactionId!,
                       phone: state.phone ?? "",
+                      fromPayment: widget.fromPayment,
                     ),
                   ),
                 );

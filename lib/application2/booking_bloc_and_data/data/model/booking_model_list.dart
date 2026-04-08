@@ -87,4 +87,34 @@ class BookingListItem {
     "total_price": totalPrice,
     "created_at": createdAt,
   };
+
+  BookingListItem copyWith({
+    String? id,
+    int? bookingNumber,
+    String? serviceId,
+    dynamic masterId,
+    String? serviceTitle,
+    String? providerName,
+    String? providerLogo,
+    String? scheduledDate,
+    String? scheduledTimeStart,
+    String? status,
+    double? totalPrice,
+    String? createdAt,
+  }) {
+    return BookingListItem(
+      id: id ?? this.id,
+      bookingNumber: bookingNumber ?? this.bookingNumber,
+      serviceId: serviceId ?? this.serviceId,
+      masterId: masterId ?? this.masterId,
+      serviceTitle: serviceTitle ?? this.serviceTitle,
+      providerName: providerName ?? this.providerName,
+      providerLogo: providerLogo ?? this.providerLogo,
+      scheduledDate: scheduledDate ?? this.scheduledDate,
+      scheduledTimeStart: scheduledTimeStart ?? this.scheduledTimeStart,
+      status: status ?? this.status,
+      totalPrice: totalPrice ?? this.totalPrice,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }

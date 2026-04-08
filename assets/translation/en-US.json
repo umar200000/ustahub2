@@ -67,6 +67,7 @@
   "MM/YY": "MM/YY",
   "CVV": "CVV",
   "back_to_home": "Back to home",
+  "continue_payment": "Continue to payment",
   "card_added_successfully": "Card added successfully",
   "card_added_message": "Congratulations! Your bank card has been successfully linked to the system. Now you can easily pay for services.",
 
@@ -149,6 +150,7 @@
   "reviews": "reviews",
   "about": "About",
   "provides_service_in": "Provides service in",
+  "specialist_name": "Specialist name",
   "gallery": "Gallery",
   "review": "Review",
   "services": "Services",
@@ -264,5 +266,17 @@
   "payment_type_label": "Payment Type",
   "payment_provider_label": "Payment Provider",
   "payment_date": "Payment Date",
-  "payment_id_label": "Payment ID"
+  "payment_id_label": "Payment ID",
+  "cancel_booking": "Cancel Booking",
+  "cancel_booking_title": "Cancel Booking",
+  "cancel_reason_hint": "Write the reason for cancellation...",
+  "cancel_reason_min_length": "Reason must be at least 6 characters",
+  "booking_canceled": "Booking has been canceled",
+  "confirm_cancel": "Confirm Cancellation",
+  "connect_support": "Connect Support",
+  "support_title": "Contact Support",
+  "support_description": "Less than 2 hours remain until the service. To cancel, please contact our support team.",
+  "address_not_found": "Address not found",
+  "confirm_arrival": "Confirm Master Arrival",
+  "master_arrived": "Master arrival confirmed"
 }

@@ -56,7 +56,7 @@ class _PaymentPageState extends State<PaymentPage> {
       context.read<PaymentBloc>().add(
         CreatePaymentEvent(
           bookingId: widget.bookingId,
-          paymentProvider: "payme",
+          paymentProvider: "atmos",
         ),
       );
     } else {
@@ -102,9 +102,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 );
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const BookingSuccessPage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const BookingSuccessPage()),
                 );
               } else if (state.status == Status2.error) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -237,8 +235,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                     padding: EdgeInsets.all(16.w),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFFFF3E0),
-                                      borderRadius:
-                                          BorderRadius.circular(12.r),
+                                      borderRadius: BorderRadius.circular(12.r),
                                     ),
                                     child: Column(
                                       children: [
@@ -253,12 +250,12 @@ class _PaymentPageState extends State<PaymentPage> {
                                             Expanded(
                                               child: Text(
                                                 "no_card_warning".tr(),
-                                                style: fonts
-                                                    .paragraphP2Regular
+                                                style: fonts.paragraphP2Regular
                                                     .copyWith(
-                                                  color:
-                                                      const Color(0xFFE65100),
-                                                ),
+                                                      color: const Color(
+                                                        0xFFE65100,
+                                                      ),
+                                                    ),
                                               ),
                                             ),
                                           ],
@@ -272,7 +269,9 @@ class _PaymentPageState extends State<PaymentPage> {
                                                 context,
                                                 MaterialPageRoute(
                                                   builder: (_) =>
-                                                      const AddCardPage(),
+                                                      const AddCardPage(
+                                                        fromPayment: true,
+                                                      ),
                                                 ),
                                               );
                                               if (mounted) {
@@ -284,16 +283,15 @@ class _PaymentPageState extends State<PaymentPage> {
                                             icon: const Icon(Icons.add),
                                             label: Text("add_card".tr()),
                                             style: OutlinedButton.styleFrom(
-                                              foregroundColor:
-                                                  const Color(0xFFE65100),
+                                              foregroundColor: const Color(
+                                                0xFFE65100,
+                                              ),
                                               side: const BorderSide(
                                                 color: Color(0xFFFF9800),
                                               ),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(
-                                                  12.r,
-                                                ),
+                                                    BorderRadius.circular(12.r),
                                               ),
                                             ),
                                           ),
@@ -311,8 +309,9 @@ class _PaymentPageState extends State<PaymentPage> {
                                   decoration: BoxDecoration(
                                     color: colors.shade0,
                                     borderRadius: BorderRadius.circular(12.r),
-                                    border:
-                                        Border.all(color: colors.primary500),
+                                    border: Border.all(
+                                      color: colors.primary500,
+                                    ),
                                   ),
                                   child: Row(
                                     children: [
@@ -356,7 +355,8 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                     child: BlocBuilder<CardBloc, CardState>(
                       builder: (context, cardState) {
-                        final canPay = _selectedMethod == PaymentMethod.cash ||
+                        final canPay =
+                            _selectedMethod == PaymentMethod.cash ||
                             cardState.cards.isNotEmpty;
                         final isLoading =
                             paymentState.status == Status2.loading;
@@ -374,8 +374,9 @@ class _PaymentPageState extends State<PaymentPage> {
                               boxShadow: canPay
                                   ? [
                                       BoxShadow(
-                                        color: colors.primary500
-                                            .withValues(alpha: 0.3),
+                                        color: colors.primary500.withValues(
+                                          alpha: 0.3,
+                                        ),
                                         blurRadius: 12,
                                         offset: const Offset(0, 4),
                                       ),
@@ -387,16 +388,14 @@ class _PaymentPageState extends State<PaymentPage> {
                                   ? SizedBox(
                                       width: 24.w,
                                       height: 24.w,
-                                      child:
-                                          const CircularProgressIndicator(
+                                      child: const CircularProgressIndicator(
                                         color: Colors.white,
                                         strokeWidth: 2.5,
                                       ),
                                     )
                                   : Text(
                                       "${"pay".tr()} ${_formatPrice(_price)} ${"sum".tr()}",
-                                      style:
-                                          fonts.paragraphP1Bold.copyWith(
+                                      style: fonts.paragraphP1Bold.copyWith(
                                         color: Colors.white,
                                       ),
                                     ),
@@ -484,8 +483,7 @@ class _PaymentPageState extends State<PaymentPage> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color:
-                      isSelected ? colors.primary500 : colors.neutral300,
+                  color: isSelected ? colors.primary500 : colors.neutral300,
                   width: 2,
                 ),
               ),

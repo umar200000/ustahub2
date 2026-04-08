@@ -37,6 +37,7 @@
   "MM/YY": "MM/YY",
   "CVV": "CVV",
   "back_to_home": "Вернуться на главную",
+  "continue_payment": "Вернуться к оплате",
   "card_added_successfully": "Карта успешно добавлена",
   "card_added_message": "Поздравляем! Ваша банковская карта успешно подключена к системе. Теперь вы можете легко оплачивать услуги.",
 
@@ -527,6 +528,7 @@
   "gallery": "Галерея",
   "review": "Отзывы",
   "provides_service_in": "Оказывает услуги в",
+  "specialist_name": "Имя специалиста",
   "services": "Услуги",
   "show_less": "Свернуть",
   "read_more": "Читать далее",
@@ -617,5 +619,17 @@
   "payment_type_label": "Тип платежа",
   "payment_provider_label": "Платежная система",
   "payment_date": "Дата платежа",
-  "payment_id_label": "ID платежа"
+  "payment_id_label": "ID платежа",
+  "cancel_booking": "Отменить",
+  "cancel_booking_title": "Отмена заказа",
+  "cancel_reason_hint": "Напишите причину отмены...",
+  "cancel_reason_min_length": "Причина должна содержать не менее 6 символов",
+  "booking_canceled": "Заказ отменён",
+  "confirm_cancel": "Подтвердить отмену",
+  "connect_support": "Связаться с поддержкой",
+  "support_title": "Обратиться в поддержку",
+  "support_description": "До начала услуги осталось менее 2 часов. Для отмены обратитесь в нашу службу поддержки.",
+  "address_not_found": "Адрес не найден",
+  "confirm_arrival": "Подтвердить прибытие мастера",
+  "master_arrived": "Прибытие мастера подтверждено"
 }

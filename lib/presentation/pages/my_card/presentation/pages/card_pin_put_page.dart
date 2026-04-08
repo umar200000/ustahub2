@@ -14,11 +14,13 @@ import 'success_card_page.dart';
 class CardPinPutPage extends StatefulWidget {
   final int transactionId;
   final String phone;
+  final bool fromPayment;
 
   const CardPinPutPage({
     super.key,
     required this.transactionId,
     required this.phone,
+    this.fromPayment = false,
   });
 
   @override
@@ -99,17 +101,19 @@ class _CardPinPutPageState extends State<CardPinPutPage> {
         );
 
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: colors.shade0,
           body: BlocConsumer<CardBloc, CardState>(
             listener: (context, state) {
               if (state.confirmStatus == Status2.success) {
-                FocusScope.of(context).unfocus();
-                Future.delayed(const Duration(milliseconds: 150), () {
+                Future.delayed(const Duration(milliseconds: 300), () {
                   if (mounted) {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const SuccessCardPage(),
+                        builder: (context) => SuccessCardPage(
+                          fromPayment: widget.fromPayment,
+                        ),
                       ),
                     );
                   }
@@ -172,8 +176,9 @@ class _CardPinPutPageState extends State<CardPinPutPage> {
 
                           // Subtitle
                           Text(
-                            "sms_code_sent_to"
-                                .tr(args: [_maskPhone(widget.phone)]),
+                            "sms_code_sent_to".tr(
+                              args: [_maskPhone(widget.phone)],
+                            ),
                             textAlign: TextAlign.center,
                             style: fonts.paragraphP2Regular.copyWith(
                               color: colors.neutral500,

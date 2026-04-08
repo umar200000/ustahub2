@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:ustahub/application2/service_bloc_and_data/data/model/service_model.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
-import 'package:ustahub/infrastructure/services/mock_data/mock_data.dart';
 import 'package:ustahub/infrastructure2/common/error_helper.dart';
 
 import '../data/model/company_details_model.dart';
@@ -34,29 +33,26 @@ class CompanyBloc extends Bloc<CompanyEvent, CompanyState> {
               ),
             );
           } else {
-            // Use mock data on API failure
             emit(
               state.copyWith(
-                status: Status2.success,
-                companyResponse: MockData.companies,
+                status: Status2.error,
+                errorMessage: extractFromResponseData(response.data),
               ),
             );
           }
         }
       } on DioException catch (e) {
-        // Use mock data on network error
         emit(
           state.copyWith(
-            status: Status2.success,
-            companyResponse: MockData.companies,
+            status: Status2.error,
+            errorMessage: extractErrorMessage(e),
           ),
         );
       } catch (e) {
-        // Use mock data on any error
         emit(
           state.copyWith(
-            status: Status2.success,
-            companyResponse: MockData.companies,
+            status: Status2.error,
+            errorMessage: extractErrorMessage(e),
           ),
         );
       }

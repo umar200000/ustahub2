@@ -9,6 +9,7 @@ import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dar
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
+import 'package:ustahub/presentation/pages/booking_page/pages/payment_page.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
@@ -26,6 +27,296 @@ class _OrdersPageState extends State<OrdersPage> {
     super.initState();
     context.read<BookingBloc>().add(
       GetBookingDetailsEvent(id: widget.bookingId),
+    );
+  }
+
+  bool _canCancelBooking(String? scheduledDate, String? scheduledTimeStart) {
+    if (scheduledDate == null || scheduledTimeStart == null) return false;
+    try {
+      final timeParts = scheduledTimeStart.split(':');
+      final dateTime = DateTime.parse(scheduledDate).add(
+        Duration(
+          hours: int.parse(timeParts[0]),
+          minutes: int.parse(timeParts[1]),
+        ),
+      );
+      final now = DateTime.now();
+      final difference = dateTime.difference(now);
+      return difference.inMinutes >= 120;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _showCancelOrSupportSheet(
+    BuildContext context,
+    CustomColorSet colors,
+    FontSet fonts,
+    String? scheduledDate,
+    String? scheduledTimeStart,
+  ) {
+    if (_canCancelBooking(scheduledDate, scheduledTimeStart)) {
+      _showCancelSheet(context, colors, fonts);
+    } else {
+      _showSupportSheet(context, colors, fonts);
+    }
+  }
+
+  void _showSupportSheet(
+    BuildContext context,
+    CustomColorSet colors,
+    FontSet fonts,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) {
+        return Container(
+          padding: EdgeInsets.only(
+            left: 20.w,
+            right: 20.w,
+            top: 20.h,
+            bottom: 20.h,
+          ),
+          decoration: BoxDecoration(
+            color: colors.shade0,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: colors.neutral300,
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+              Gap(24.h),
+              Icon(
+                Icons.support_agent_rounded,
+                size: 56.sp,
+                color: colors.primary500,
+              ),
+              Gap(16.h),
+              Text("support_title".tr(), style: fonts.paragraphP1Bold),
+              Gap(12.h),
+              Text(
+                "support_description".tr(),
+                style: fonts.paragraphP2Regular.copyWith(
+                  color: colors.neutral600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Gap(24.h),
+              SizedBox(
+                width: double.infinity,
+                height: 50.h,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(bottomSheetContext);
+                    final uri = Uri.parse("https://t.me/umar9334");
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.primary500,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  child: Text(
+                    "connect_support".tr(),
+                    style: fonts.paragraphP2SemiBold.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              Gap(MediaQuery.of(context).padding.bottom),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCancelSheet(
+    BuildContext context,
+    CustomColorSet colors,
+    FontSet fonts,
+  ) {
+    final TextEditingController reasonController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) {
+        return BlocConsumer<BookingBloc, BookingState>(
+          listener: (context, state) {
+            if (state.cancelStatus == Status2.success) {
+              Navigator.pop(bottomSheetContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.successMessage ?? "booking_canceled".tr(),
+                  ),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            } else if (state.cancelStatus == Status2.error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage ?? "error_occurred".tr()),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            return StatefulBuilder(
+              builder: (context, setModalState) {
+                final reasonText = reasonController.text;
+                final isValid = reasonText.length >= 6;
+
+                return Container(
+                  padding: EdgeInsets.only(
+                    left: 20.w,
+                    right: 20.w,
+                    top: 20.h,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.shade0,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24.r),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 40.w,
+                        height: 4.h,
+                        decoration: BoxDecoration(
+                          color: colors.neutral300,
+                          borderRadius: BorderRadius.circular(2.r),
+                        ),
+                      ),
+                      Gap(24.h),
+                      Text(
+                        "cancel_booking_title".tr(),
+                        style: fonts.paragraphP1Bold,
+                      ),
+                      Gap(16.h),
+                      TextField(
+                        controller: reasonController,
+                        maxLines: 4,
+                        enabled: state.cancelStatus != Status2.loading,
+                        onChanged: (_) => setModalState(() {}),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "cancel_reason_hint".tr(),
+                          hintStyle: fonts.paragraphP2Regular.copyWith(
+                            color: colors.neutral500,
+                          ),
+                          filled: true,
+                          fillColor: colors.shade0,
+                          contentPadding: EdgeInsets.all(16.w),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide(
+                              color: colors.neutral500,
+                              width: 1.5,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide(
+                              color: colors.primary500,
+                              width: 1.5,
+                            ),
+                          ),
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            borderSide: BorderSide(
+                              color: colors.neutral300,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (reasonText.isNotEmpty && !isValid) ...[
+                        Gap(8.h),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "cancel_reason_min_length".tr(),
+                            style: fonts.paragraphP3Regular.copyWith(
+                              color: colors.red500,
+                            ),
+                          ),
+                        ),
+                      ],
+                      Gap(24.h),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50.h,
+                        child: ElevatedButton(
+                          onPressed:
+                              (!isValid ||
+                                  state.cancelStatus == Status2.loading)
+                              ? null
+                              : () {
+                                  context.read<BookingBloc>().add(
+                                    CancelBookingEvent(
+                                      bookingId: widget.bookingId,
+                                      cancellationReason: reasonController.text,
+                                    ),
+                                  );
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.red500,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: state.cancelStatus == Status2.loading
+                              ? SizedBox(
+                                  width: 24.w,
+                                  height: 24.w,
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  "confirm_cancel".tr(),
+                                  style: fonts.paragraphP2SemiBold.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      Gap(MediaQuery.of(context).padding.bottom),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -212,7 +503,30 @@ class _OrdersPageState extends State<OrdersPage> {
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
           backgroundColor: colors.neutral100,
-          body: BlocBuilder<BookingBloc, BookingState>(
+          body: BlocConsumer<BookingBloc, BookingState>(
+            listenWhen: (previous, current) {
+              return previous.confirmArrivalStatus !=
+                  current.confirmArrivalStatus;
+            },
+            listener: (context, state) {
+              if (state.confirmArrivalStatus == Status2.success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.successMessage ?? "master_arrived".tr(),
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } else if (state.confirmArrivalStatus == Status2.error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage ?? "error_occurred".tr()),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
             builder: (context, state) {
               if (state.detailsStatus == Status2.loading) {
                 return Column(
@@ -355,6 +669,149 @@ class _OrdersPageState extends State<OrdersPage> {
                           ),
                           Gap(16.h),
 
+                          // Specialist Info (Master)
+                          if (data.master != null)
+                            _buildSectionCard(
+                              colors,
+                              title: "specialist".tr(),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 24.r,
+                                    backgroundColor: colors.neutral200,
+                                    backgroundImage:
+                                        data.master?.avatarUrl != null
+                                        ? NetworkImage(data.master!.avatarUrl!)
+                                        : null,
+                                    child: data.master?.avatarUrl == null
+                                        ? Icon(
+                                            Icons.person,
+                                            color: colors.neutral500,
+                                          )
+                                        : null,
+                                  ),
+                                  Gap(12.w),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "${data.master?.firstName ?? ""} ${data.master?.lastName ?? ""}",
+                                          style: fonts.paragraphP1Bold,
+                                        ),
+                                        if (data.master?.phone != null)
+                                          Text(
+                                            data.master!.phone!,
+                                            style: fonts.paragraphP3Regular
+                                                .copyWith(
+                                                  color: colors.neutral600,
+                                                ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (data.master != null) Gap(16.h),
+
+                          // Confirm Arrival Button (only for 'active' status)
+                          if (data.status?.toLowerCase() == 'active')
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed:
+                                      state.confirmArrivalStatus ==
+                                          Status2.loading
+                                      ? null
+                                      : () {
+                                          context.read<BookingBloc>().add(
+                                            ConfirmArrivalEvent(
+                                              bookingId: widget.bookingId,
+                                            ),
+                                          );
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 12.h,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                  ),
+                                  child:
+                                      state.confirmArrivalStatus ==
+                                          Status2.loading
+                                      ? SizedBox(
+                                          width: 24.w,
+                                          height: 24.w,
+                                          child:
+                                              const CircularProgressIndicator(
+                                                color: Colors.white,
+                                                strokeWidth: 2,
+                                              ),
+                                        )
+                                      : Text(
+                                          "confirm_arrival".tr(),
+                                          style: fonts.paragraphP2SemiBold
+                                              .copyWith(color: Colors.white),
+                                        ),
+                                ),
+                              ),
+                            ),
+
+                          // Pay Button (only for 'awaiting_payment' status)
+                          if (data.status?.toLowerCase() == 'awaiting_payment')
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => PaymentPage(
+                                          bookingId: widget.bookingId,
+                                          serviceName: data.serviceTitle ?? "",
+                                        ),
+                                      ),
+                                    );
+                                    if (mounted) {
+                                      context.read<BookingBloc>().add(
+                                        GetBookingDetailsEvent(
+                                          id: widget.bookingId,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.payment,
+                                    color: Colors.white,
+                                  ),
+                                  label: Text(
+                                    "pay".tr(),
+                                    style: fonts.paragraphP2SemiBold.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colors.primary500,
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 12.h,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
                           // Review Section
                           if (data.status?.toLowerCase() == 'completed')
                             Builder(
@@ -432,6 +889,48 @@ class _OrdersPageState extends State<OrdersPage> {
                               },
                             ),
 
+                          // Cancel Booking Button (for active statuses only)
+                          if ([
+                            'pending',
+                            'active',
+                            'accepted',
+                            'assigned',
+                            'awaiting_payment',
+                          ].contains(data.status?.toLowerCase()))
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton(
+                                  onPressed: () => _showCancelOrSupportSheet(
+                                    context,
+                                    colors,
+                                    fonts,
+                                    data.scheduledDate,
+                                    data.scheduledTimeStart,
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(
+                                      color: colors.red500,
+                                      width: 1.5,
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 12.h,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    "cancel_booking".tr(),
+                                    style: fonts.paragraphP2SemiBold.copyWith(
+                                      color: colors.red500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
                           // Schedule Info
                           _buildSectionCard(
                             colors,
@@ -485,8 +984,8 @@ class _OrdersPageState extends State<OrdersPage> {
                                               "contact_phone".tr(),
                                               style: fonts.paragraphP3Regular
                                                   .copyWith(
-                                                color: colors.neutral500,
-                                              ),
+                                                    color: colors.neutral500,
+                                                  ),
                                             ),
                                             Text(
                                               data.contactPhone!,
@@ -505,14 +1004,16 @@ class _OrdersPageState extends State<OrdersPage> {
                                             await launchUrl(uri);
                                           }
                                         },
-                                        borderRadius:
-                                            BorderRadius.circular(20.r),
+                                        borderRadius: BorderRadius.circular(
+                                          20.r,
+                                        ),
                                         child: Container(
                                           padding: EdgeInsets.all(8.w),
                                           decoration: BoxDecoration(
                                             color: Colors.green,
-                                            borderRadius:
-                                                BorderRadius.circular(20.r),
+                                            borderRadius: BorderRadius.circular(
+                                              20.r,
+                                            ),
                                           ),
                                           child: Icon(
                                             Icons.call,
@@ -538,6 +1039,12 @@ class _OrdersPageState extends State<OrdersPage> {
                                 _buildPriceRow(
                                   "service_fee".tr(),
                                   "${data.basePrice} ${"uzs".tr()}",
+                                  fonts,
+                                  colors,
+                                ),
+                                _buildPriceRow(
+                                  "payment_method".tr(),
+                                  (data.paymentMethod ?? "cash").tr(),
                                   fonts,
                                   colors,
                                 ),
@@ -688,7 +1195,7 @@ class _OrdersPageState extends State<OrdersPage> {
       case 'pending':
         return Colors.orange;
       case 'accepted':
-      case 'started':
+      case 'in_progress':
         return colors.blue500;
       case 'completed':
         return Colors.green;
