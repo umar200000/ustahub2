@@ -278,5 +278,7 @@
   "support_description": "Less than 2 hours remain until the service. To cancel, please contact our support team.",
   "address_not_found": "Address not found",
   "confirm_arrival": "Confirm Master Arrival",
-  "master_arrived": "Master arrival confirmed"
+  "master_arrived": "Master arrival confirmed",
+  "cash": "Cash",
+  "card": "Card"
 }

@@ -1044,7 +1044,9 @@ class _OrdersPageState extends State<OrdersPage> {
                                 ),
                                 _buildPriceRow(
                                   "payment_method".tr(),
-                                  (data.paymentMethod ?? "cash").tr(),
+                                  data.paymentMethod == "card"
+                                      ? "card".tr()
+                                      : "cash".tr(),
                                   fonts,
                                   colors,
                                 ),
