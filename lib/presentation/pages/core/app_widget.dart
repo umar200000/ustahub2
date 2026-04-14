@@ -4,11 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:ustahub/infrastructure/core/interceptors.dart';
 import 'package:ustahub/infrastructure/services/alice/alice.dart';
 import 'package:ustahub/infrastructure/services/alice/model/alice_configuration.dart';
 import 'package:ustahub/infrastructure/services/local_database/db_service.dart';
+import 'package:ustahub/infrastructure/services/favorite_provider.dart';
 import 'package:ustahub/infrastructure/services/notification_provider.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/presentation/components/un_focus_widget.dart';
@@ -75,6 +77,10 @@ class MyApp extends StatelessWidget {
               create: (_) => NotificationProvider(),
               lazy: false,
             ),
+            ChangeNotifierProvider(
+              create: (_) => FavoriteProvider(),
+              lazy: true,
+            ),
           ],
           child: OnUnFocusTap(
             child: MaterialApp(
@@ -108,8 +114,18 @@ class MyApp extends StatelessWidget {
                   isLoggedIn: sharedPrefService.getTokenModel() != null,
                 );
               },
+              theme: ThemeData(
+                scaffoldBackgroundColor: const Color(0xFFF5F6F9),
+                textTheme: GoogleFonts.plusJakartaSansTextTheme(),
+                fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
+                useMaterial3: true,
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF02BDC6),
+                  brightness: Brightness.light,
+                ),
+              ),
               // Performance optimizations
-              themeMode: ThemeMode.system, // Respect system theme
+              themeMode: ThemeMode.light,
               highContrastTheme: null, // Disable high contrast themes
               highContrastDarkTheme: null,
               themeAnimationDuration: const Duration(

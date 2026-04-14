@@ -7,6 +7,7 @@ import 'package:ustahub/infrastructure/services/notification_service.dart';
 import 'package:ustahub/presentation/pages/core/app_widget.dart';
 import 'package:ustahub/presentation/pages/notification_page/notification_page.dart';
 import 'package:ustahub/presentation/components/custom_bottom_nav_bar.dart';
+import 'package:ustahub/presentation/pages/favorites/favorites_page.dart';
 import 'package:ustahub/presentation/pages/home/home_page.dart';
 import 'package:ustahub/presentation/pages/order/main_order_page.dart';
 import 'package:ustahub/presentation/pages/profile/profile_page.dart';
@@ -28,6 +29,7 @@ class _MainPageState extends State<MainPage>
   static const _pages = [
     HomePage(),
     SearchPage(),
+    FavoritesPage(),
     MainOrderPage(),
     ProfilePage(),
   ];
@@ -65,10 +67,10 @@ class _MainPageState extends State<MainPage>
         notificationProvider: notificationProvider,
       );
 
-      // AVVAL listener'larni o'rnatamiz - bu xatosiz ishlaydi
+      // Listener'larni o'rnatish (faqat 1 marta)
       notificationService.firebaseCloudMessagingListeners();
 
-      // Keyin init (xato bo'lsa ham listener ishlayveradi)
+      // Init
       try {
         await notificationService.notificationInit();
       } catch (e) {
@@ -76,15 +78,24 @@ class _MainPageState extends State<MainPage>
         print('notificationInit xatolik (lekin listener ishlayapti): $e');
       }
 
-      // Background'dan notification bosilganda NotificationPage'ga o'tish
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        _openNotificationPage();
-      });
-
       // App terminated holatda notification bosilgan bo'lsa
       final initialMessage =
           await FirebaseMessaging.instance.getInitialMessage();
       if (initialMessage != null) {
+        // Provider'ga qo'shish
+        final title = initialMessage.notification?.title ??
+            initialMessage.data['title'] ??
+            '';
+        final body = initialMessage.notification?.body ??
+            initialMessage.data['body'] ??
+            '';
+        if (title.isNotEmpty || body.isNotEmpty) {
+          notificationProvider.addNotification(
+            title: title,
+            body: body,
+            data: initialMessage.data,
+          );
+        }
         _openNotificationPage();
       }
 
@@ -128,7 +139,7 @@ class _MainPageState extends State<MainPage>
           builder: (context, navBarController, _) {
             return Scaffold(
               resizeToAvoidBottomInset: false,
-              backgroundColor: colors.shade0,
+              backgroundColor: colors.bgSurface,
               body: Stack(
                 children: [
                   IndexedStack(

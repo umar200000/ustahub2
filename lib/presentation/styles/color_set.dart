@@ -18,6 +18,7 @@ class CustomColorSet {
 
   final Color shade100;
   final Color shade0;
+  final Color bgSurface;
 
   final Color red500;
 
@@ -64,6 +65,7 @@ class CustomColorSet {
     //
     required this.shade100,
     required this.shade0,
+    required this.bgSurface,
     //
     required this.darkMode50,
     required this.darkMode100,
@@ -112,6 +114,9 @@ class CustomColorSet {
 
     const shade100 = Style.shade100;
     const shade0 = Style.shade0;
+    final bgSurface = mode.isLight
+        ? const Color(0xFFF5F6F9)
+        : Style.darkMode900;
 
     final blue500 = Style.blue500;
 
@@ -156,6 +161,7 @@ class CustomColorSet {
       //
       shade0: shade0,
       shade100: shade100,
+      bgSurface: bgSurface,
       //
       darkMode50: darkMode50,
       darkMode100: darkMode100,

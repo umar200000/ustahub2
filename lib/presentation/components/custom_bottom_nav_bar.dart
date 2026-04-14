@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,34 +22,52 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
       padding: EdgeInsets.only(
-        left: 16.w,
-        right: 16.w,
-        top: 12.h,
-        bottom: MediaQuery.of(context).padding.bottom + 8.h,
+        left: 8.w,
+        right: 8.w,
+        bottom: MediaQuery.of(context).padding.bottom + 10.h,
       ),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        border: Border(
-          top: BorderSide(
-            color: Colors.grey.withValues(alpha: 0.2),
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(
-          _navItems.length,
-          (index) => _NavItem(
-            icon: _navItems[index].icon,
-            activeIcon: _navItems[index].activeIcon,
-            label: _navItems[index].label,
-            isActive: currentIndex == index,
-            activeColor: activeColor,
-            inactiveColor: inactiveColor,
-            onTap: () => onTap(index),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(26.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 4.w),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.78),
+              borderRadius: BorderRadius.circular(24.r),
+              border: Border.all(
+                color: activeColor.withValues(alpha: 0.12),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: activeColor.withValues(alpha: 0.10),
+                  blurRadius: 28,
+                  offset: const Offset(0, 10),
+                  spreadRadius: -4,
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(
+                _navItems.length,
+                (index) => _NavItem(
+                  data: _navItems[index],
+                  isActive: currentIndex == index,
+                  activeColor: activeColor,
+                  inactiveColor: inactiveColor,
+                  onTap: () => onTap(index),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -56,13 +76,17 @@ class CustomBottomNavBar extends StatelessWidget {
 }
 
 class _NavItemData {
-  final String icon;
-  final String activeIcon;
+  final String? icon;
+  final String? activeIcon;
+  final IconData? iconData;
+  final IconData? activeIconData;
   final String label;
 
   const _NavItemData({
-    required this.icon,
-    required this.activeIcon,
+    this.icon,
+    this.activeIcon,
+    this.iconData,
+    this.activeIconData,
     required this.label,
   });
 }
@@ -79,6 +103,11 @@ final List<_NavItemData> _navItems = [
     label: 'search',
   ),
   _NavItemData(
+    iconData: Icons.favorite_border_rounded,
+    activeIconData: Icons.favorite_rounded,
+    label: 'favorites',
+  ),
+  _NavItemData(
     icon: 'assets/images/order.png',
     activeIcon: 'assets/images/order.png',
     label: 'orders',
@@ -91,18 +120,14 @@ final List<_NavItemData> _navItems = [
 ];
 
 class _NavItem extends StatelessWidget {
-  final String icon;
-  final String activeIcon;
-  final String label;
+  final _NavItemData data;
   final bool isActive;
   final Color activeColor;
   final Color inactiveColor;
   final VoidCallback onTap;
 
   const _NavItem({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
+    required this.data,
     required this.isActive,
     required this.activeColor,
     required this.inactiveColor,
@@ -111,45 +136,46 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutCubic,
-        padding: EdgeInsets.symmetric(
-          horizontal: isActive ? 16.w : 12.w,
-          vertical: 10.h,
-        ),
-        decoration: BoxDecoration(
-          color: isActive ? activeColor.withValues(alpha: 0.12) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              isActive ? activeIcon : icon,
-              width: 22.w,
-              height: 22.h,
-              color: isActive ? activeColor : inactiveColor,
-            ),
-            if (isActive) ...[
-              SizedBox(width: 8.w),
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 200),
-                opacity: isActive ? 1.0 : 0.0,
-                child: Text(
-                  label.tr(),
-                  style: TextStyle(
-                    color: activeColor,
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
+    final color = isActive ? activeColor : inactiveColor;
+    final Widget iconWidget;
+    if (data.iconData != null) {
+      iconWidget = Icon(
+        isActive ? (data.activeIconData ?? data.iconData!) : data.iconData!,
+        size: 22.sp,
+        color: color,
+      );
+    } else {
+      iconWidget = Image.asset(
+        isActive ? (data.activeIcon ?? data.icon!) : data.icon!,
+        width: 20.w,
+        height: 20.h,
+        color: color,
+      );
+    }
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 2.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              iconWidget,
+              SizedBox(height: 2.h),
+              Text(
+                data.label.tr(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10.sp,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );

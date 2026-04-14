@@ -62,43 +62,57 @@ class UniversalAppBar extends StatelessWidget {
     this.bottomHeight,
     this.backgroundColor,
     this.elevation,
-    this.showShadow = true,
+    this.showShadow = false,
     this.padding,
     this.margin,
-    this.showBorderRadius = true,
+    this.showBorderRadius = false,
     this.borderRadius,
-    this.centerTitle = false,
+    this.centerTitle = true,
     this.height,
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.leadingWidth,
     this.trailingWidth,
     this.horizontalSpacing = 8,
-    this.verticalSpacing = 16,
+    this.verticalSpacing = 8,
   });
 
   @override
   Widget build(BuildContext context) {
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
+        final bg = backgroundColor ?? colors.shade0;
+        final isDark =
+            ThemeData.estimateBrightnessForColor(bg) == Brightness.dark;
+        final fgColor = isDark ? Colors.white : colors.neutral800;
+        final subtleBg = isDark
+            ? Colors.white.withValues(alpha: 0.14)
+            : colors.neutral100;
+        final dividerColor = isDark
+            ? Colors.white.withValues(alpha: 0.12)
+            : colors.neutral200;
+
         return Container(
           height: height,
           margin: margin,
           decoration: BoxDecoration(
-            color: backgroundColor ?? colors.primary500,
+            color: bg,
             borderRadius: showBorderRadius
                 ? BorderRadius.only(
                     bottomLeft: Radius.circular(borderRadius ?? 24.r),
                     bottomRight: Radius.circular(borderRadius ?? 24.r),
                   )
                 : null,
+            border: !showShadow
+                ? Border(bottom: BorderSide(color: dividerColor, width: 0.6))
+                : null,
             boxShadow: showShadow
                 ? [
                     BoxShadow(
                       offset: const Offset(0, 2),
-                      blurRadius: 8,
+                      blurRadius: 12,
                       spreadRadius: 0,
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.06),
                     ),
                   ]
                 : null,
@@ -106,53 +120,47 @@ class UniversalAppBar extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Safe Area
-              const SafeArea(bottom: false, child: SizedBox.shrink()),
-
-              SizedBox(height: verticalSpacing.h),
-
-              // Main AppBar Content
-              Padding(
-                padding: padding ?? EdgeInsets.symmetric(horizontal: 16.w),
-                child: Stack(
-                  children: [
-                    if (title != null || titleWidget != null)
-                      Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Column(
-                            children: [
-                              SizedBox(height: horizontalSpacing.h),
-
-                              Center(child: _buildTitle(fonts, colors)),
-                            ],
-                          )),
-
-                    Row(
-                      mainAxisAlignment:
-                          mainAxisAlignment ?? MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment:
-                          crossAxisAlignment ?? CrossAxisAlignment.center,
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: padding ??
+                      EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 10.h),
+                  child: SizedBox(
+                    height: 44.h,
+                    child: Stack(
+                      alignment: Alignment.center,
                       children: [
-                        // Leading Section
-                        if (showBackButton || leading != null)
-                          _buildLeading(context),
-
-                        if ((showBackButton || leading != null) &&
+                        if (centerTitle &&
                             (title != null || titleWidget != null))
-                          SizedBox(width: horizontalSpacing.w),
-                        if (trailing != null || actions != null)
-                          SizedBox(width: horizontalSpacing.w),
-
-                        if (trailing != null || actions != null) _buildTrailing(),
+                          Align(
+                            alignment: Alignment.center,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 56.w),
+                              child: _buildTitle(fonts, fgColor),
+                            ),
+                          ),
+                        Row(
+                          children: [
+                            if (showBackButton || leading != null)
+                              _buildLeading(context, colors, fgColor, subtleBg)
+                            else
+                              SizedBox(width: 4.w),
+                            if (!centerTitle &&
+                                (title != null || titleWidget != null)) ...[
+                              SizedBox(width: 12.w),
+                              Expanded(child: _buildTitle(fonts, fgColor)),
+                            ] else
+                              const Spacer(),
+                            if (trailing != null ||
+                                (actions != null && actions!.isNotEmpty))
+                              _buildTrailing(),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-
-              SizedBox(height: verticalSpacing.h),
-
-              // Bottom Widget
               if (bottom != null) ...[
                 SizedBox(height: bottomHeight, child: bottom!),
                 SizedBox(height: verticalSpacing.h),
@@ -164,47 +172,48 @@ class UniversalAppBar extends StatelessWidget {
     );
   }
 
-  Widget _buildLeading(BuildContext context) {
-    if (customBackButton != null) {
-      return customBackButton!;
-    }
+  Widget _buildLeading(
+    BuildContext context,
+    CustomColorSet colors,
+    Color fgColor,
+    Color subtleBg,
+  ) {
+    if (customBackButton != null) return customBackButton!;
 
     if (showBackButton) {
-      return ThemeWrapper(
-        builder: (context, colors, fonts, icons, controller) {
-          return AnimationButtonEffect(
-            onTap: onBackPressed ?? () => Navigator.pop(context),
-            child: Container(
-              width: leadingWidth ?? 40.w,
-              height: 40.w,
-              alignment: Alignment.centerLeft,
-              child: icons.backS.svg(
-                height: 28.r,
-                width: 28.r,
-                color: Colors.white,
-              ),
-            ),
-          );
-        },
+      return AnimationButtonEffect(
+        onTap: onBackPressed ?? () => Navigator.pop(context),
+        child: Container(
+          width: 40.w,
+          height: 40.w,
+          decoration: BoxDecoration(
+            color: subtleBg,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 18.sp,
+            color: fgColor,
+          ),
+        ),
       );
     }
 
-    return SizedBox(width: leadingWidth, child: leading!);
+    return SizedBox(width: leadingWidth, child: leading);
   }
 
-  Widget _buildTitle(FontSet fonts, CustomColorSet colors) {
-    if (titleWidget != null) {
-      return titleWidget!;
-    }
+  Widget _buildTitle(FontSet fonts, Color fgColor) {
+    if (titleWidget != null) return titleWidget!;
 
     return Text(
-      title!,
-      style:
-          titleStyle ??
-          fonts.headingH4Medium.copyWith(
-            color: Colors.white,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w600,
+      title ?? '',
+      style: titleStyle ??
+          TextStyle(
+            color: fgColor,
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
           ),
       textAlign: centerTitle ? TextAlign.center : titleAlign,
       overflow: TextOverflow.ellipsis,
@@ -214,23 +223,20 @@ class UniversalAppBar extends StatelessWidget {
 
   Widget _buildTrailing() {
     if (actions != null && actions!.isNotEmpty) {
-      return SizedBox(
-        width: trailingWidth,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: actions!
-              .map(
-                (action) => Padding(
-                  padding: EdgeInsets.only(left: horizontalSpacing.w / 2),
-                  child: action,
-                ),
-              )
-              .toList(),
-        ),
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: actions!
+            .map(
+              (action) => Padding(
+                padding: EdgeInsets.only(left: horizontalSpacing.w / 2),
+                child: action,
+              ),
+            )
+            .toList(),
       );
     }
 
-    return SizedBox(width: trailingWidth, child: trailing!);
+    return SizedBox(width: trailingWidth, child: trailing);
   }
 }

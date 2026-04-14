@@ -35,6 +35,7 @@ class NotificationItem {
 
 class NotificationProvider extends ChangeNotifier {
   static const String _storageKey = 'saved_notifications';
+  static const String _unreadCountKey = 'notification_unread_count';
 
   final List<NotificationItem> _notifications = [];
 
@@ -45,8 +46,21 @@ class NotificationProvider extends ChangeNotifier {
 
   int get unreadCount => _unreadCount;
 
+  bool get hasUnread => _unreadCount > 0;
+
   NotificationProvider() {
     _loadFromStorage();
+  }
+
+  /// Dublikat notification qo'shilishining oldini olish
+  bool _isDuplicate(String title, String body) {
+    if (_notifications.isEmpty) return false;
+    final now = DateTime.now();
+    // Oxirgi 5 soniya ichida bir xil title va body kelgan bo'lsa dublikat
+    return _notifications.any((n) =>
+        n.title == title &&
+        n.body == body &&
+        now.difference(n.receivedAt).inSeconds < 5);
   }
 
   void addNotification({
@@ -54,6 +68,11 @@ class NotificationProvider extends ChangeNotifier {
     required String body,
     Map<String, dynamic>? data,
   }) {
+    // Dublikat tekshirish
+    if (_isDuplicate(title, body)) {
+      return;
+    }
+
     _notifications.insert(
       0,
       NotificationItem(
@@ -69,7 +88,9 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   void markAllAsRead() {
+    if (_unreadCount == 0) return;
     _unreadCount = 0;
+    _saveUnreadCount();
     notifyListeners();
   }
 
@@ -86,6 +107,14 @@ class NotificationProvider extends ChangeNotifier {
       final jsonList =
           _notifications.map((n) => json.encode(n.toJson())).toList();
       await prefs.setStringList(_storageKey, jsonList);
+      await prefs.setInt(_unreadCountKey, _unreadCount);
+    } catch (_) {}
+  }
+
+  Future<void> _saveUnreadCount() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_unreadCountKey, _unreadCount);
     } catch (_) {}
   }
 
@@ -99,8 +128,9 @@ class NotificationProvider extends ChangeNotifier {
           _notifications
               .add(NotificationItem.fromJson(json.decode(jsonStr)));
         }
-        notifyListeners();
       }
+      _unreadCount = prefs.getInt(_unreadCountKey) ?? 0;
+      notifyListeners();
     } catch (_) {}
   }
 }

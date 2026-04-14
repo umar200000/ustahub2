@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/infrastructure2/init/injection.dart';
-import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/pages/profile/screens/info_detail_page.dart';
 import 'package:ustahub/presentation/pages/profile/screens/user_information_page.dart';
 import 'package:ustahub/presentation/pages/payment_history/payment_history_page.dart';
@@ -161,241 +160,389 @@ class _ProfilePageState extends State<ProfilePage> {
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
-          backgroundColor: colors.neutral100,
-          body: Column(
-            children: [
-              UniversalAppBar(
-                backgroundColor: colors.primary500,
-                showBackButton: false,
-                showShadow: false,
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                verticalSpacing: 12,
-                title: "profile".tr(),
-                centerTitle: true,
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SectionHeader(
-                        title: 'account'.tr().toUpperCase(),
+          backgroundColor: colors.bgSurface,
+          body: SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: 120.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _ProfileHero(colors: colors, fonts: fonts),
+                SizedBox(height: 20.h),
+                _SectionHeader(
+                  title: 'account'.tr(),
+                  fonts: fonts,
+                  colors: colors,
+                ),
+                _SettingsCard(
+                  colors: colors,
+                  children: [
+                    SettingsMenuItem(
+                      icon: Icons.person_outline_rounded,
+                      iconColor: colors.blue500,
+                      title: 'personal_info'.tr(),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const UserInformationPage(),
+                          ),
+                        );
+                      },
+                      showTrailing: true,
+                      fonts: fonts,
+                      colors: colors,
+                    ),
+                    _divider(colors),
+                    SettingsMenuItem(
+                      icon: Icons.credit_card_rounded,
+                      iconColor: const Color(0xFF8B5CF6),
+                      title: 'my_card'.tr(),
+                      showTrailing: true,
+                      onTap: () {
+                        Navigator.push(context, AppRoutes.myCardPage());
+                      },
+                      fonts: fonts,
+                      colors: colors,
+                    ),
+                    _divider(colors),
+                    SettingsMenuItem(
+                      icon: Icons.receipt_long_rounded,
+                      iconColor: const Color(0xFFF59E0B),
+                      title: 'payment_history'.tr(),
+                      showTrailing: true,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PaymentHistoryPage(),
+                          ),
+                        );
+                      },
+                      fonts: fonts,
+                      colors: colors,
+                    ),
+                  ],
+                ),
+                _SectionHeader(
+                  title: 'settings'.tr(),
+                  fonts: fonts,
+                  colors: colors,
+                ),
+                _SettingsCard(
+                  colors: colors,
+                  children: [
+                    SettingsMenuItem(
+                      icon: Icons.language_rounded,
+                      iconColor: const Color(0xFF10B981),
+                      title: 'language'.tr(),
+                      onTap: () {},
+                      fonts: fonts,
+                      colors: colors,
+                      trailing: LanguageSelector(
+                        selectedLanguage:
+                            _getLanguageName(context.locale),
+                        onChanged: (name, locale) {
+                          sl<SharedPrefService>().setLanguage(
+                            locale.languageCode,
+                          );
+                          context.setLocale(locale);
+                          setState(() {});
+                        },
                         fonts: fonts,
                         colors: colors,
                       ),
-                      _SettingsCard(
+                    ),
+                    _divider(colors),
+                    SettingsMenuItem(
+                      icon: Icons.notifications_rounded,
+                      iconColor: const Color(0xFFEF4444),
+                      title: 'notifications'.tr(),
+                      onTap: () {},
+                      fonts: fonts,
+                      colors: colors,
+                      trailing: CustomSwitch(
+                        value: notificationsEnabled,
+                        onChanged: (value) {
+                          setState(() {
+                            notificationsEnabled = value;
+                          });
+                        },
                         colors: colors,
-                        children: [
-                          BlocBuilder<RegisterBloc, RegisterState>(
-                            builder: (context, state) => SettingsMenuItem(
-                              icon: Icons.person_outline,
-                              title: state.userProfile?.firstName ?? "User",
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const UserInformationPage(),
-                                  ),
-                                );
-                              },
-                              showTrailing: true,
-                              fonts: fonts,
-                              colors: colors,
+                      ),
+                    ),
+                  ],
+                ),
+                _SectionHeader(
+                  title: 'information'.tr(),
+                  fonts: fonts,
+                  colors: colors,
+                ),
+                _SettingsCard(
+                  colors: colors,
+                  children: [
+                    SettingsMenuItem(
+                      icon: Icons.info_outline_rounded,
+                      iconColor: colors.blue500,
+                      title: 'about_ustahub'.tr(),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InfoDetailPage(
+                              titleKey: "about_ustahub",
+                              contentKey: "about_content",
+                              icon: Icons.info_outline,
                             ),
                           ),
-                          Divider(height: 1, color: colors.neutral200),
-                          SettingsMenuItem(
-                            icon: Icons.credit_card_outlined,
-                            title: 'my_card'.tr(),
-                            showTrailing: true,
-                            onTap: () {
-                              Navigator.push(context, AppRoutes.myCardPage());
-                            },
-                            fonts: fonts,
-                            colors: colors,
-                          ),
-                          Divider(height: 1, color: colors.neutral200),
-                          SettingsMenuItem(
-                            icon: Icons.receipt_long_outlined,
-                            title: 'payment_history'.tr(),
-                            showTrailing: true,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const PaymentHistoryPage(),
-                                ),
-                              );
-                            },
-                            fonts: fonts,
-                            colors: colors,
-                          ),
-                        ],
-                      ),
-                      _SectionHeader(
-                        title: 'settings'.tr().toUpperCase(),
-                        fonts: fonts,
-                        colors: colors,
-                      ),
-                      _SettingsCard(
-                        colors: colors,
-                        children: [
-                          SettingsMenuItem(
-                            icon: Icons.language,
-                            title: 'language'.tr(),
-                            onTap: () {},
-                            fonts: fonts,
-                            colors: colors,
-                            trailing: LanguageSelector(
-                              selectedLanguage: _getLanguageName(
-                                context.locale,
-                              ),
-                              onChanged: (name, locale) {
-                                // 1. Tilni SharedPrefs'ga saqlash (Interceptor uchun)
-                                sl<SharedPrefService>().setLanguage(
-                                  locale.languageCode,
-                                );
-                                // 2. Ilova lokalini yangilash
-                                context.setLocale(locale);
-                                setState(() {});
-                              },
-                              fonts: fonts,
-                              colors: colors,
+                        );
+                      },
+                      showTrailing: true,
+                      fonts: fonts,
+                      colors: colors,
+                    ),
+                    _divider(colors),
+                    SettingsMenuItem(
+                      icon: Icons.description_outlined,
+                      iconColor: const Color(0xFF6366F1),
+                      title: 'terms_and_conditions'.tr(),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InfoDetailPage(
+                              titleKey: "terms_and_conditions",
+                              contentKey: "terms_content",
+                              icon: Icons.description_outlined,
                             ),
                           ),
-                          Divider(height: 1, color: colors.neutral200),
-                          SettingsMenuItem(
-                            icon: Icons.notifications_outlined,
-                            title: 'notifications'.tr(),
-                            onTap: () {},
-                            fonts: fonts,
-                            colors: colors,
-                            trailing: CustomSwitch(
-                              value: notificationsEnabled,
-                              onChanged: (value) {
-                                setState(() {
-                                  notificationsEnabled = value;
-                                });
-                              },
-                              colors: colors,
+                        );
+                      },
+                      showTrailing: true,
+                      fonts: fonts,
+                      colors: colors,
+                    ),
+                    _divider(colors),
+                    SettingsMenuItem(
+                      icon: Icons.privacy_tip_rounded,
+                      iconColor: const Color(0xFF0EA5E9),
+                      title: 'privacy_policy'.tr(),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InfoDetailPage(
+                              titleKey: "privacy_policy",
+                              contentKey: "privacy_content",
+                              icon: Icons.privacy_tip_outlined,
                             ),
                           ),
-                        ],
-                      ),
-                      _SectionHeader(
-                        title: 'information'.tr().toUpperCase(),
-                        fonts: fonts,
-                        colors: colors,
-                      ),
-                      _SettingsCard(
-                        colors: colors,
-                        children: [
-                          SettingsMenuItem(
-                            icon: Icons.info_outline,
-                            title: 'about_ustahub'.tr(),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const InfoDetailPage(
-                                    titleKey: "about_ustahub",
-                                    contentKey: "about_content",
-                                    icon: Icons.info_outline,
-                                  ),
-                                ),
-                              );
-                            },
-                            showTrailing: true,
-                            fonts: fonts,
-                            colors: colors,
+                        );
+                      },
+                      showTrailing: true,
+                      fonts: fonts,
+                      colors: colors,
+                    ),
+                    _divider(colors),
+                    SettingsMenuItem(
+                      icon: Icons.work_rounded,
+                      iconColor: const Color(0xFFEC4899),
+                      title: 'work_with_us'.tr(),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InfoDetailPage(
+                              titleKey: "work_with_us",
+                              contentKey: "work_with_us_content",
+                              icon: Icons.work_outline,
+                            ),
                           ),
-                          Divider(height: 1, color: colors.neutral200),
-                          SettingsMenuItem(
-                            icon: Icons.description_outlined,
-                            title: 'terms_and_conditions'.tr(),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const InfoDetailPage(
-                                    titleKey: "terms_and_conditions",
-                                    contentKey: "terms_content",
-                                    icon: Icons.description_outlined,
-                                  ),
-                                ),
-                              );
-                            },
-                            showTrailing: true,
-                            fonts: fonts,
-                            colors: colors,
-                          ),
-                          Divider(height: 1, color: colors.neutral200),
-                          SettingsMenuItem(
-                            icon: Icons.privacy_tip_outlined,
-                            title: 'privacy_policy'.tr(),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const InfoDetailPage(
-                                    titleKey: "privacy_policy",
-                                    contentKey: "privacy_content",
-                                    icon: Icons.privacy_tip_outlined,
-                                  ),
-                                ),
-                              );
-                            },
-                            showTrailing: true,
-                            fonts: fonts,
-                            colors: colors,
-                          ),
-                          Divider(height: 1, color: colors.neutral200),
-                          SettingsMenuItem(
-                            icon: Icons.work_outline,
-                            title: 'work_with_us'.tr(),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const InfoDetailPage(
-                                    titleKey: "work_with_us",
-                                    contentKey: "work_with_us_content",
-                                    icon: Icons.work_outline,
-                                  ),
-                                ),
-                              );
-                            },
-                            showTrailing: true,
-                            fonts: fonts,
-                            colors: colors,
-                          ),
-                        ],
-                      ),
-                      _SectionHeader(
-                        title: 'danger_zone'.tr().toUpperCase(),
-                        fonts: fonts,
-                        colors: colors,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(16.w),
-                        child: LogoutButton(
-                          onTap: () =>
-                              _showLogoutDialog(context, colors, fonts),
-                          fonts: fonts,
-                          colors: colors,
-                        ),
-                      ),
-                      56.h.verticalSpace,
-                      MediaQuery.of(context).padding.bottom.verticalSpace,
-                    ],
+                        );
+                      },
+                      showTrailing: true,
+                      fonts: fonts,
+                      colors: colors,
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: LogoutButton(
+                    onTap: () => _showLogoutDialog(context, colors, fonts),
+                    fonts: fonts,
+                    colors: colors,
                   ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+Widget _divider(CustomColorSet colors) => Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Container(height: 1, color: colors.neutral100),
+    );
+
+class _ProfileHero extends StatelessWidget {
+  final CustomColorSet colors;
+  final FontSet fonts;
+
+  const _ProfileHero({required this.colors, required this.fonts});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colors.primary500,
+            colors.primary500.withValues(alpha: 0.78),
+          ],
+        ),
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(32.r),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colors.primary500.withValues(alpha: 0.25),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 16.h,
+        left: 20.w,
+        right: 20.w,
+        bottom: 28.h,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'profile'.tr(),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              Container(
+                width: 36.w,
+                height: 36.w,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.20),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.settings_outlined,
+                  color: Colors.white,
+                  size: 18.sp,
                 ),
               ),
             ],
           ),
-        );
-      },
+          SizedBox(height: 20.h),
+          BlocBuilder<RegisterBloc, RegisterState>(
+            builder: (context, state) {
+              final user = state.userProfile;
+              final firstName = user?.firstName ?? 'Guest';
+              final lastName = user?.lastName ?? 'User';
+              final phone = user?.phone ?? '+998 ** *** ** **';
+              final initial =
+                  firstName.isNotEmpty ? firstName[0].toUpperCase() : 'G';
+
+              return Row(
+                children: [
+                  Container(
+                    width: 68.w,
+                    height: 68.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        width: 3,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.12),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      initial,
+                      style: TextStyle(
+                        color: colors.primary500,
+                        fontSize: 28.sp,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 14.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$firstName $lastName',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.phone_rounded,
+                              color: Colors.white.withValues(alpha: 0.85),
+                              size: 13.sp,
+                            ),
+                            SizedBox(width: 5.w),
+                            Flexible(
+                              child: Text(
+                                phone,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color:
+                                      Colors.white.withValues(alpha: 0.9),
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -414,10 +561,15 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 12.h),
+      padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 10.h),
       child: Text(
         title,
-        style: fonts.paragraphP2Medium.copyWith(color: colors.neutral600),
+        style: TextStyle(
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w700,
+          color: colors.neutral500,
+          letterSpacing: 0.8,
+        ),
       ),
     );
   }
@@ -435,13 +587,13 @@ class _SettingsCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       decoration: BoxDecoration(
         color: colors.shade0,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(18.r),
+        boxShadow: [
           BoxShadow(
-            offset: Offset(0, 2),
-            blurRadius: 8,
+            offset: const Offset(0, 6),
+            blurRadius: 20,
             spreadRadius: 0,
-            color: Color(0x08000000),
+            color: Colors.black.withValues(alpha: 0.04),
           ),
         ],
       ),

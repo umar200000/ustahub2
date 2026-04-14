@@ -123,9 +123,9 @@ class _BannerDetailsPageState extends State<BannerDetailsPage> {
                           top: Radius.circular(30.r),
                         ),
                       ),
-                      transform: Matrix4.translationValues(0, -30.r, 0),
+                      transform: Matrix4.translationValues(0, -24.r, 0),
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 24.h),
+                        padding: EdgeInsets.fromLTRB(24.w, 52.h, 24.w, 24.h),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

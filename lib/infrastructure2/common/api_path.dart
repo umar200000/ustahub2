@@ -1,2 +1,2 @@
-String baseUrl = "http://16.170.131.19/";
+String baseUrl = "http://51.102.103.160:8000/";
 // String baseImageUrl = "https://beestore.uz/";

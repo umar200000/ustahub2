@@ -28,7 +28,7 @@ class SuccessCardPage extends StatelessWidget {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const MainPage(index: 3),
+                    builder: (context) => const MainPage(index: 4),
                   ),
                   (route) => false,
                 );

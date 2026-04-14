@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/presentation/components/animation_effect.dart';
@@ -30,27 +29,45 @@ class SettingsMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveIconColor = iconColor ?? colors.blue500;
     return AnimationButtonEffect(
       onTap: onTap,
-      scaleFactor: 0.95,
+      scaleFactor: 0.98,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         child: Row(
           children: [
-            Icon(icon, color: iconColor ?? colors.neutral600, size: 24.sp),
+            Container(
+              width: 36.w,
+              height: 36.w,
+              decoration: BoxDecoration(
+                color: effectiveIconColor.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, color: effectiveIconColor, size: 18.sp),
+            ),
             SizedBox(width: 12.w),
             Expanded(
               child: Text(
                 title,
                 style: fonts.paragraphP1Regular.copyWith(
-                  color: titleColor ?? colors.shade100,
+                  color: titleColor ?? colors.neutral800,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             if (trailing != null)
               trailing!
             else if (showTrailing)
-              Icon(Icons.chevron_right, color: colors.neutral500, size: 24.sp),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: colors.neutral400,
+                size: 14.sp,
+              ),
           ],
         ),
       ),

@@ -10,14 +10,28 @@ import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 import '../../../components/animation_effect.dart';
 
 class HomeAppBar extends StatelessWidget {
-  const HomeAppBar({super.key});
+  final bool showShadow;
+
+  const HomeAppBar({super.key, this.showShadow = false});
 
   @override
   Widget build(BuildContext context) {
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
-        return Container(
-          color: colors.shade0,
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: colors.shade0,
+            boxShadow: showShadow
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
           child: SafeArea(
             bottom: false,
             child: Padding(

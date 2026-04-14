@@ -596,7 +596,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                     ),
                                     Gap(4.h),
                                     Text(
-                                      data.status?.toUpperCase() ?? "",
+                                      _getStatusLabel(data.status),
                                       style: fonts.paragraphP1Bold.copyWith(
                                         color: _getStatusColor(
                                           data.status,
@@ -1202,9 +1202,31 @@ class _OrdersPageState extends State<OrdersPage> {
       case 'completed':
         return Colors.green;
       case 'canceled':
+      case 'cancelled':
         return colors.red500;
       default:
         return colors.neutral500;
     }
+  }
+
+  String _getStatusLabel(String? status) {
+    if (status == null || status.isEmpty) return '';
+    const knownStatuses = {
+      'pending',
+      'active',
+      'in_progress',
+      'accepted',
+      'assigned',
+      'awaiting_payment',
+      'completed',
+      'canceled',
+      'rejected',
+    };
+    final lower = status.toLowerCase();
+    final normalized = lower == 'cancelled' ? 'canceled' : lower;
+    if (knownStatuses.contains(normalized)) {
+      return 'status_$normalized'.tr();
+    }
+    return status;
   }
 }

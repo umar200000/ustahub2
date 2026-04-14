@@ -61,7 +61,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
-          backgroundColor: colors.neutral100,
+          backgroundColor: colors.bgSurface,
           body: BlocBuilder<BookingBloc, BookingState>(
             builder: (context, state) {
               final activeOrders = state.items.where((item) {
@@ -154,12 +154,6 @@ class _MainOrderPageState extends State<MainOrderPage> {
     FontSet fonts,
   ) {
     if (state.listStatus == Status2.loading && state.items.isEmpty) {
-      return const OrderListShimmer();
-    }
-
-    if (orders.isEmpty &&
-        !state.hasReachedMax &&
-        state.listStatus != Status2.loading) {
       return const OrderListShimmer();
     }
 
@@ -280,6 +274,26 @@ class _MainOrderPageState extends State<MainOrderPage> {
     );
   }
 
+  String _getStatusLabel(String status) {
+    const knownStatuses = {
+      'pending',
+      'active',
+      'in_progress',
+      'accepted',
+      'assigned',
+      'awaiting_payment',
+      'completed',
+      'canceled',
+      'cancelled',
+      'rejected',
+    };
+    final normalized = status == 'cancelled' ? 'canceled' : status;
+    if (knownStatuses.contains(normalized)) {
+      return 'status_$normalized'.tr();
+    }
+    return status;
+  }
+
   Color _getStatusColor(String status, CustomColorSet colors) {
     switch (status) {
       case 'pending':
@@ -359,8 +373,11 @@ class _MainOrderPageState extends State<MainOrderPage> {
                   borderRadius: BorderRadius.circular(100.r),
                 ),
                 child: Text(
-                  status.toUpperCase(),
-                  style: fonts.paragraphP3Medium.copyWith(color: statusColor),
+                  _getStatusLabel(status),
+                  style: fonts.paragraphP3Medium.copyWith(
+                    color: statusColor,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],

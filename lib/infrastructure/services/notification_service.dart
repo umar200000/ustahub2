@@ -24,6 +24,9 @@ class NotificationService {
   final NotificationProvider? _notificationProvider;
   String darwinNotificationCategoryPlain = 'plainCategory';
 
+  /// Prevents duplicate listener registration
+  static bool _listenersRegistered = false;
+
   NotificationService._(
     this._context,
     this._flutterLocalNotificationsPlugin,
@@ -221,33 +224,28 @@ class NotificationService {
   }
 
   void firebaseCloudMessagingListeners() {
-    // AVVAL listener'larni o'rnatamiz - xatolik bo'lsa ham ishlaydi
-    // ignore: avoid_print
-    print('🔔 FCM foreground listener o\'rnatilmoqda...');
+    // Prevent duplicate listener registration
+    if (_listenersRegistered) {
+      debugPrint('⚠️ FCM listeners already registered, skipping...');
+      return;
+    }
+    _listenersRegistered = true;
+
+    debugPrint('🔔 FCM foreground listener o\'rnatilmoqda...');
 
     // Foreground message handler
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      // ignore: avoid_print
-      print('🔔 FOREGROUND MESSAGE KELDI!');
-      // ignore: avoid_print
-      print('Title: ${message.notification?.title}');
-      // ignore: avoid_print
-      print('Body: ${message.notification?.body}');
+      debugPrint('🔔 FOREGROUND MESSAGE KELDI!');
+      debugPrint('Title: ${message.notification?.title}');
+      debugPrint('Body: ${message.notification?.body}');
       LogService.i(
         'Message received in foreground: ${message.notification?.toMap()} ${message.data}',
       );
-      debugPrint('=== FOREGROUND MESSAGE RECEIVED ===');
-      debugPrint('Title: ${message.notification?.title}');
-      debugPrint('Body: ${message.notification?.body}');
-      debugPrint('Data: ${message.data}');
-      debugPrint('Platform: ${Platform.isAndroid ? "Android" : "iOS"}');
 
-      // Show notification for both Android and iOS when app is in foreground
-      // iOS will also show via AppDelegate, but we show local notification as backup
-      // Habarnomani provider'ga qo'shish
       final title = message.notification?.title ?? message.data['title'] ?? '';
       final body = message.notification?.body ?? message.data['body'] ?? '';
 
+      // Provider'ga qo'shish (faqat 1 marta)
       if (title.isNotEmpty || body.isNotEmpty) {
         _notificationProvider?.addNotification(
           title: title,
@@ -257,9 +255,9 @@ class NotificationService {
         debugPrint('✅ Notification added to provider');
       }
 
+      // Foreground'da local notification ko'rsatish
       if (message.notification != null) {
         try {
-          // For Android, ensure notification channel exists before showing
           if (Platform.isAndroid) {
             final androidImplementation = _flutterLocalNotificationsPlugin
                 .resolvePlatformSpecificImplementation<
@@ -291,23 +289,18 @@ class NotificationService {
             payload: json.encode(message.data),
           );
           debugPrint('✅ Local notification shown for foreground message');
-          LogService.i('Local notification shown for foreground message');
-        } catch (e, stackTrace) {
+        } catch (e) {
           debugPrint('❌ Error showing foreground notification: $e');
-          debugPrint('Stack trace: $stackTrace');
           LogService.e('Error showing foreground notification: $e');
         }
-      } else {
-        debugPrint('⚠️ Message received but notification is null');
       }
     });
 
-    FirebaseMessaging.onBackgroundMessage(_backgroundMessageHandler);
-
+    // onMessageOpenedApp - faqat provider'ga qo'shish, local notification ko'rsatish KERAK EMAS
+    // chunki foydalanuvchi allaqachon notification'ni bosgan
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      LogService.e(' onMessageOpenedApp data: ${message.data}');
+      LogService.i('onMessageOpenedApp data: ${message.data}');
 
-      // Habarnomani provider'ga qo'shish
       final openedTitle =
           message.notification?.title ?? message.data['title'] ?? '';
       final openedBody =
@@ -321,51 +314,18 @@ class NotificationService {
         );
       }
 
-      if (message.notification != null) {
-        LogService.e(
-          'onMessageOpenedApp Message also contained a notification: ${message.notification}',
-        );
-        final notificationId =
-            DateTime.now().millisecondsSinceEpoch % 2147483647;
-        showNotification(
-          id: notificationId,
-          title: message.notification?.title ?? "",
-          body: message.notification?.body ?? "",
-          payload: json.encode(message.data),
-        );
-      }
+      // NotificationPage'ga o'tish
+      _navigateToNotificationPage();
     });
   }
 
-  @pragma('vm:entry-point')
-  static Future<void> _backgroundMessageHandler(RemoteMessage message) async {
-    LogService.e(' onBackgroundMessageMessage data: ${message.data}');
-    if (message.notification != null) {
-      LogService.e(
-        'onBackgroundMessage Message also contained a notification: ${message.notification}',
-      );
-      // Note: Since this is a static method, we can't access instance methods directly
-      // This is handled by the system showing the notification for background messages
-    }
-  }
-
   Future<void> setupInteractedMessage() async {
-    // Get any messages which caused the application to open from
-    // a terminated state.
     RemoteMessage? initialMessage = await FirebaseMessaging.instance
         .getInitialMessage();
 
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
     if (initialMessage != null) {
       handleMessage(initialMessage.data['deeplink']);
     }
-
-    // Also handle any interaction when the app is in the background via a
-    // Stream listener
-    FirebaseMessaging.onMessageOpenedApp.listen(
-      (r) => handleMessage(r.data['deeplink']),
-    );
   }
 
   notificationInit() async {

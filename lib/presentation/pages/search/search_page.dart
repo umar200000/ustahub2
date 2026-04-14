@@ -58,7 +58,7 @@ class _SearchPageState extends State<SearchPage> {
         builder: (context, colors, fonts, icons, controller) {
           return Scaffold(
             resizeToAvoidBottomInset: true,
-            backgroundColor: colors.shade0,
+            backgroundColor: colors.bgSurface,
             body: SafeArea(
               child: Column(
                 children: [
@@ -104,8 +104,16 @@ class _SearchPageState extends State<SearchPage> {
     return Container(
       margin: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: colors.neutral100,
-        borderRadius: BorderRadius.circular(12.r),
+        color: colors.shade0,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: colors.neutral200, width: 0.8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: TextField(
         controller: _searchController,
@@ -166,7 +174,6 @@ class _SearchPageState extends State<SearchPage> {
               'assets/animations/search users.json',
               delegates: LottieDelegates(
                 values: [
-                  // Faqat borderlar (Stroke) va Search icon rangini primary500 qilish
                   ValueDelegate.color(const [
                     '**',
                     'Stroke 1',

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
@@ -7,8 +8,25 @@ import 'package:ustahub/infrastructure/services/notification_provider.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
-class NotificationPage extends StatelessWidget {
+class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
+
+  @override
+  State<NotificationPage> createState() => _NotificationPageState();
+}
+
+class _NotificationPageState extends State<NotificationPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Barcha habarlarni o'qilgan deb belgilash
+      context.read<NotificationProvider>().markAllAsRead();
+      // Notification tray va app badge'ni tozalash
+      final plugin = FlutterLocalNotificationsPlugin();
+      plugin.cancelAll();
+    });
+  }
 
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();

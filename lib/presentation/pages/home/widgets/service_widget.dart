@@ -41,9 +41,16 @@ class ServicesGrid extends StatelessWidget {
                         ),
                       );
                     },
-                    child: Text(
-                      'see_all'.tr(),
-                      style: fonts.paragraphP3Regular.copyWith(
+                    child: Container(
+                      width: 36.w,
+                      height: 36.w,
+                      decoration: BoxDecoration(
+                        color: colors.blue500.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14.sp,
                         color: colors.blue500,
                       ),
                     ),
@@ -99,39 +106,34 @@ class _CategoryItem extends StatelessWidget {
                 Container(
                   width: 60.w,
                   height: 60.w,
+                  padding: EdgeInsets.all(10.w),
                   decoration: BoxDecoration(
                     color: colors.blue500.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(18.r),
                   ),
-                  child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(14.r),
-                      child:
-                          service.iconUrl != null && service.iconUrl!.isNotEmpty
-                          ? Image.network(
-                              service.iconUrl!,
-                              width: 32.w,
-                              height: 32.w,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  _buildPlaceholderIcon(colors),
-                            )
-                          : _buildPlaceholderIcon(colors),
-                    ),
-                  ),
+                  child:
+                      service.iconUrl != null && service.iconUrl!.isNotEmpty
+                      ? Image.network(
+                          service.iconUrl!,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildPlaceholderIcon(colors),
+                        )
+                      : _buildPlaceholderIcon(colors),
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 8.h),
                 // Label
                 Text(
                   service.name ?? "",
                   style: fonts.paragraphP3Regular.copyWith(
                     color: colors.neutral700,
                     fontWeight: FontWeight.w500,
-                    fontSize: 12.sp,
+                    fontSize: 11.sp,
                   ),
                   textAlign: TextAlign.center,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  softWrap: false,
                 ),
               ],
             ),

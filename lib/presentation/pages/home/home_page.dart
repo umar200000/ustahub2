@@ -2,10 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
 import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
+import 'package:ustahub/infrastructure/services/favorite_provider.dart';
 import 'package:ustahub/presentation/pages/home/widgets/banner_carousel_widget.dart';
 import 'package:ustahub/presentation/pages/home/widgets/home_app_bar.dart';
 import 'package:ustahub/presentation/pages/home/widgets/home_shimmer_widgets.dart';
@@ -22,9 +24,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final Set<String> _favoriteIds = {};
   final ScrollController _scrollController = ScrollController();
   String? _currentLanguage;
+  bool _isScrolled = false;
 
   @override
   void initState() {
@@ -71,6 +73,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onScroll() {
+    final scrolled = _scrollController.position.pixels > 4;
+    if (scrolled != _isScrolled) {
+      setState(() => _isScrolled = scrolled);
+    }
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       context.read<ServiceBloc>().add(
@@ -84,10 +90,10 @@ class _HomePageState extends State<HomePage> {
     return ThemeWrapper(
       builder: (context, colors, fonts, icons, controller) {
         return Scaffold(
-          backgroundColor: colors.shade0,
+          backgroundColor: colors.bgSurface,
           body: Column(
             children: [
-              const HomeAppBar(),
+              HomeAppBar(showShadow: _isScrolled),
               Expanded(
                 child: RefreshIndicator(
                   color: colors.primary500,
@@ -182,40 +188,65 @@ class _HomePageState extends State<HomePage> {
                                           "";
                                     }
 
-                                    return ServiceProviderCard(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          AppRoutes.detailsPage(
-                                            service.id ?? "",
-                                            providerName: service.providerName,
+                                    final serviceId = service.id ?? "";
+                                    final resolvedName = title.isNotEmpty
+                                        ? title
+                                        : "unnamed_service".tr();
+                                    final resolvedProfession =
+                                        service.categoryName ??
+                                        "specialist".tr();
+                                    final resolvedPrice =
+                                        double.tryParse(
+                                          service.basePrice ?? "0",
+                                        )?.toInt() ??
+                                        0;
+                                    final resolvedAvailable =
+                                        service.status == "active";
+
+                                    return Consumer<FavoriteProvider>(
+                                      builder: (context, fav, _) {
+                                        final isFav = fav.contains(serviceId);
+                                        return ServiceProviderCard(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              AppRoutes.detailsPage(
+                                                serviceId,
+                                                providerName:
+                                                    service.providerName,
+                                              ),
+                                            );
+                                          },
+                                          name: resolvedName,
+                                          profession: resolvedProfession,
+                                          provinceName: service.provinceName,
+                                          distance: 0.0,
+                                          rating: 5.0,
+                                          reviewCount: 0,
+                                          duration: "unknown".tr(),
+                                          priceFrom: resolvedPrice,
+                                          isVerified: false,
+                                          isAvailable: resolvedAvailable,
+                                          mainImageUrl:
+                                              service.primaryImageUrl,
+                                          isFavorite: isFav,
+                                          onFavorite: () => fav.toggle(
+                                            FavoriteServiceItem(
+                                              id: serviceId,
+                                              name: resolvedName,
+                                              profession: resolvedProfession,
+                                              imageUrl:
+                                                  service.primaryImageUrl,
+                                              priceFrom: resolvedPrice,
+                                              provinceName:
+                                                  service.provinceName,
+                                              isAvailable: resolvedAvailable,
+                                              providerName:
+                                                  service.providerName,
+                                            ),
                                           ),
                                         );
                                       },
-                                      name: title.isNotEmpty
-                                          ? title
-                                          : "unnamed_service".tr(),
-                                      profession:
-                                          service.categoryName ??
-                                          "specialist".tr(),
-                                      provinceName: service.provinceName,
-                                      distance: 0.0,
-                                      rating: 5.0,
-                                      reviewCount: 0,
-                                      duration: "unknown".tr(),
-                                      priceFrom:
-                                          double.tryParse(
-                                            service.basePrice ?? "0",
-                                          )?.toInt() ??
-                                          0,
-                                      isVerified: false,
-                                      isAvailable: service.status == "active",
-                                      mainImageUrl: service.primaryImageUrl,
-                                      isFavorite: _favoriteIds.contains(
-                                        service.id,
-                                      ),
-                                      onFavorite: () =>
-                                          _toggleFavorite(service.id ?? ""),
                                     );
                                   },
                                 ),
@@ -242,13 +273,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _toggleFavorite(String id) {
-    setState(() {
-      if (_favoriteIds.contains(id)) {
-        _favoriteIds.remove(id);
-      } else {
-        _favoriteIds.add(id);
-      }
-    });
-  }
 }

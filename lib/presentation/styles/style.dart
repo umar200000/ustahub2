@@ -81,7 +81,7 @@ class Style {
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w400,
-      fontFamily: 'BalsamiqSans',
+      fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     );
   }
 
@@ -179,7 +179,7 @@ class Style {
   ];
 
   static TextStyle regular16({double size = 16, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w400,
@@ -188,7 +188,7 @@ class Style {
   }
 
   static TextStyle regular14({double size = 14, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w400,
@@ -197,7 +197,7 @@ class Style {
   }
 
   static TextStyle regular12({double size = 12, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w400,
@@ -206,7 +206,7 @@ class Style {
   }
 
   static TextStyle medium20({double size = 20, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w500,
@@ -215,7 +215,7 @@ class Style {
   }
 
   static TextStyle medium16({double size = 16, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w500,
@@ -224,7 +224,7 @@ class Style {
   }
 
   static TextStyle medium14({double size = 14, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w500,
@@ -233,7 +233,7 @@ class Style {
   }
 
   static TextStyle semiBold16({double size = 16, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w600,
@@ -243,7 +243,7 @@ class Style {
   }
 
   static TextStyle semiBold14({double size = 14, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w600,
@@ -252,7 +252,7 @@ class Style {
   }
 
   static TextStyle bold20({double size = 20, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w700,
@@ -261,7 +261,7 @@ class Style {
   }
 
   static TextStyle bold16({double size = 16, Color color = shade100}) {
-    return GoogleFonts.balsamiqSans(
+    return GoogleFonts.plusJakartaSans(
       fontSize: size,
       color: color,
       fontWeight: FontWeight.w700,
