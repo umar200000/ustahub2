@@ -11,6 +11,7 @@ import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/pages/auth/auth_options.dart';
 import 'package:ustahub/presentation/pages/booking_page/pages/booking_page.dart';
 import 'package:ustahub/presentation/pages/home/widgets/details_shimmer_widget.dart';
+import 'package:ustahub/presentation/pages/reviews/reviews_page.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
@@ -124,6 +125,8 @@ class _DetailsPageState extends State<DetailsPage>
                                     ),
                                     Gap(16.h),
                                     _buildStatsPills(data, colors, fonts),
+                                    Gap(18.h),
+                                    _buildReviewsCard(data, title, colors),
                                     Gap(18.h),
                                     _buildDivider(colors),
                                     Gap(18.h),
@@ -452,7 +455,7 @@ class _DetailsPageState extends State<DetailsPage>
             icon: Icons.reviews_rounded,
             iconColor: colors.blue500,
             bg: colors.blue500.withValues(alpha: 0.10),
-            label: "${data.totalReviews ?? 0}",
+            label: "7",
             textColor: colors.neutral800,
           ),
           Gap(8.w),
@@ -475,6 +478,131 @@ class _DetailsPageState extends State<DetailsPage>
       height: 1,
       margin: EdgeInsets.symmetric(horizontal: 20.w),
       color: colors.neutral100,
+    );
+  }
+
+  Widget _buildReviewsCard(
+    dynamic data,
+    String? title,
+    CustomColorSet colors,
+  ) {
+    final rating = (data.averageRating as double?) ?? 5.0;
+    final totalReviews = 7;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ReviewsPage(serviceTitle: title),
+            ),
+          );
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: EdgeInsets.all(14.w),
+          decoration: BoxDecoration(
+            color: colors.yellow500.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: colors.yellow500.withValues(alpha: 0.20),
+              width: 0.8,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44.w,
+                height: 44.w,
+                decoration: BoxDecoration(
+                  color: colors.yellow500.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.reviews_rounded,
+                  color: colors.yellow500,
+                  size: 22.sp,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'reviews_title'.tr(),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: colors.neutral800,
+                      ),
+                    ),
+                    SizedBox(height: 3.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.star_rounded,
+                          size: 13.sp,
+                          color: colors.yellow500,
+                        ),
+                        SizedBox(width: 3.w),
+                        Text(
+                          rating.toStringAsFixed(1),
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w700,
+                            color: colors.neutral700,
+                          ),
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          '• $totalReviews ${"reviews_count".tr()}',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: colors.neutral500,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10.w,
+                  vertical: 6.h,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.shade0,
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'see_all_reviews'.tr(),
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        color: colors.neutral800,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 10.sp,
+                      color: colors.neutral700,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -742,7 +870,7 @@ class _DetailsPageState extends State<DetailsPage>
   }
 
   Widget _buildReviewTab(dynamic data, CustomColorSet colors, FontSet fonts) {
-    final totalReviews = data.totalReviews ?? 0;
+    final totalReviews = 7;
     if (totalReviews == 0) {
       return Center(
         child: Padding(
