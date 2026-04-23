@@ -13,6 +13,8 @@ import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dar
 
 import '../../application2/auth_bloc_and_data/bloc/auth_bloc.dart';
 import '../../application2/category_list_bloc_and_data/bloc/category_list_bloc.dart';
+import '../../application2/favorite_bloc_and_data/bloc/favorite_bloc.dart';
+import '../../application2/review_bloc_and_data/bloc/review_bloc.dart';
 import '../../infrastructure/services/shared_perf/shared_pref_service.dart';
 import '../common/network_provider.dart';
 
@@ -41,5 +43,7 @@ Future<void> init() async {
     ..registerLazySingleton<CompanyBloc>(() => CompanyBloc())
     ..registerLazySingleton<BookingBloc>(() => BookingBloc())
     ..registerLazySingleton<CardBloc>(() => CardBloc())
-    ..registerLazySingleton<PaymentBloc>(() => PaymentBloc());
+    ..registerLazySingleton<PaymentBloc>(() => PaymentBloc())
+    ..registerLazySingleton<ReviewBloc>(() => ReviewBloc())
+    ..registerLazySingleton<FavoriteBloc>(() => FavoriteBloc());
 }

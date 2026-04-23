@@ -1,9 +1,14 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
+import 'package:ustahub/application2/favorite_bloc_and_data/bloc/favorite_bloc.dart';
 import 'package:ustahub/infrastructure/services/notification_provider.dart';
 import 'package:ustahub/infrastructure/services/notification_service.dart';
+import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/presentation/pages/core/app_widget.dart';
 import 'package:ustahub/presentation/pages/notification_page/notification_page.dart';
 import 'package:ustahub/presentation/components/custom_bottom_nav_bar.dart';
@@ -39,6 +44,8 @@ class _MainPageState extends State<MainPage>
     super.initState();
     _initializeNavBar();
     _initializeNotifications();
+    // Favorites ni yuklash — faqat MainPage ochilganda (user login bo'lganda)
+    context.read<FavoriteBloc>().add(const GetFavoritesEvent());
   }
 
   void _initializeNavBar() {
@@ -99,24 +106,39 @@ class _MainPageState extends State<MainPage>
         _openNotificationPage();
       }
 
-      // FCM Token ni olish
+      // FCM Token ni backendga yuborish
       try {
         final token = await FirebaseMessaging.instance.getToken();
-        // ignore: avoid_print
-        print('');
-        // ignore: avoid_print
-        print('========== FCM TOKEN ==========');
-        // ignore: avoid_print
-        print(token ?? 'TOKEN OLINMADI');
-        // ignore: avoid_print
-        print('===============================');
-        // ignore: avoid_print
-        print('');
+        if (token != null) {
+          await _syncFcmToken(token);
+        }
       } catch (e) {
-        // ignore: avoid_print
-        print('FCM TOKEN XATOLIK: $e');
+        debugPrint('FCM token xatolik: $e');
       }
+
+      // Token yangilanganda ham backendga yuborish
+      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+        _syncFcmToken(newToken);
+      });
     });
+  }
+
+  Future<void> _syncFcmToken(String token) async {
+    try {
+      final dio = sl<Dio>();
+      final String platform = Platform.isAndroid
+          ? 'android'
+          : Platform.isIOS
+              ? 'ios'
+              : 'web';
+      await dio.post(
+        'api/v1/client/device/create/',
+        data: {'firebase_token': token, 'platform': platform},
+      );
+      debugPrint('FCM token backendga yuborildi');
+    } catch (e) {
+      debugPrint('FCM token yuborishda xatolik: $e');
+    }
   }
 
   void _openNotificationPage() {

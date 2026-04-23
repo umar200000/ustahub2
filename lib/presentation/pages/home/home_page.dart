@@ -2,12 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
+import 'package:ustahub/application2/favorite_bloc_and_data/bloc/favorite_bloc.dart';
+import 'package:ustahub/application2/favorite_bloc_and_data/data/model/favorite_model.dart';
 import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
-import 'package:ustahub/infrastructure/services/favorite_provider.dart';
 import 'package:ustahub/presentation/pages/home/widgets/banner_carousel_widget.dart';
 import 'package:ustahub/presentation/pages/home/widgets/home_app_bar.dart';
 import 'package:ustahub/presentation/pages/home/widgets/home_shimmer_widgets.dart';
@@ -100,6 +100,9 @@ class _HomePageState extends State<HomePage> {
                   backgroundColor: colors.shade0,
                   onRefresh: () async {
                     _loadInitialData(forceRefresh: true);
+                    context
+                        .read<FavoriteBloc>()
+                        .add(const GetFavoritesEvent());
                   },
                   child: ListView(
                     controller: _scrollController,
@@ -203,9 +206,18 @@ class _HomePageState extends State<HomePage> {
                                     final resolvedAvailable =
                                         service.status == "active";
 
-                                    return Consumer<FavoriteProvider>(
-                                      builder: (context, fav, _) {
-                                        final isFav = fav.contains(serviceId);
+                                    return BlocBuilder<FavoriteBloc,
+                                        FavoriteState>(
+                                      buildWhen: (prev, curr) =>
+                                          prev.favoriteIds
+                                                  .contains(serviceId) !=
+                                              curr.favoriteIds
+                                                  .contains(serviceId),
+                                      builder: (context, favState) {
+                                        final isFav =
+                                            (service.isFavorite == true) ||
+                                                favState.favoriteIds
+                                                    .contains(serviceId);
                                         return ServiceProviderCard(
                                           onTap: () {
                                             Navigator.push(
@@ -230,21 +242,46 @@ class _HomePageState extends State<HomePage> {
                                           mainImageUrl:
                                               service.primaryImageUrl,
                                           isFavorite: isFav,
-                                          onFavorite: () => fav.toggle(
-                                            FavoriteServiceItem(
-                                              id: serviceId,
-                                              name: resolvedName,
-                                              profession: resolvedProfession,
-                                              imageUrl:
-                                                  service.primaryImageUrl,
-                                              priceFrom: resolvedPrice,
-                                              provinceName:
-                                                  service.provinceName,
-                                              isAvailable: resolvedAvailable,
-                                              providerName:
-                                                  service.providerName,
-                                            ),
-                                          ),
+                                          onFavorite: () {
+                                            context.read<ServiceBloc>().add(
+                                                  UpdateServiceFavoriteEvent(
+                                                    serviceId: serviceId,
+                                                    isFavorite: !isFav,
+                                                  ),
+                                                );
+                                            context.read<FavoriteBloc>().add(
+                                                  ToggleFavoriteEvent(
+                                                    serviceId: serviceId,
+                                                    currentlyFavorite: isFav,
+                                                    serviceData:
+                                                        FavoriteServiceData(
+                                                      id: serviceId,
+                                                      providerId:
+                                                          service.providerId,
+                                                      providerName: service
+                                                          .providerName,
+                                                      title: resolvedName,
+                                                      description:
+                                                          service.description,
+                                                      basePrice:
+                                                          service.basePrice,
+                                                      maxPrice:
+                                                          service.maxPrice,
+                                                      status: service.status,
+                                                      primaryImageUrl: service
+                                                          .primaryImageUrl,
+                                                      categoryName:
+                                                          resolvedProfession,
+                                                      provinceName: service
+                                                          .provinceName,
+                                                      currencyCode: service
+                                                          .currencyCode,
+                                                      currencySymbol: service
+                                                          .currencySymbol,
+                                                    ),
+                                                  ),
+                                                );
+                                          },
                                         );
                                       },
                                     );
@@ -272,5 +309,4 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
 }

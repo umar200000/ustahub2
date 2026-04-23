@@ -700,7 +700,10 @@ class _OrdersPageState extends State<OrdersPage> {
                                           "${data.master?.firstName ?? ""} ${data.master?.lastName ?? ""}",
                                           style: fonts.paragraphP1Bold,
                                         ),
-                                        if (data.master?.phone != null)
+                                        if (data.master?.phone != null &&
+                                            ['active', 'in_progress'].contains(
+                                              data.status?.toLowerCase(),
+                                            ))
                                           Text(
                                             data.master!.phone!,
                                             style: fonts.paragraphP3Regular
@@ -711,6 +714,35 @@ class _OrdersPageState extends State<OrdersPage> {
                                       ],
                                     ),
                                   ),
+                                  if (data.master?.phone != null &&
+                                      ['active', 'in_progress'].contains(
+                                        data.status?.toLowerCase(),
+                                      ))
+                                    InkWell(
+                                      onTap: () async {
+                                        final uri = Uri(
+                                          scheme: 'tel',
+                                          path: data.master!.phone!,
+                                        );
+                                        if (await canLaunchUrl(uri)) {
+                                          await launchUrl(uri);
+                                        }
+                                      },
+                                      borderRadius: BorderRadius.circular(20.r),
+                                      child: Container(
+                                        padding: EdgeInsets.all(8.w),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius:
+                                              BorderRadius.circular(20.r),
+                                        ),
+                                        child: Icon(
+                                          Icons.call,
+                                          color: Colors.white,
+                                          size: 20.sp,
+                                        ),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
@@ -889,6 +921,41 @@ class _OrdersPageState extends State<OrdersPage> {
                               },
                             ),
 
+                          // Support Button (for canceled status)
+                          if (['canceled', 'cancelled'].contains(
+                            data.status?.toLowerCase(),
+                          ))
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () =>
+                                      _showSupportSheet(context, colors, fonts),
+                                  icon: Icon(
+                                    Icons.support_agent_rounded,
+                                    color: Colors.white,
+                                    size: 20.sp,
+                                  ),
+                                  label: Text(
+                                    "connect_support".tr(),
+                                    style: fonts.paragraphP2SemiBold.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colors.primary500,
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 12.h,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
                           // Cancel Booking Button (for active statuses only)
                           if ([
                             'pending',
@@ -965,7 +1032,10 @@ class _OrdersPageState extends State<OrdersPage> {
                                   fonts,
                                 ),
                                 if (data.contactPhone != null &&
-                                    data.contactPhone!.isNotEmpty) ...[
+                                    data.contactPhone!.isNotEmpty &&
+                                    ['active', 'in_progress'].contains(
+                                      data.status?.toLowerCase(),
+                                    )) ...[
                                   Gap(12.h),
                                   Row(
                                     children: [

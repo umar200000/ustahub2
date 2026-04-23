@@ -14,3 +14,15 @@ class GetServicesEvent extends ServiceEvent {
   @override
   List<Object> get props => [isFetchMore];
 }
+
+class UpdateServiceFavoriteEvent extends ServiceEvent {
+  final String serviceId;
+  final bool isFavorite;
+  const UpdateServiceFavoriteEvent({
+    required this.serviceId,
+    required this.isFavorite,
+  });
+
+  @override
+  List<Object> get props => [serviceId, isFavorite];
+}

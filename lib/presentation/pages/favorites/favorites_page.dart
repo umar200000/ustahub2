@@ -1,14 +1,45 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
-import 'package:ustahub/infrastructure/services/favorite_provider.dart';
+import 'package:ustahub/application2/favorite_bloc_and_data/bloc/favorite_bloc.dart';
+import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
+import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/pages/home/widgets/service_product_widget.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
-class FavoritesPage extends StatelessWidget {
+class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
+
+  @override
+  State<FavoritesPage> createState() => _FavoritesPageState();
+}
+
+class _FavoritesPageState extends State<FavoritesPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      final bloc = context.read<FavoriteBloc>();
+      if (bloc.state.listStatus != Status2.loading && !bloc.state.isLastPage) {
+        bloc.add(const GetFavoritesEvent(isFetchMore: true));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +63,11 @@ class FavoritesPage extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 10.w),
-                      Consumer<FavoriteProvider>(
-                        builder: (context, fav, _) {
-                          if (fav.count == 0) return const SizedBox.shrink();
+                      BlocBuilder<FavoriteBloc, FavoriteState>(
+                        builder: (context, state) {
+                          if (state.favoriteIds.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
                           return Container(
                             padding: EdgeInsets.symmetric(
                               horizontal: 8.w,
@@ -45,7 +78,7 @@ class FavoritesPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(20.r),
                             ),
                             child: Text(
-                              '${fav.count}',
+                              '${state.total}',
                               style: TextStyle(
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w700,
@@ -59,45 +92,95 @@ class FavoritesPage extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: Consumer<FavoriteProvider>(
-                    builder: (context, fav, _) {
-                      final items = fav.items;
-                      if (items.isEmpty) {
+                  child: BlocBuilder<FavoriteBloc, FavoriteState>(
+                    builder: (context, state) {
+                      if (state.listStatus == Status2.loading &&
+                          state.favorites.isEmpty) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      if (state.favorites.isEmpty &&
+                          state.listStatus != Status2.loading) {
                         return _EmptyState(colors: colors, fonts: fonts);
                       }
-                      return ListView.builder(
-                        padding: EdgeInsets.only(
-                          top: 4.h,
-                          bottom: 100.h,
-                        ),
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-                          return ServiceProviderCard(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                AppRoutes.detailsPage(
-                                  item.id,
-                                  providerName: item.providerName,
-                                ),
-                              );
-                            },
-                            name: item.name,
-                            profession: item.profession,
-                            provinceName: item.provinceName,
-                            distance: 0.0,
-                            rating: 5.0,
-                            reviewCount: 0,
-                            duration: 'unknown'.tr(),
-                            priceFrom: item.priceFrom,
-                            isVerified: false,
-                            isAvailable: item.isAvailable,
-                            mainImageUrl: item.imageUrl,
-                            isFavorite: true,
-                            onFavorite: () => fav.remove(item.id),
-                          );
+
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          context
+                              .read<FavoriteBloc>()
+                              .add(const GetFavoritesEvent());
                         },
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          padding: EdgeInsets.only(
+                            top: 4.h,
+                            bottom: 100.h,
+                          ),
+                          itemCount: state.favorites.length +
+                              (state.isLastPage ? 0 : 1),
+                          itemBuilder: (context, index) {
+                            if (index >= state.favorites.length) {
+                              return state.listStatus == Status2.loading
+                                  ? const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 16),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink();
+                            }
+
+                            final item = state.favorites[index];
+                            final serviceId = item.id ?? '';
+                            final resolvedPrice =
+                                double.tryParse(item.basePrice ?? "0")
+                                        ?.toInt() ??
+                                    0;
+
+                            return ServiceProviderCard(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  AppRoutes.detailsPage(
+                                    serviceId,
+                                    providerName: item.providerName,
+                                  ),
+                                );
+                              },
+                              name: item.title ?? 'unnamed_service'.tr(),
+                              profession:
+                                  item.categoryName ?? 'specialist'.tr(),
+                              provinceName: item.provinceName,
+                              distance: 0.0,
+                              rating: 5.0,
+                              reviewCount: 0,
+                              duration: 'unknown'.tr(),
+                              priceFrom: resolvedPrice,
+                              isVerified: false,
+                              isAvailable: item.status == 'active',
+                              mainImageUrl: item.primaryImageUrl,
+                              isFavorite: item.isFavorite ?? true,
+                              onFavorite: () {
+                                context.read<ServiceBloc>().add(
+                                      UpdateServiceFavoriteEvent(
+                                        serviceId: serviceId,
+                                        isFavorite: false,
+                                      ),
+                                    );
+                                context.read<FavoriteBloc>().add(
+                                  ToggleFavoriteEvent(
+                                    serviceId: serviceId,
+                                    currentlyFavorite: true,
+                                    serviceData: item,
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
                       );
                     },
                   ),

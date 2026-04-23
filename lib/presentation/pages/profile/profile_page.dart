@@ -168,61 +168,78 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 _ProfileHero(colors: colors, fonts: fonts),
                 SizedBox(height: 20.h),
-                _SectionHeader(
-                  title: 'account'.tr(),
-                  fonts: fonts,
-                  colors: colors,
-                ),
-                _SettingsCard(
-                  colors: colors,
-                  children: [
-                    SettingsMenuItem(
-                      icon: Icons.person_outline_rounded,
-                      iconColor: colors.blue500,
-                      title: 'personal_info'.tr(),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const UserInformationPage(),
-                          ),
-                        );
-                      },
-                      showTrailing: true,
-                      fonts: fonts,
-                      colors: colors,
-                    ),
-                    _divider(colors),
-                    SettingsMenuItem(
-                      icon: Icons.credit_card_rounded,
-                      iconColor: const Color(0xFF8B5CF6),
-                      title: 'my_card'.tr(),
-                      showTrailing: true,
-                      onTap: () {
-                        Navigator.push(context, AppRoutes.myCardPage());
-                      },
-                      fonts: fonts,
-                      colors: colors,
-                    ),
-                    _divider(colors),
-                    SettingsMenuItem(
-                      icon: Icons.receipt_long_rounded,
-                      iconColor: const Color(0xFFF59E0B),
-                      title: 'payment_history'.tr(),
-                      showTrailing: true,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PaymentHistoryPage(),
-                          ),
-                        );
-                      },
-                      fonts: fonts,
-                      colors: colors,
-                    ),
-                  ],
+                BlocBuilder<RegisterBloc, RegisterState>(
+                  buildWhen: (prev, curr) =>
+                      (prev.userProfile == null) !=
+                      (curr.userProfile == null),
+                  builder: (context, state) {
+                    if (state.userProfile == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _SectionHeader(
+                          title: 'account'.tr(),
+                          fonts: fonts,
+                          colors: colors,
+                        ),
+                        _SettingsCard(
+                          colors: colors,
+                          children: [
+                            SettingsMenuItem(
+                              icon: Icons.person_outline_rounded,
+                              iconColor: colors.blue500,
+                              title: 'personal_info'.tr(),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const UserInformationPage(),
+                                  ),
+                                );
+                              },
+                              showTrailing: true,
+                              fonts: fonts,
+                              colors: colors,
+                            ),
+                            _divider(colors),
+                            SettingsMenuItem(
+                              icon: Icons.credit_card_rounded,
+                              iconColor: const Color(0xFF8B5CF6),
+                              title: 'my_card'.tr(),
+                              showTrailing: true,
+                              onTap: () {
+                                Navigator.push(
+                                    context, AppRoutes.myCardPage());
+                              },
+                              fonts: fonts,
+                              colors: colors,
+                            ),
+                            _divider(colors),
+                            SettingsMenuItem(
+                              icon: Icons.receipt_long_rounded,
+                              iconColor: const Color(0xFFF59E0B),
+                              title: 'payment_history'.tr(),
+                              showTrailing: true,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const PaymentHistoryPage(),
+                                  ),
+                                );
+                              },
+                              fonts: fonts,
+                              colors: colors,
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 _SectionHeader(
                   title: 'settings'.tr(),

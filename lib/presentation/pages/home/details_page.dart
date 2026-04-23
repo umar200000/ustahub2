@@ -455,7 +455,7 @@ class _DetailsPageState extends State<DetailsPage>
             icon: Icons.reviews_rounded,
             iconColor: colors.blue500,
             bg: colors.blue500.withValues(alpha: 0.10),
-            label: "7",
+            label: "${data.totalReviews ?? 0}",
             textColor: colors.neutral800,
           ),
           Gap(8.w),
@@ -486,8 +486,8 @@ class _DetailsPageState extends State<DetailsPage>
     String? title,
     CustomColorSet colors,
   ) {
-    final rating = (data.averageRating as double?) ?? 5.0;
-    final totalReviews = 7;
+    final rating = (data.averageRating as double?) ?? 0.0;
+    final totalReviews = data.totalReviews ?? 0;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: GestureDetector(
@@ -495,7 +495,12 @@ class _DetailsPageState extends State<DetailsPage>
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => ReviewsPage(serviceTitle: title),
+              builder: (_) => ReviewsPage(
+                serviceId: data.id ?? '',
+                serviceTitle: title,
+                averageRating: rating,
+                totalReviews: totalReviews,
+              ),
             ),
           );
         },
@@ -870,33 +875,11 @@ class _DetailsPageState extends State<DetailsPage>
   }
 
   Widget _buildReviewTab(dynamic data, CustomColorSet colors, FontSet fonts) {
-    final totalReviews = 7;
-    if (totalReviews == 0) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(40.w),
-          child: Column(
-            children: [
-              Icon(
-                Icons.rate_review_outlined,
-                size: 48.sp,
-                color: colors.neutral400,
-              ),
-              Gap(12.h),
-              Text(
-                "no_reviews_yet".tr(),
-                style: TextStyle(color: colors.neutral500, fontSize: 14.sp),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    final totalReviews = data.totalReviews ?? 0;
+    final avgRating = (data.averageRating as double?) ?? 0.0;
 
-    // Placeholder for reviews
     return Column(
       children: [
-        // Rating Summary
         Container(
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
@@ -908,7 +891,7 @@ class _DetailsPageState extends State<DetailsPage>
               Column(
                 children: [
                   Text(
-                    data.averageRating?.toString() ?? "5.0",
+                    avgRating.toStringAsFixed(1),
                     style: TextStyle(
                       fontSize: 36.sp,
                       fontWeight: FontWeight.bold,
@@ -919,7 +902,9 @@ class _DetailsPageState extends State<DetailsPage>
                     children: List.generate(
                       5,
                       (index) => Icon(
-                        Icons.star,
+                        index < avgRating.round()
+                            ? Icons.star
+                            : Icons.star_border,
                         size: 16.sp,
                         color: colors.yellow500,
                       ),
@@ -927,7 +912,7 @@ class _DetailsPageState extends State<DetailsPage>
                   ),
                   Gap(4.h),
                   Text(
-                    "$totalReviews reviews",
+                    "$totalReviews ${"reviews_count".tr()}",
                     style: fonts.paragraphP3Regular.copyWith(
                       color: colors.neutral500,
                     ),
@@ -937,6 +922,53 @@ class _DetailsPageState extends State<DetailsPage>
             ],
           ),
         ),
+        if (totalReviews > 0) ...[
+          Gap(16.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ReviewsPage(
+                      serviceId: data.id ?? '',
+                      serviceTitle: data.title,
+                      averageRating: avgRating,
+                      totalReviews: totalReviews,
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colors.blue500,
+                padding: EdgeInsets.symmetric(vertical: 12.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+              child: Text(
+                'see_all_reviews'.tr(),
+                style: fonts.paragraphP2SemiBold.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+        if (totalReviews == 0) ...[
+          Gap(16.h),
+          Icon(
+            Icons.rate_review_outlined,
+            size: 48.sp,
+            color: colors.neutral400,
+          ),
+          Gap(12.h),
+          Text(
+            "no_reviews_yet".tr(),
+            style: TextStyle(color: colors.neutral500, fontSize: 14.sp),
+          ),
+        ],
       ],
     );
   }

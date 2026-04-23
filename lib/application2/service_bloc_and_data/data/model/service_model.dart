@@ -6,16 +6,30 @@ class ServicesData {
 
   ServicesData({this.success, this.servicesModel, this.message, this.error});
 
-  factory ServicesData.fromJson(Map<String, dynamic> json) => ServicesData(
-    success: json["success"],
-    servicesModel: json["data"] == null
-        ? []
-        : List<ServicesModel>.from(
-            json["data"]!.map((x) => ServicesModel.fromJson(x)),
-          ),
-    message: json["message"],
-    error: json["error"],
-  );
+  factory ServicesData.fromJson(Map<String, dynamic> json) {
+    final rawData = json["data"];
+    List<ServicesModel> items = [];
+
+    if (rawData is List) {
+      items = rawData
+          .map((x) => ServicesModel.fromJson(x as Map<String, dynamic>))
+          .toList();
+    } else if (rawData is Map<String, dynamic>) {
+      final rawItems = rawData["items"];
+      if (rawItems is List) {
+        items = rawItems
+            .map((x) => ServicesModel.fromJson(x as Map<String, dynamic>))
+            .toList();
+      }
+    }
+
+    return ServicesData(
+      success: json["success"],
+      servicesModel: items,
+      message: json["message"],
+      error: json["error"],
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "success": success,
@@ -25,6 +39,18 @@ class ServicesData {
     "message": message,
     "error": error,
   };
+}
+
+bool? _parseBool(dynamic v) {
+  if (v == null) return null;
+  if (v is bool) return v;
+  if (v is int) return v != 0;
+  if (v is String) {
+    final s = v.toLowerCase().trim();
+    if (s == 'true' || s == '1') return true;
+    if (s == 'false' || s == '0') return false;
+  }
+  return null;
 }
 
 class ServicesModel {
@@ -46,6 +72,7 @@ class ServicesModel {
   final String? currencySymbol;
   final String? provinceName;
   final String? providerName;
+  final bool? isFavorite;
 
   ServicesModel({
     this.providerName,
@@ -66,6 +93,7 @@ class ServicesModel {
     this.currencyCode,
     this.currencySymbol,
     this.provinceName,
+    this.isFavorite,
   });
 
   factory ServicesModel.fromJson(Map<String, dynamic> json) => ServicesModel(
@@ -89,6 +117,7 @@ class ServicesModel {
     currencySymbol: json["currency_symbol"],
     provinceName: json["province_name"],
     providerName: json["provider_name"],
+    isFavorite: _parseBool(json["is_favorite"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -110,5 +139,50 @@ class ServicesModel {
     "currency_symbol": currencySymbol,
     "province_name": provinceName,
     "provider_name": providerName,
+    "is_favorite": isFavorite,
   };
+
+  ServicesModel copyWith({
+    String? id,
+    String? providerId,
+    String? title,
+    String? titleUz,
+    String? titleRu,
+    String? titleEn,
+    String? description,
+    String? descriptionUz,
+    String? basePrice,
+    String? maxPrice,
+    String? status,
+    String? primaryImageUrl,
+    String? categoryName,
+    String? categoryNameUz,
+    String? currencyCode,
+    String? currencySymbol,
+    String? provinceName,
+    String? providerName,
+    bool? isFavorite,
+  }) {
+    return ServicesModel(
+      id: id ?? this.id,
+      providerId: providerId ?? this.providerId,
+      title: title ?? this.title,
+      titleUz: titleUz ?? this.titleUz,
+      titleRu: titleRu ?? this.titleRu,
+      titleEn: titleEn ?? this.titleEn,
+      description: description ?? this.description,
+      descriptionUz: descriptionUz ?? this.descriptionUz,
+      basePrice: basePrice ?? this.basePrice,
+      maxPrice: maxPrice ?? this.maxPrice,
+      status: status ?? this.status,
+      primaryImageUrl: primaryImageUrl ?? this.primaryImageUrl,
+      categoryName: categoryName ?? this.categoryName,
+      categoryNameUz: categoryNameUz ?? this.categoryNameUz,
+      currencyCode: currencyCode ?? this.currencyCode,
+      currencySymbol: currencySymbol ?? this.currencySymbol,
+      provinceName: provinceName ?? this.provinceName,
+      providerName: providerName ?? this.providerName,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
 }

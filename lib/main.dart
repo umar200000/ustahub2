@@ -9,6 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/application2/card_bloc_and_data/bloc/card_bloc.dart';
 import 'package:ustahub/application2/payment_bloc_and_data/bloc/payment_bloc.dart';
+import 'package:ustahub/application2/favorite_bloc_and_data/bloc/favorite_bloc.dart';
+import 'package:ustahub/application2/review_bloc_and_data/bloc/review_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
 import 'package:ustahub/application2/category_list_bloc_and_data/bloc/category_list_bloc.dart';
 import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
@@ -117,6 +119,8 @@ Future<void> main() async {
             BlocProvider.value(value: sl<BookingBloc>()),
             BlocProvider.value(value: sl<CardBloc>()),
             BlocProvider.value(value: sl<PaymentBloc>()),
+            BlocProvider.value(value: sl<ReviewBloc>()),
+            BlocProvider.value(value: sl<FavoriteBloc>()),
           ],
           child: ClarityWidget(
             clarityConfig: config,

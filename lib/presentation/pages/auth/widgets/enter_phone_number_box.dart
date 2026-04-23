@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/auth_bloc_and_data/bloc/auth_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
-import 'package:ustahub/presentation/pages/auth/widgets/pin_put_widget.dart';
+import 'package:ustahub/presentation/pages/auth/widgets/pin_put_autofill_widget.dart';
 import 'package:ustahub/presentation/pages/auth/widgets/uz_phone_formatter.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
@@ -32,7 +32,7 @@ class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
       isScrollControlled: true,
       context: context,
       builder: (context) {
-        return const PinPutWidget();
+        return const PinPutAutofillWidget();
       },
     );
   }

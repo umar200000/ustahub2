@@ -14,6 +14,28 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
   final ServiceRepo _serviceRepo = ServiceRepo();
 
   ServiceBloc() : super(const ServiceState()) {
+    on<UpdateServiceFavoriteEvent>((event, emit) {
+      final list = state.servicesData?.servicesModel;
+      if (list == null || list.isEmpty) return;
+
+      final updated = list
+          .map((s) => s.id == event.serviceId
+              ? s.copyWith(isFavorite: event.isFavorite)
+              : s)
+          .toList();
+
+      emit(
+        state.copyWith(
+          servicesData: ServicesData(
+            success: state.servicesData?.success,
+            servicesModel: updated,
+            message: state.servicesData?.message,
+            error: state.servicesData?.error,
+          ),
+        ),
+      );
+    });
+
     on<GetServicesEvent>((event, emit) async {
       // Agar oxirgi sahifa bo'lsa yoki yuklanayotgan bo'lsa, qaytib ketamiz
       if (event.isFetchMore &&
