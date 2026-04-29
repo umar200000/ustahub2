@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:ustahub/presentation/pages/auth/widgets/pin_put_autofill_widget.dart';
 import 'package:ustahub/presentation/pages/auth/widgets/uz_phone_formatter.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
@@ -233,6 +234,25 @@ class _AuthContentBoxState extends State<AuthContentBox> {
                             ),
                           ),
                         ),
+
+                      Padding(
+                        padding: EdgeInsets.only(top: 4.h, bottom: 6.h),
+                        child: GestureDetector(
+                          onTap: () => launchUrl(
+                            Uri.parse('https://ustahub.net/privacy-policy'),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                          child: Text(
+                            'privacy_policy'.tr(),
+                            textAlign: TextAlign.center,
+                            style: fonts.paragraphP3Regular.copyWith(
+                              color: colors.neutral500,
+                              decoration: TextDecoration.underline,
+                              decorationColor: colors.neutral500,
+                            ),
+                          ),
+                        ),
+                      ),
 
                       10.h.verticalSpace,
                     ],

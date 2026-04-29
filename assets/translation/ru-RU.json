@@ -1,4 +1,5 @@
 {
+  "privacy_policy": "Политика конфиденциальности",
   "tashkent": "Ташкент",
   "andijon": "Андижан",
   "bukhoro": "Бухара",
@@ -28,9 +29,11 @@
   "my_cards": "Мои карты",
   "card_deleted": "Карта успешно удалена",
   "add_new_card": "Добавить новую карту",
+  "select_card": "Выберите карту",
+  "default": "Основная",
   "verify_code": "Подтверждение кода",
   "enter_code": "Введите код",
-  "sms_code_sent_to": "SMS-код отправлен на номер",
+  "sms_code_sent_to": "SMS-код отправлен на номер {}",
   "resend_code": "Отправить код повторно",
   "expiry": "Срок действия",
   "add_card": "Добавить карту",
@@ -72,6 +75,7 @@
   "enter_phone_number": "Введите номер телефона",
   "enter_sms_code": "Введите SMS код",
   "resend_code": "Отправить код повторно",
+  "code_resent": "Код отправлен повторно",
 
   "sirdaryo": "Сирдарья",
   "surkhondaryo": "Сурхандарья",

@@ -1,4 +1,5 @@
 {
+  "privacy_policy": "Privacy Policy",
   "favorites": "Favorites",
   "personal_info": "Personal info",
   "status_pending": "Pending",
@@ -76,9 +77,11 @@
   "my_cards": "My cards",
   "card_deleted": "Card deleted successfully",
   "add_new_card": "Add new card",
+  "select_card": "Select a card",
+  "default": "Default",
   "verify_code": "Verify code",
   "enter_code": "Enter code",
-  "sms_code_sent_to": "SMS code sent to",
+  "sms_code_sent_to": "SMS code sent to {}",
   "resend_code": "Resend code",
   "expiry": "Expiry date",
   "add_card": "Add card",
@@ -131,6 +134,7 @@
   "enter_phone_number": "Enter phone number",
   "enter_sms_code": "Enter SMS code",
   "resend_code": "Resend code",
+  "code_resent": "Code has been resent",
   "no_results": "No results found",
   "onboarding": {
     "title1": "Find Professional Services",
