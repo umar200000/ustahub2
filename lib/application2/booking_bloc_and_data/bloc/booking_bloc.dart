@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
+import '../../../infrastructure/services/test_mode/test_mode_service.dart';
 import '../../../infrastructure2/common/error_helper.dart';
 import '../data/model/booking_model.dart';
 import '../data/model/booking_model_list.dart';
@@ -17,6 +18,33 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
   BookingBloc() : super(const BookingState()) {
     on<CreateBookingEvent>((event, emit) async {
       emit(state.copyWith(status: Status2.loading));
+
+      // ── TEST REJIMI ── lokal soxta booking
+      if (TestMode.isOn) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        final id = 'test-${DateTime.now().millisecondsSinceEpoch}';
+        final newItem = BookingListItem(
+          id: id,
+          bookingNumber: DateTime.now().millisecondsSinceEpoch % 100000,
+          serviceId: event.serviceId,
+          serviceTitle: event.serviceTitle,
+          providerName: event.providerName,
+          providerLogo: event.providerLogo,
+          scheduledDate: event.scheduledDate,
+          scheduledTimeStart: event.scheduledTimeStart,
+          status: 'pending',
+          totalPrice: event.totalPrice,
+          createdAt: DateTime.now().toIso8601String(),
+        );
+        emit(
+          state.copyWith(
+            status: Status2.success,
+            items: [newItem, ...state.items],
+            successMessage: "Buyurtma muvaffaqiyatli yaratildi",
+          ),
+        );
+        return;
+      }
 
       try {
         final response = await _bookingRepo.bookingService(
@@ -35,7 +63,8 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
             state.copyWith(
               status: Status2.success,
               bookingModel: bookingModel,
-              successMessage: bookingModel.message ?? "Buyurtma muvaffaqiyatli yaratildi",
+              successMessage: bookingModel.message ??
+                  "Buyurtma muvaffaqiyatli yaratildi",
             ),
           );
         } else {
@@ -64,6 +93,17 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     });
 
     on<GetBookingsListEvent>((event, emit) async {
+      // ── TEST REJIMI ── lokal listani qaytarish, backend ga so'rov yo'q
+      if (TestMode.isOn) {
+        emit(
+          state.copyWith(
+            listStatus: Status2.success,
+            hasReachedMax: true,
+          ),
+        );
+        return;
+      }
+
       if (!event.isRefresh &&
           (state.hasReachedMax || state.listStatus == Status2.loading)) {
         return;
@@ -147,6 +187,43 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     on<GetBookingDetailsEvent>((event, emit) async {
       emit(state.copyWith(detailsStatus: Status2.loading));
 
+      // ── TEST REJIMI ── lokal listdan topib, minimal BookingModel quramiz
+      if (TestMode.isOn) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        final item = state.items.firstWhere(
+          (e) => e.id == event.id,
+          orElse: () => BookingListItem(id: event.id),
+        );
+        // bookingModel ichidagi data ni mavjud bookingModel asosida saqlaymiz,
+        // faqat status/review ni state.items dan moslaymiz
+        BookingModel mocked = BookingModel(
+          success: true,
+          data: BookingData(
+            id: item.id,
+            bookingNumber: item.bookingNumber,
+            serviceId: item.serviceId,
+            serviceTitle: item.serviceTitle,
+            providerName: item.providerName,
+            providerLogo: item.providerLogo,
+            scheduledDate: item.scheduledDate,
+            scheduledTimeStart: item.scheduledTimeStart,
+            status: item.status ?? 'pending',
+            totalPrice: item.totalPrice,
+            createdAt: item.createdAt,
+            review: state.bookingModel?.data?.id == item.id
+                ? state.bookingModel?.data?.review
+                : null,
+          ),
+        );
+        emit(
+          state.copyWith(
+            detailsStatus: Status2.success,
+            bookingModel: mocked,
+          ),
+        );
+        return;
+      }
+
       try {
         final response = await _bookingRepo.getBookingDetails(id: event.id);
 
@@ -189,6 +266,31 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     on<ConfirmArrivalEvent>((event, emit) async {
       emit(state.copyWith(confirmArrivalStatus: Status2.loading));
 
+      // ── TEST REJIMI ── lokal status 'in_progress'
+      if (TestMode.isOn) {
+        await Future.delayed(const Duration(milliseconds: 400));
+        final updatedItems = state.items
+            .map((it) => it.id == event.bookingId
+                ? it.copyWith(status: 'in_progress')
+                : it)
+            .toList();
+        BookingModel? updatedModel = state.bookingModel;
+        if (updatedModel?.data?.id == event.bookingId &&
+            updatedModel?.data != null) {
+          updatedModel = updatedModel!
+              .copyWith(data: updatedModel.data!.copyWith(status: 'in_progress'));
+        }
+        emit(
+          state.copyWith(
+            confirmArrivalStatus: Status2.success,
+            items: updatedItems,
+            bookingModel: updatedModel,
+            successMessage: "Usta kelgani tasdiqlandi",
+          ),
+        );
+        return;
+      }
+
       try {
         final response = await _bookingRepo.confirmArrival(
           bookingId: event.bookingId,
@@ -200,7 +302,8 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           // Update the items list
           final updatedItems = state.items.map((item) {
             if (item.id == event.bookingId) {
-              return item.copyWith(status: bookingModel.data?.status ?? 'in_progress');
+              return item.copyWith(
+                  status: bookingModel.data?.status ?? 'in_progress');
             }
             return item;
           }).toList();
@@ -210,7 +313,8 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
               confirmArrivalStatus: Status2.success,
               bookingModel: bookingModel,
               items: updatedItems,
-              successMessage: bookingModel.message ?? "Usta kelgani tasdiqlandi",
+              successMessage:
+                  bookingModel.message ?? "Usta kelgani tasdiqlandi",
             ),
           );
         } else {
@@ -241,6 +345,31 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     on<CancelBookingEvent>((event, emit) async {
       emit(state.copyWith(cancelStatus: Status2.loading));
 
+      // ── TEST REJIMI ── lokal status 'canceled'
+      if (TestMode.isOn) {
+        await Future.delayed(const Duration(milliseconds: 400));
+        final updatedItems = state.items
+            .map((it) => it.id == event.bookingId
+                ? it.copyWith(status: 'canceled')
+                : it)
+            .toList();
+        BookingModel? updatedModel = state.bookingModel;
+        if (updatedModel?.data?.id == event.bookingId &&
+            updatedModel?.data != null) {
+          updatedModel = updatedModel!
+              .copyWith(data: updatedModel.data!.copyWith(status: 'canceled'));
+        }
+        emit(
+          state.copyWith(
+            cancelStatus: Status2.success,
+            items: updatedItems,
+            bookingModel: updatedModel,
+            successMessage: "Buyurtma bekor qilindi",
+          ),
+        );
+        return;
+      }
+
       try {
         final response = await _bookingRepo.cancelBooking(
           bookingId: event.bookingId,
@@ -253,19 +382,22 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
             final updatedData = state.bookingModel!.data!.copyWith(
               status: 'canceled',
             );
-            final updatedModel = state.bookingModel!.copyWith(data: updatedData);
+            final updatedModel =
+                state.bookingModel!.copyWith(data: updatedData);
             emit(
               state.copyWith(
                 cancelStatus: Status2.success,
                 bookingModel: updatedModel,
-                successMessage: response.data?['message'] ?? "Buyurtma bekor qilindi",
+                successMessage:
+                    response.data?['message'] ?? "Buyurtma bekor qilindi",
               ),
             );
           } else {
             emit(
               state.copyWith(
                 cancelStatus: Status2.success,
-                successMessage: response.data?['message'] ?? "Buyurtma bekor qilindi",
+                successMessage:
+                    response.data?['message'] ?? "Buyurtma bekor qilindi",
               ),
             );
           }
@@ -306,6 +438,30 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     on<SetReviewEvent>((event, emit) async {
       emit(state.copyWith(reviewStatus: Status2.loading));
 
+      // ── TEST REJIMI ── lokal review qo'shish
+      if (TestMode.isOn) {
+        await Future.delayed(const Duration(milliseconds: 400));
+        final newReview = Review(
+          rating: event.rating,
+          comment: event.comment,
+          createdAt: DateTime.now().toIso8601String(),
+        );
+        BookingModel? updatedModel = state.bookingModel;
+        if (updatedModel?.data?.id == event.bookingId &&
+            updatedModel?.data != null) {
+          updatedModel = updatedModel!
+              .copyWith(data: updatedModel.data!.copyWith(review: newReview));
+        }
+        emit(
+          state.copyWith(
+            reviewStatus: Status2.success,
+            bookingModel: updatedModel,
+            successMessage: "Review muvaffaqiyatli saqlandi",
+          ),
+        );
+        return;
+      }
+
       try {
         final response = await _bookingRepo.setReview(
           bookingId: event.bookingId,
@@ -319,7 +475,8 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           if (response.data != null && response.data['data'] != null) {
             newReview = Review.fromJson(response.data['data']);
           } else {
-            // Agar response bo'sh bo'lsa, yuborgan ma'lumotlarimizdan vaqtinchalik review yaratamiz
+            // Agar response bo'sh bo'lsa, yuborgan ma'lumotlarimizdan
+            // vaqtinchalik review yaratamiz
             newReview = Review(
               rating: event.rating,
               comment: event.comment,

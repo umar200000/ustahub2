@@ -15,6 +15,7 @@ import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.
 import 'package:ustahub/presentation/components/un_focus_widget.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
+import 'package:ustahub/utils/responsive.dart' show AdaptiveAppFrame;
 
 // Initialize Alice once and reuse
 final AliceChopperAdapter aliceChopperAdapter = AliceChopperAdapter();
@@ -50,7 +51,8 @@ class MyApp extends StatelessWidget {
       overlays: [SystemUiOverlay.top],
     );
 
-    return ScreenUtilInit(
+    return AdaptiveAppFrame(
+      child: ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
@@ -126,11 +128,11 @@ class MyApp extends StatelessWidget {
               themeAnimationDuration: const Duration(
                 milliseconds: 200,
               ), // Faster theme transitions
-              restorationScopeId: 'app', // Enable state restoration
             ),
           ),
         );
       },
+      ),
     );
   }
 }

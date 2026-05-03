@@ -443,6 +443,19 @@ class _BookingPageState extends State<BookingPage> {
                                           _commentController.text.isEmpty
                                           ? "-"
                                           : _commentController.text,
+                                      serviceTitle: widget.service.title,
+                                      providerName:
+                                          widget.service.provider?.name,
+                                      providerLogo:
+                                          widget.service.provider?.logoUrl ??
+                                              widget
+                                                  .service
+                                                  .images
+                                                  ?.firstOrNull
+                                                  ?.imageUrl,
+                                      totalPrice: double.tryParse(
+                                        widget.service.basePrice ?? "",
+                                      ),
                                     ),
                                   );
                                 },

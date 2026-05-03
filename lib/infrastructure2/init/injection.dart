@@ -16,6 +16,7 @@ import '../../application2/category_list_bloc_and_data/bloc/category_list_bloc.d
 import '../../application2/favorite_bloc_and_data/bloc/favorite_bloc.dart';
 import '../../application2/review_bloc_and_data/bloc/review_bloc.dart';
 import '../../infrastructure/services/shared_perf/shared_pref_service.dart';
+import '../../infrastructure/services/test_mode/test_mode_service.dart';
 import '../common/network_provider.dart';
 
 final GetIt sl = GetIt.instance;
@@ -23,6 +24,9 @@ final GetIt sl = GetIt.instance;
 Future<void> init() async {
   final SharedPrefService prf = await SharedPrefService.initialize();
   sl.registerLazySingleton<SharedPrefService>(() => prf);
+  sl.registerLazySingleton<TestModeService>(
+    () => TestModeService(sl<SharedPrefService>()),
+  );
 
   /// dio
   sl.registerFactory(() => createDio());

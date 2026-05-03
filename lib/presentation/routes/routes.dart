@@ -54,10 +54,6 @@ class _RepositoryCache {
 }
 
 class AppRoutes {
-  // Cache route instances that don't depend on parameters
-  static MaterialPageRoute? _noConnectionRoute;
-  static MaterialPageRoute? _registerRoute;
-
   static PageRoute onGenerateRoute({
     required BuildContext context,
     required bool notConnection,
@@ -79,9 +75,7 @@ class AppRoutes {
   }
 
   static MaterialPageRoute getNetworkNotFound() {
-    return _noConnectionRoute ??= MaterialPageRoute(
-      builder: (_) => const NoConnection(),
-    );
+    return MaterialPageRoute(builder: (_) => const NoConnection());
   }
 
   // Splash screen - first screen
@@ -154,9 +148,7 @@ class AppRoutes {
   // }
 
   static MaterialPageRoute getRegister() {
-    return _registerRoute ??= MaterialPageRoute(
-      builder: (context) => const RegisterPage(),
-    );
+    return MaterialPageRoute(builder: (context) => const RegisterPage());
   }
 }
 

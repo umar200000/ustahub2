@@ -430,6 +430,8 @@
   "card_deleted": "Karta muvaffaqiyatli o‘chirildi",
   "add_new_card": "Yangi karta qo'shish",
   "select_card": "Kartani tanlang",
+  "payment_processing": "To'lov amalga oshirilmoqda",
+  "payment_processing_desc": "Iltimos, kuting. To'lov tasdiqlanishini kutyapmiz.",
   "default": "Asosiy",
   "expiry": "Amal qilish muddati",
   "add_card": "Karta qo'shish",

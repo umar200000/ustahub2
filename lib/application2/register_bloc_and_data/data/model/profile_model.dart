@@ -41,6 +41,7 @@ class UserProfile {
   final String? phone;
   final String? email;
   final DateTime? createdAt;
+  final bool? isTest;
 
   UserProfile({
     this.id,
@@ -50,6 +51,7 @@ class UserProfile {
     this.phone,
     this.email,
     this.createdAt,
+    this.isTest,
   });
 
   UserProfile copyWith({
@@ -60,6 +62,7 @@ class UserProfile {
     String? phone,
     String? email,
     DateTime? createdAt,
+    bool? isTest,
   }) {
     return UserProfile(
       id: id ?? this.id,
@@ -69,6 +72,7 @@ class UserProfile {
       phone: phone ?? this.phone,
       email: email ?? this.email,
       createdAt: createdAt ?? this.createdAt,
+      isTest: isTest ?? this.isTest,
     );
   }
 
@@ -82,6 +86,7 @@ class UserProfile {
     createdAt: json["created_at"] == null
         ? null
         : DateTime.parse(json["created_at"]),
+    isTest: json["is_test"] is bool ? json["is_test"] as bool : null,
   );
 
   Map<String, dynamic> toJson() => {
@@ -92,5 +97,6 @@ class UserProfile {
     "phone": phone,
     "email": email,
     "created_at": createdAt?.toIso8601String(),
+    "is_test": isTest,
   };
 }

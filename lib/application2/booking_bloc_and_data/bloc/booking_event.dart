@@ -15,6 +15,12 @@ class CreateBookingEvent extends BookingEvent {
   final String scheduledTimeStart;
   final String address;
   final String userComment;
+  // Test rejimi uchun ko'rsatish ma'lumotlari (booking listida title/provider
+  // ko'rinishi uchun). Real backend bu fieldlarni e'tiborga olmaydi.
+  final String? serviceTitle;
+  final String? providerName;
+  final String? providerLogo;
+  final double? totalPrice;
 
   const CreateBookingEvent({
     required this.serviceId,
@@ -24,6 +30,10 @@ class CreateBookingEvent extends BookingEvent {
     required this.scheduledTimeStart,
     required this.address,
     required this.userComment,
+    this.serviceTitle,
+    this.providerName,
+    this.providerLogo,
+    this.totalPrice,
   });
 
   @override
@@ -35,6 +45,10 @@ class CreateBookingEvent extends BookingEvent {
     scheduledTimeStart,
     address,
     userComment,
+    serviceTitle,
+    providerName,
+    providerLogo,
+    totalPrice,
   ];
 }
 

@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
 import '../../../infrastructure/services/shared_perf/shared_pref_service.dart';
+import '../../../infrastructure/services/test_mode/test_mode_service.dart';
 import '../../../infrastructure2/common/error_helper.dart';
 import '../data/model/profile_model.dart';
 import '../data/model/register_model.dart';
@@ -182,6 +183,26 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
     on<UpdateUserProfile>((event, emit) async {
       emit(state.copyWith(statusUser: Status2.loading));
+
+      // ── TEST REJIMI ── faqat lokal SharedPref ga yozamiz, backend yo'q
+      if (TestMode.isOn) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        final updatedUser = state.userProfile?.copyWith(
+          firstName: event.firstName,
+          lastName: event.lastName,
+          email: event.gmail,
+        );
+        if (updatedUser != null) {
+          await _prefService.setUserProfile(updatedUser);
+        }
+        emit(
+          state.copyWith(
+            statusUser: Status2.success,
+            userProfile: updatedUser,
+          ),
+        );
+        return;
+      }
 
       try {
         final response = await _registerRepo.userProfileUbdate(

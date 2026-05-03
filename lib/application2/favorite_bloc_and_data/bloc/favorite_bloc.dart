@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../infrastructure/services/enum_status/status_enum.dart';
+import '../../../infrastructure/services/test_mode/test_mode_service.dart';
 import '../../../infrastructure2/common/error_helper.dart';
 import '../data/model/favorite_model.dart';
 import '../data/repo/favorite_repo.dart';
@@ -22,6 +23,16 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
     GetFavoritesEvent event,
     Emitter<FavoriteState> emit,
   ) async {
+    // ── TEST REJIMI ── lokal favoritelarni qaytaramiz
+    if (TestMode.isOn) {
+      emit(state.copyWith(
+        listStatus: Status2.success,
+        isLastPage: true,
+        total: state.favorites.length,
+      ));
+      return;
+    }
+
     if (event.isFetchMore &&
         (state.isLastPage || state.listStatus == Status2.loading)) {
       return;
@@ -116,6 +127,11 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
       favorites: newFavorites,
       total: wasInFavorites ? state.total - 1 : state.total + 1,
     ));
+
+    // ── TEST REJIMI ── backend ga so'rov yo'q, optimistic update yetarli
+    if (TestMode.isOn) {
+      return;
+    }
 
     // Background da API chaqir
     try {

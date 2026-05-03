@@ -21,17 +21,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   final List<OnboardingData> _onboardingData = [
     OnboardingData(
-      image: 'assets/images/first.png',
+      image: 'assets/images/ustahub3.png',
       titleKey: 'essential_services_title',
       subtitleKey: 'essential_services_subtitle',
     ),
     OnboardingData(
-      image: 'assets/images/second.png',
+      image: 'assets/images/ustahub1 (2).png',
       titleKey: 'onboarding_title_2',
       subtitleKey: 'onboarding_desc_2',
     ),
     OnboardingData(
-      image: 'assets/images/third.png',
+      image: 'assets/images/ustahub2.png',
       titleKey: 'onboarding_title_3',
       subtitleKey: 'onboarding_desc_3',
     ),
@@ -98,10 +98,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'select_language'.tr(),
-              style: fonts.headingH6Bold,
-            ),
+            Text('select_language'.tr(), style: fonts.headingH6Bold),
             SizedBox(height: 16.h),
             _buildLanguageOption(
               context,
@@ -173,11 +170,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             ),
             const Spacer(),
             if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: colors.primary500,
-                size: 20.r,
-              ),
+              Icon(Icons.check_circle, color: colors.primary500, size: 20.r),
           ],
         ),
       ),
@@ -230,16 +223,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     top: topPadding + 130.h,
                     left: 0,
                     right: 0,
-                    height: screenHeight * 0.45,
+                    height: screenHeight * 0.38,
                     child: PageView.builder(
                       controller: _pageController,
                       onPageChanged: _onPageChanged,
                       itemCount: _onboardingData.length,
                       itemBuilder: (context, index) {
-                        return Image.asset(
-                          _onboardingData[index].image,
-                          fit: BoxFit.cover,
-                          alignment: Alignment.center,
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 32.w),
+                          child: Image.asset(
+                            _onboardingData[index].image,
+                            fit: BoxFit.contain,
+                            alignment: Alignment.center,
+                          ),
                         );
                       },
                     ),
@@ -260,7 +256,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         ),
                         // Language selector
                         GestureDetector(
-                          onTap: () => _showLanguageSelector(context, colors, fonts),
+                          onTap: () =>
+                              _showLanguageSelector(context, colors, fonts),
                           child: Container(
                             padding: EdgeInsets.symmetric(
                               horizontal: 12.w,
@@ -412,9 +409,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 _currentPage == _onboardingData.length - 1
                     ? 'get_started'.tr()
                     : 'continue'.tr(),
-                style: fonts.paragraphP1SemiBold.copyWith(
-                  color: colors.shade0,
-                ),
+                style: fonts.paragraphP1SemiBold.copyWith(color: colors.shade0),
               ),
             ),
           ),

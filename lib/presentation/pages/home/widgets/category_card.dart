@@ -23,28 +23,33 @@ class CategoryCard extends StatelessWidget {
           onTap: onTap,
           child: Container(
             width: 72.w,
-
+            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16.r),
               border: Border.all(color: colors.neutral200),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  height: 40.h,
-                  width: 40.w,
+                  height: 36.h,
+                  width: 36.w,
                   decoration: BoxDecoration(
                     color: colors.neutral200,
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
-                  child: Icon(icon, size: 20.sp, color: colors.neutral800),
+                  child: Icon(icon, size: 18.sp, color: colors.neutral800),
                 ),
-                8.h.verticalSpace,
-                Text(
-                  title,
-                  style: fonts.paragraphP3Regular,
-                  textAlign: TextAlign.center,
+                6.h.verticalSpace,
+                Flexible(
+                  child: Text(
+                    title,
+                    style: fonts.paragraphP3Regular,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
