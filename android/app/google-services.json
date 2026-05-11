@@ -8,6 +8,63 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:67442890500:android:3290868d1307922465a251",
+        "android_client_info": {
+          "package_name": "com.example.my_cards"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD9COxshFb-9hyHzI6VgfFcjM638bmsNw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67442890500:android:d626cfa3af8e4a2d65a251",
+        "android_client_info": {
+          "package_name": "net.ustahub.client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD9COxshFb-9hyHzI6VgfFcjM638bmsNw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67442890500:android:679e23b70594976965a251",
+        "android_client_info": {
+          "package_name": "net.ustahub.master"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD9COxshFb-9hyHzI6VgfFcjM638bmsNw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:67442890500:android:2b83787c47c1d55f65a251",
         "android_client_info": {
           "package_name": "uz.ustahub"
