@@ -28,12 +28,12 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Ustahub needs camera access to take photos.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Ustahub needs access to your photo library to select and upload photos.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Ustahub needs location access even when the app is in background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Ustahub uses your location to show nearby services.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Ustahub needs access to your photo library to select and upload photos.</string>
 	<key>NSUserNotificationUsageDescription</key>
 	<string>Ustahub sends notifications to keep you informed.</string>
 	<key>UIApplicationSceneManifest</key>

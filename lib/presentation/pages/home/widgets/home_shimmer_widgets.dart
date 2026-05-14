@@ -86,8 +86,8 @@ class CategoryShimmer extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 65.w,
-                        height: 65.w,
+                        width: 65.r,
+                        height: 65.r,
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,

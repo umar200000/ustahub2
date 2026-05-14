@@ -444,32 +444,14 @@ class _ProfileHero extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'profile'.tr(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              Container(
-                width: 36.w,
-                height: 36.w,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.20),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.settings_outlined,
-                  color: Colors.white,
-                  size: 18.sp,
-                ),
-              ),
-            ],
+          Text(
+            'profile'.tr(),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
+            ),
           ),
           SizedBox(height: 20.h),
           BlocBuilder<RegisterBloc, RegisterState>(

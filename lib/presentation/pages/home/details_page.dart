@@ -32,11 +32,17 @@ class _DetailsPageState extends State<DetailsPage>
   final PageController _imagePageController = PageController();
   int _currentImageIndex = 0;
   bool _isDescriptionExpanded = false;
+  int _currentTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() => _currentTabIndex = _tabController.index);
+      }
+    });
     context.read<DetailsBloc>().add(
       GetServiceDetailsEvent(serviceId: widget.serviceId),
     );
@@ -103,17 +109,10 @@ class _DetailsPageState extends State<DetailsPage>
                         slivers: [
                           _buildSliverAppBar(data, colors, fonts),
                           SliverToBoxAdapter(
-                            child: Transform.translate(
-                              offset: Offset(0, -24.h),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: colors.shade0,
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(28.r),
-                                  ),
-                                ),
-                                padding: EdgeInsets.only(top: 44.h),
-                                child: Column(
+                            child: Container(
+                              color: colors.shade0,
+                              padding: EdgeInsets.only(top: 20.h),
+                              child: Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,
                                   children: [
@@ -133,17 +132,12 @@ class _DetailsPageState extends State<DetailsPage>
                                   ],
                                 ),
                               ),
-                            ),
                           ),
-                          SliverPersistentHeader(
-                            pinned: true,
-                            delegate: _TabBarHeaderDelegate(
-                              child: Container(
-                                color: colors.shade0,
-                                padding: EdgeInsets.only(bottom: 8.h),
-                                child: _buildTabBar(colors, fonts),
-                              ),
-                              height: 52.h,
+                          SliverToBoxAdapter(
+                            child: Container(
+                              color: colors.shade0,
+                              padding: EdgeInsets.only(bottom: 8.h),
+                              child: _buildTabBar(colors, fonts),
                             ),
                           ),
                           SliverToBoxAdapter(
@@ -206,6 +200,18 @@ class _DetailsPageState extends State<DetailsPage>
                 size: 20.sp,
               ),
               onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ),
+      ),
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(24.h),
+        child: Container(
+          height: 24.h,
+          decoration: BoxDecoration(
+            color: colors.shade0,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(28.r),
             ),
           ),
         ),
@@ -664,23 +670,12 @@ class _DetailsPageState extends State<DetailsPage>
   ) {
     return Padding(
       padding: EdgeInsets.all(20.w),
-      child: AnimatedBuilder(
-        animation: _tabController,
-        builder: (context, child) {
-          switch (_tabController.index) {
-            case 0:
-              return _buildAboutTab(data, colors, fonts);
-            case 1:
-              return _buildGalleryTab(data, colors);
-            case 2:
-              return _buildReviewTab(data, colors, fonts);
-            case 3:
-              return _buildServicesTab(data, colors, fonts);
-            default:
-              return _buildAboutTab(data, colors, fonts);
-          }
-        },
-      ),
+      child: switch (_currentTabIndex) {
+        1 => _buildGalleryTab(data, colors),
+        2 => _buildReviewTab(data, colors, fonts),
+        3 => _buildServicesTab(data, colors, fonts),
+        _ => _buildAboutTab(data, colors, fonts),
+      },
     );
   }
 
@@ -1205,38 +1200,6 @@ class _DetailsPageState extends State<DetailsPage>
         ],
       ),
     );
-  }
-}
-
-class _TabBarHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-  final double height;
-
-  _TabBarHeaderDelegate({required this.child, required this.height});
-
-  @override
-  double get minExtent => height;
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return Material(
-      color: Colors.transparent,
-      elevation: overlapsContent ? 2 : 0,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      child: child,
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _TabBarHeaderDelegate oldDelegate) {
-    return oldDelegate.child != child || oldDelegate.height != height;
   }
 }
 

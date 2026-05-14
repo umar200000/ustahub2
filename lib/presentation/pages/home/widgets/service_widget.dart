@@ -104,9 +104,9 @@ class _CategoryItem extends StatelessWidget {
               children: [
                 // Circular icon container with modern design
                 Container(
-                  width: 60.w,
-                  height: 60.w,
-                  padding: EdgeInsets.all(10.w),
+                  width: 60.r,
+                  height: 60.r,
+                  padding: EdgeInsets.all(10.r),
                   decoration: BoxDecoration(
                     color: colors.blue500.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(18.r),
@@ -144,7 +144,7 @@ class _CategoryItem extends StatelessWidget {
   }
 
   Widget _buildPlaceholderIcon(dynamic colors) {
-    return Icon(Icons.category_rounded, size: 28.w, color: colors.blue500);
+    return Icon(Icons.category_rounded, size: 28.r, color: colors.blue500);
   }
 }
 
