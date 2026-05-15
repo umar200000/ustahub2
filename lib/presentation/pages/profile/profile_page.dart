@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/infrastructure2/init/injection.dart';
+import 'package:ustahub/presentation/pages/profile/screens/ai_chat_page.dart';
+import 'package:ustahub/presentation/pages/profile/screens/delete_account_page.dart';
 import 'package:ustahub/presentation/pages/profile/screens/info_detail_page.dart';
 import 'package:ustahub/presentation/pages/profile/screens/user_information_page.dart';
 import 'package:ustahub/presentation/pages/payment_history/payment_history_page.dart';
@@ -15,6 +17,7 @@ import 'package:ustahub/presentation/pages/profile/widgets/setting_menu_item.dar
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
+import 'package:ustahub/utils/launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -167,7 +170,21 @@ class _ProfilePageState extends State<ProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _ProfileHero(colors: colors, fonts: fonts),
-                SizedBox(height: 20.h),
+                SizedBox(height: 18.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: _AiChatBanner(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AiChatPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                SizedBox(height: 8.h),
                 BlocBuilder<RegisterBloc, RegisterState>(
                   buildWhen: (prev, curr) =>
                       (prev.userProfile == null) !=
@@ -362,6 +379,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     _divider(colors),
                     SettingsMenuItem(
+                      icon: Icons.send_rounded,
+                      iconColor: const Color(0xFF0088CC),
+                      title: 'contact_with_us'.tr(),
+                      onTap: openSupportTelegram,
+                      showTrailing: true,
+                      fonts: fonts,
+                      colors: colors,
+                    ),
+                    _divider(colors),
+                    SettingsMenuItem(
                       icon: Icons.work_rounded,
                       iconColor: const Color(0xFFEC4899),
                       title: 'work_with_us'.tr(),
@@ -392,11 +419,182 @@ class _ProfilePageState extends State<ProfilePage> {
                     colors: colors,
                   ),
                 ),
+                SizedBox(height: 12.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: _DeleteAccountButton(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DeleteAccountPage(),
+                        ),
+                      );
+                    },
+                    colors: colors,
+                  ),
+                ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _AiChatBanner extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _AiChatBanner({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: EdgeInsets.all(16.r),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF7C3AED),
+              Color(0xFF3B82F6),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(18.r),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF7C3AED).withValues(alpha: 0.25),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48.w,
+              height: 48.w,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.22),
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.auto_awesome_rounded,
+                color: Colors.white,
+                size: 24.sp,
+              ),
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'ai_chat'.tr(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6.w,
+                          vertical: 2.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.22),
+                          borderRadius: BorderRadius.circular(5.r),
+                        ),
+                        child: Text(
+                          'AI',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    'ai_chat_subtitle'.tr(),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.92),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.white,
+              size: 14.sp,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DeleteAccountButton extends StatelessWidget {
+  final VoidCallback onTap;
+  final CustomColorSet colors;
+
+  const _DeleteAccountButton({required this.onTap, required this.colors});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 16.h),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF5F5),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: const Color(0xFFFF4D4D).withValues(alpha: 0.25),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.delete_outline_rounded,
+              color: const Color(0xFFFF4D4D),
+              size: 20.sp,
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              'delete_account'.tr(),
+              style: TextStyle(
+                color: const Color(0xFFFF4D4D),
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
