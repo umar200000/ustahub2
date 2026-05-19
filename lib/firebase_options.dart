@@ -67,12 +67,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBznjzMWbmbMMuCJIk1sAw6SerPwER7UrM',
-    appId: '1:67442890500:ios:ec96ccc772a1630565a251',
+    appId: '1:67442890500:ios:865b5885ba391a4165a251',
     messagingSenderId: '67442890500',
     projectId: 'fir-app-93058',
     databaseURL: 'https://fir-app-93058-default-rtdb.firebaseio.com',
     storageBucket: 'fir-app-93058.firebasestorage.app',
-    iosBundleId: 'com.brownfish.ustahubb',
+    iosBundleId: 'net.ustahub.client',
   );
 
 }
