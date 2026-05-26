@@ -1,0 +1,488 @@
+=== express-service-batafsil.pdf ===
+Tezkor xizmat (Express) — to'liq, batafsil tushuntirish
+Mijoz "shu yerga, hoziroq" usta chaqiradigan rejim. Tizim eng yaqin ustalarni avtomatik, birma-bir 60 soniyadan chaqiradi; kim birinchi
+rozi bo'lsa, buyurtma darhol yaratiladi.
+1. Bu nima va nima uchun kerak?
+Oddiy buyurtma: mijoz xizmatni tanlaydi → ustaga so'rov yuboradi → usta qabul qiladi → to'lov → bajariladi. Bu rejalashtirilgan ish uchun.
+Tezkor xizmat — "shu yerga, hoziroq usta kerak" holati uchun (avtoelektrik yo'lda qoldi, suv quvuri yorildi, sartarosh uyga kerak). Mijoz bitta
+ustani tanlab o'tirmaydi — tizim eng yaqin ustalarni avtomatik, birma-bir 60 soniyadan chaqiradi, kim birinchi rozi bo'lsa, buyurtma
+darhol yaratiladi. Bu Yandex Taxi'ning haydovchi qidirish mantig'iga o'xshaydi.
+Asosiy farqlar oddiy buyurtmadan:
+Mijoz ustani tanlamaydi — tizim masofa bo'yicha tanlaydi.
+Buyurtma to'g'ridan-to'g'ri ACTIVE holatda yaratiladi (payment/pending bosqichi yo'q).
+Real-time: WebSocket + push xabar.
+2. Ishtirokchilar
+Kim Roli
+Mijoz (client) Qidiruvni boshlaydi, natijani kutadi
+Usta (master) So'rovni oladi, 60s ichida qabul/rad qiladi
+Tizim Navbat tuzadi, ustalarni birma-bir chaqiradi, timeout boshqaradi, buyurtma yaratadi
+3. To'liq oqim — jonli misol bilan
+Ssenariy: Dilnoza Toshkentda, Chilonzorda. Mashinasi yurmay qoldi — avtoelektrik kerak, hoziroq.
+Qadam 1 — Mijoz kategoriyalarni ko'radi
+GET /api/v1/client/express/categories/?province_id=ea57c322-...-e4e6
+Authorization: Bearer <dilnoza_token>
+{
+"success": true,
+"data": [
+{ "id": "a0629ad5-...-abbac", "name_uz": "Avtoelektrik", "express_service_count": 3 },
+{ "id": "760d3b96-...-9324c8", "name_uz": "Santexnik", "express_service_count": 5 }
+]
+}
+Faqat kamida bitta aktiv tezkor xizmati bor kategoriyalar chiqadi. Dilnoza "Avtoelektrik"ni tanlaydi.
+Qadam 2 — (ixtiyoriy) Kategoriyadagi xizmatlarni ko'radi
+GET /api/v1/client/express/services/?category_id=a0629ad5-...-abbac
+Bu narxlarni ( base_price , max_price ), reytingni ko'rsatadi. Dilnoza aniq bitta xizmatni tanlashi yoki o'tkazib yuborishi mumkin (u holda
+butun kategoriya bo'yicha qidiriladi).
+Qadam 3 — Qidiruvni boshlaydi
+POST /api/v1/client/express/search/
+{
+"category_id": "a0629ad5-...-abbac",
+"province_id": "ea57c322-...-e4e6",
+"district_id": "b2c87561-...-63e8",
+"latitude": 41.311081,
+"longitude": 69.279716,
+"payment_method": "cash"
+}
+Tizim shu zahoti nima qiladi (eng muhim qism):
+1. Tekshiruv: Dilnozada allaqachon faol qidiruv bormi? Bo'lsa → 400 ("Avval uni bekor qiling"). Bir vaqtda faqat bitta faol qidiruv.
+2. Navbat tuzish (PostGIS bilan) — quyidagi shartlarga mos ustalar topiladi: - shu kategoriyada aktiv tezkor xizmati bor, - is_active
+= true (faol) va is_available = true (bo'sh), - shu viloyatda ( province_id mos), - lokatsiyasi bor ( home_location ), -
+(tuman berilgan bo'lsa) shu tumanda.
+Topilgan ustalar mijozdan masofa bo'yicha saralanadi (PostGIS ST_Distance , kilometrda). Natija: navbat = [ {master: Akmal, 2.4
+km}, <- eng yaqin, birinchi chaqiriladi {master: Bobur, 3.1 km}, {master: Sardor, 5.8 km}, ... ]
+3. Sessiya yaratiladi ( express_search_sessions jadvali): status=searching , navbat, lokatsiya, payment_method saqlanadi.
+4. Birinchi ustaga (Akmal) xabar yuboriladi — push + WebSocket. notified_at = hozir , current_master_id = Akmal .
+5. 60 soniyalik soat ishga tushadi (Celery express_master_timeout , countdown=60 ).
+Javob (Dilnozaga):
+{
+"success": true,
+"data": {
+"session_id": "7c9e6679-...-90ae7",
+"status": "searching",
+"total_masters": 5,
+"message": null
+}
+}
+Agar birorta usta topilmasa -> darhol status: "exhausted" va message to'ldiriladi.
+Qadam 4 — Mijoz natijani kutadi
+Dilnozaning ilovasi session_id bilan WebSocket'ga ulanadi:
+ws:..3.64.241.75:8000/api/v1/ws/express/client/7c9e6679-...-90ae7?token=<dilnoza_token>
+Endi u express_matched yoki express_no_masters ni real-time kutadi. (WS ishlamasa — GET .../status/ polling.)
+Qadam 5 — Usta (Akmal) so'rovni oladi
+Akmalning ilovasi 24/7 WebSocket'da ulangan. Unga keladi:
+{
+"type": "express_request",
+"session_id": "7c9e6679-...-90ae7",
+"category_name": "Avtoelektrik",
+"distance_km": "2.4",
+"client_latitude": "41.311081",
+"client_longitude": "69.279716",
+"expires_in": 60
+}
+Ilova fonda bo'lsa — bir xil ma'lumotli FCM push keladi: "Tezkor xizmat so'rovi! Avtoelektrik — 2.4 km uzoqlikda. Qabul qilasizmi? (1 daqiqa)"
+Akmalda 60 soniya bor. Uchta yo'l:
+A) Akmal QABUL qiladi
+POST /api/v1/master/express/respond/
+{ "session_id": "7c9e6679-...-90ae7", "action": "accept" }
+Tizim ( _handle_accept ):
+1. Sessiyani bloklab oladi ( SELECT FOR UPDATE ) — timeout bilan to'qnashmaslik uchun.
+2. Tekshiradi: bu so'rov hali Akmalniki-mi? ( current_master_id =. Akmal ). Bo'lmasa → 400 ("muddati o'tgan").
+3. Akmaldan token yechadi (platforma komissiyasi). Token yetmasa → 400 , buyurtma yaratilmaydi.
+4. Buyurtma yaratadi — to'g'ridan-to'g'ri ACTIVE , is_instant_booking=true , narx xizmatdan, payment_method=cash .
+5. Sessiya matched bo'ladi, soat to'xtaydi.
+6. Dilnozaga express_matched (WS + push) yuboriladi.
+Akmalga javob:
+{
+"status": "matched",
+"booking_id": "b1d4f2a0-...-0d33",
+"booking_number": 1042,
+"client_info": {
+"first_name": "Dilnoza", "phone": "+998935557788",
+"latitude": 41.311081, "longitude": 69.279716
+}
+}
+Endi Akmal mijozning manzili va telefonini ko'radi → yo'lga chiqadi.
+Dilnozaga (WS orqali) keladi:
+{
+"type": "express_matched",
+"session_id": "7c9e6679-...-90ae7",
+"booking_id": "b1d4f2a0-...-0d33",
+"master_id": "c2e5a3b1-...-4c5d",
+"master_name": "Akmal Karimov",
+"master_phone": "+998901234567"
+}
+Bajarildi — Dilnoza usta topdi, Akmal mijozni topdi.
+B) Akmal RAD etadi ( "action": "reject" )
+Tizim shu zahoti navbatdagi keyingi ustaga (Bobur, 3.1 km) o'tadi — yangi xabar, yangi 60s soat. Akmalga:
+{"status":"searching","message":"So'rov keyingi ustaga yuborildi"} .
+C) Akmal javob bermaydi (60s o'tadi)
+Celery express_master_timeout task uyg'onadi:
+Sessiya hali searching -mi? Akmal haqiqatan javob bermaganmi ( notified_at dan ≥55s o'tdimi)?
+Ha bo'lsa → avtomatik Boburga o'tadi (xuddi reject kabi), yangi 60s soat.
+Navbat tugagan bo'lsa → sessiya exhausted , Dilnozaga express_no_masters yuboriladi.
+Qadam 6 — Navbat tugasa (hech kim qabul qilmasa)
+Dilnozaga keladi:
+{ "type": "express_no_masters", "session_id": "7c9e6679-...-90ae7" }
+Push: "Ustalar topilmadi — qaytadan urinib ko'ring." Sessiya exhausted .
+4. Holatlar (status) va o'tishlar
++-------------+
+search/ -> | searching |
++------+------+
+usta accept -----+----- navbat tugadi / hammasi rad
+v | v
++---------+ | +-----------+
+| matched | | | exhausted |
++---------+ | +-----------+
+mijoz cancel
+v
++----------+
+| canceled |
++----------+
+matched , exhausted , canceled — yakuniy holatlar (qaytmaydi).
+5. Ichki mexanizmlar — chuqurroq
+a) Navbat va masofa
+Masofa PostGIS orqali aniq geografik hisoblanadi ( ST_Distance , metrda → km). Navbat bir marta, qidiruv boshida tuziladi va saqlanadi
+( master_queue JSONB). Har chaqirilgan usta tried_master_ids ga ko'chadi.
+b) Timeout va Celery
+Har bir ustaga 60s. Buni Celery boshqaradi ( express_master_timeout , countdown=60 ). Bu alohida jarayonda ishlagani uchun, hatto API
+restart bo'lsa ham timeout ishlaydi.
+c) Race condition himoyasi (juda muhim)
+Usta aynan 60-soniyada "accept" bosishi va timeout task ayni damda ishlashi mumkin. Ikkalasi ham sessiyani SELECT FOR UPDATE bilan
+bloklab oladi — shuning uchun bir vaqtda ikkita usta bitta so'rovni qabul qila olmaydi yoki buyurtma ikki marta yaratilmaydi. Timeout task
+qo'shimcha notified_at < 55s tekshiruvi bilan erta ishlab ketishdan himoyalanadi.
+d) Real-time: nega WebSocket + FCM ikkalasi?
+WebSocket — ilova ochiq bo'lganda darhol yetkazadi.
+FCM push — ilova fonda/yopiq bo'lganda zaxira yo'l.
+Redis pub/sub — API bir nechta worker'da, Celery alohida jarayonda. WS ulanish faqat bitta worker xotirasida yashaydi; boshqa
+joyda yuzaga kelgan hodisa Redis kanali orqali to'g'ri worker'ga uzatiladi. Yetkazib bo'lmasa ham buyurtma oqimi buzilmaydi
+(hammasi try/except da).
+6. Token va pul — chalkashmang!
+Bu ikki alohida narsa:
+Token (komissiya) To'lov ( payment_method )
+Kim to'laydi Usta / provayder Mijoz
+Qachon Usta qabul qilganda darhol yechiladi Hozircha keyin / qo'lda
+Nima uchun Platformaning komissiyasi Xizmat narxi
+Manba Usta/provayder token balansi Naqd yoki karta
+Token: usta accept qilganda balansidan komissiya token yechiladi (solo usta uchun token_cost_solo_master , provayder ustasi
+uchun token_cost_provider — platforma sozlamalaridan). Yetmasa buyurtma yaratilmaydi.
+To'lov: cash yoki card . Buyurtmaga yorliq qo'yiladi, lekin hozir avtomatik pul yechilmaydi ( is_paid=false ). card +
+EXPRESS_CARD_AUTOCHARGE=true bo'lsagina kartadan avtomatik yechiladi — lekin bu flag productionda false , shuning uchun
+hozir karta ham faqat yorliq.
+7. Barcha endpointlar (qisqa jadval)
+Mijoz: | Method | Path | Vazifa | |--------|------|--------| | GET | /client/express/categories/ | Tezkor kategoriyalar | | GET |
+/client/express/services/ | Kategoriyadagi xizmatlar | | POST | /client/express/search/ | Qidiruvni boshlash | | GET |
+/client/express/search/{id}/status/ | Holat (polling) | | POST | /client/express/search/{id}/cancel/ | Bekor qilish |
+Usta: | Method | Path | Vazifa | |--------|------|--------| | POST | /master/express/respond/ | Qabul/rad ( accept / reject ) | | GET |
+/master/express/pending/ | Kutilayotgan so'rov |
+WebSocket (slashsiz!): | Kanal | URL | |-------|------| | Usta | /api/v1/ws/express/master?token=... | | Mijoz |
+/api/v1/ws/express/client/{session_id}?token=... |
+8. Chekka holatlar (qoidalar)
+1. Bir mijoz — bir vaqtda bitta faol qidiruv.
+2. Faqat searching sessiyani bekor qilish mumkin.
+3. Faqat is_available=true (bo'sh) ustalar navbatga kiradi.
+4. Token yetmasa qabul qilib bo'lmaydi.
+5. 60s o'tib ketsa, kech qolgan accept 400 qaytaradi.
+6. Buyurtma ACTIVE holatda darhol yaratiladi — to'lov/tasdiqlash bosqichlarisiz.
+Bog'liq hujjatlar: express-service.md (REST/WS reference), express-websocket-flutter.md (Flutter integratsiya).
+=== express-websocket-flutter.pdf ===
+Tezkor xizmat WebSocket — Flutter integratsiya qo'llanmasi
+Flutter ilovasini tezkor xizmat (Express) real-time WebSocket'iga ulash bo'yicha to'liq qo'llanma. Backend funksiyasining umumiy tavsifi
+va REST API: express-service.md.
+Kutubxona: web_socket_channel (standart Dart/Flutter WS).
+1. Ulanish manzillari
+Kanal URL Token
+turi
+Usta (24/7 ulanib ws://3.64.241.75:8000/api/v1/ws/express/master?token=<master_access_token> master
+turadi)
+Mijoz (qidiruv ws://3.64.241.75:8000/api/v1/ws/express/client/{session_id}?token= client
+davomida) <client_access_token>
+Hozircha ws:// (TLS yo'q). Asosiy API to'g'ridan-to'g'ri :8000 portda ochiq.
+⚠ 4 ta muhim qoida
+1. WS yo'lida trailing slash YO'Q — /master ✅, /master/ ❌ (403). (REST'da aksincha — slash bor.)
+2. Token query parametrida ( ?token=.// ), header'da emas. (Bu web platformada ham ishlashi uchun.)
+3. Yaroqsiz/muddati o'tgan token = handshake xatosi (HTTP 403), oddiy close (1008) emas — channel.ready da ushlanadi.
+4. ws:// cleartext — Android/iOS'da ruxsat berilmasa release build ulanmaydi (3-bo'limga qarang).
+2. Kutubxona
+pubspec.yaml :
+dependencies:
+web_socket_channel: ^3.0.0 # channel.ready 2.4.0+ dan mavjud
+⚠
+3. Cleartext ( ws:// ) ga ruxsat — SHART
+ws:// (shifrlanmagan) ulanish Android 9+ (API 28+) va iOS'da default bloklangan. Quyidagini qo'shmasangiz, release build'da ulanish
+ishlamaydi.
+Android — android/app/src/main/res/xml/network_security_config.xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+<domain-config cleartextTrafficPermitted="true">
+<domain includeSubdomains="false">3.64.241.75</domain>
+</domain-config>
+</network-security-config>
+android/app/src/main/AndroidManifest.xml → <application> tegiga ulang:
+<application
+android:networkSecurityConfig="@xml/network_security_config"
+.// >
+Oddiyroq (lekin global, tavsiya etilmaydi): <application android:usesCleartextTraffic="true" .//> .
+iOS — ios/Runner/Info.plist
+<key>NSAppTransportSecurity</key>
+<dict>
+<key>NSExceptionDomains</key>
+<dict>
+<key>3.64.241.75</key>
+<dict>
+<key>NSExceptionAllowsInsecureHTTPLoads</key>
+<true//
+<key>NSIncludesSubdomains</key>
+<false//
+</dict>
+</dict>
+</dict>
+4. Usta kanali — to'liq servis (reconnect bilan)
+Usta ilovasi ochiq turganda doimiy ulanib turadi va express_request keladi.
+import 'dart:async';
+import 'dart:convert';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as ws_status;
+class ExpressMasterSocket {
+ExpressMasterSocket({required this.accessToken});
+static const _base = 'ws://3.64.241.75:8000/api/v1/ws/express';
+final String accessToken;
+WebSocketChannel? _channel;
+StreamSubscription? _sub;
+Timer? _reconnectTimer;
+int _retry = 0;
+bool _closedByUser = false;
+final _events = StreamController<Map<String, dynamic>/.broadcast();
+Stream<Map<String, dynamic>/ get events => _events.stream;
+Future<void> connect() async {
+_closedByUser = false;
+final uri = Uri.parse('$_base/master?token=$accessToken'); // SLASHSIZ!
+final channel = WebSocketChannel.connect(uri);
+_channel = channel;
+try {
+await channel.ready; // 403 (token) yoki tarmoq xatosi shu yerda otiladi
+_retry = 0;
+} catch (_) {
+_scheduleReconnect(); // token yangilash kerak bo'lishi mumkin
+return;
+}
+_sub = channel.stream.listen(
+(data) {
+try {
+_events.add(jsonDecode(data as String) as Map<String, dynamic>);
+} catch (_) {// notext frame'larni e'tiborsiz qoldir */}
+},
+onDone: _scheduleReconnect,
+onError: (_) => _scheduleReconnect(),
+cancelOnError: true,
+);
+}
+void _scheduleReconnect() {
+if (_closedByUser) return;
+_sub?/cancel();
+final secs = (1 </ _retry).clamp(1, 30); // 1,2,4,8,16,30s backoff
+_retry = (_retry + 1).clamp(0, 5);
+_reconnectTimer?/cancel();
+_reconnectTimer = Timer(Duration(seconds: secs), connect);
+}
+void dispose() {
+_closedByUser = true;
+_reconnectTimer?/cancel();
+_sub?/cancel();
+_channel?/sink.close(ws_status.normalClosure);
+_events.close();
+}
+}
+Ishlatish
+final socket = ExpressMasterSocket(accessToken: masterAccessToken);
+socket.events.listen((msg) {
+switch (msg['type']) {
+case 'status': // {"status":"connected"} — ulanish OK
+break;
+case 'express_request':
+final sessionId = msg['session_id'] as String;
+final category = msg['category_name'] as String;
+final distanceKm = double.parse(msg['distance_km'].toString()); // STRING -> double
+final clientLat = double.parse(msg['client_latitude'].toString()); // STRING -> double
+final clientLng = double.parse(msg['client_longitude'].toString()); // STRING -> double
+final expiresIn = (msg['expires_in'] as num).toInt(); // son (60)
+// -> So'rov ekranini ko'rsat, 60s sanagich ishga tushir
+break;
+}
+});
+await socket.connect();
+// logout / ekran yopilganda:
+socket.dispose();
+Usta so'rovni qabul/rad qiladi (REST orqali — WS emas!)
+// POST /api/v1/master/express/respond/ (REST, slash BILAN)
+await dio.post(
+'http://3.64.241.75:8000/api/v1/master/express/respond/',
+data: {'session_id': sessionId, 'action': 'accept'}, // yoki 'reject'
+options: Options(headers: {'Authorization': 'Bearer $masterAccessToken'}),
+);
+5. Mijoz kanali — to'liq servis
+Mijoz POST /search/ dan session_id olgach, WS'ga ulanadi va natijani kutadi.
+import 'dart:async';
+import 'dart:convert';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as ws_status;
+class ExpressClientSocket {
+ExpressClientSocket({required this.accessToken, required this.sessionId});
+static const _base = 'ws://3.64.241.75:8000/api/v1/ws/express';
+final String accessToken;
+final String sessionId;
+WebSocketChannel? _channel;
+StreamSubscription? _sub;
+final _events = StreamController<Map<String, dynamic>/.broadcast();
+Stream<Map<String, dynamic>/ get events => _events.stream;
+Future<void> connect() async {
+// SLASHSIZ. session_id yo'lda, token query'da.
+final uri = Uri.parse('$_base/client/$sessionId?token=$accessToken');
+final channel = WebSocketChannel.connect(uri);
+_channel = channel;
+await channel.ready; // 403 bo'lsa otiladi (token yoki begona session)
+_sub = channel.stream.listen(
+(data) {
+try {
+_events.add(jsonDecode(data as String) as Map<String, dynamic>);
+} catch (_) {}
+},
+onError: (_) {},
+onDone: () {},
+);
+}
+void dispose() {
+_sub?/cancel();
+_channel?/sink.close(ws_status.normalClosure);
+_events.close();
+}
+}
+Ishlatish (REST search → WS kutish)
+// 1) Qidiruvni boshla
+final res = await dio.post(
+'http://3.64.241.75:8000/api/v1/client/express/search/',
+data: {
+'category_id': categoryId,
+'province_id': provinceId,
+'latitude': 41.311081,
+'longitude': 69.279716,
+'payment_method': 'cash',
+},
+options: Options(headers: {'Authorization': 'Bearer $clientAccessToken'}),
+);
+final data = res.data['data']; // konvert ichidagi data
+final sessionId = data['session_id'] as String;
+if (data['status'] =/ 'exhausted') {
+// Usta topilmadi -> data['message'] ni ko'rsat
+return;
+}
+// 2) WS'ga ulan va natijani kut
+final socket = ExpressClientSocket(accessToken: clientAccessToken, sessionId: sessionId);
+socket.events.listen((msg) {
+switch (msg['type']) {
+case 'status': // {"status":"connected","search_status":"searching"}
+break;
+case 'search_status': // ulanishdan oldin hal bo'lgan bo'lsa
+break;
+case 'express_matched':
+final bookingId = msg['booking_id'] as String;
+final masterName = msg['master_name'] as String;
+final masterPhone = msg['master_phone'] as String;
+// -> "Usta topildi" ekrani. To'liq profil uchun status/ endpointini chaqir.
+socket.dispose();
+break;
+case 'express_no_masters':
+// -> "Usta topilmadi" ekrani
+socket.dispose();
+break;
+}
+});
+await socket.connect();
+// Mijoz bekor qilsa:
+// POST /api/v1/client/express/search/{sessionId}/cancel/ (REST)
+Zaxira (WS ulanmasa): GET /api/v1/client/express/search/{session_id}/status/ ni har 2–3 soniyada polling qiling —
+status matched / exhausted / canceled bo'lguncha.
+6. Keladigan hodisalar (qisqa jadval)
+Usta kanali: | type | Maydonlar | |--------|-----------| | status | status | | express_request | session_id , category_name ,
+distance_km , client_latitude , client_longitude *, expires_in |
+Mijoz kanali: | type | Maydonlar | |--------|-----------| | status | status , search_status | | search_status | session_id ,
+status | | express_matched | session_id , booking_id , master_id , master_name , master_phone | | express_no_masters |
+session_id |
+* distance_km , client_latitude , client_longitude — string sifatida keladi → double.parse(.//) .
+7. Tez-tez uchraydigan xatolar (FAQ)
+Muammo Sabab / Yechim
+WebSocketChannelException / 403 Token yaroqsiz/muddati o'tgan yoki URL'da trailing slash bor. Tokenni yangilang, slashni olib
+darhol tashlang.
+Release build'da ulanmaydi, debug'da ishlaydi Cleartext ruxsati yo'q (3-bo'lim). Android network_security_config / iOS ATS qo'shing.
+Bir necha daqiqadan keyin uziladi Mobil tarmoq/NAT bo'sh socketni uzadi — bu normal. onDone / onError da reconnect (4-bo'lim)
+shart.
+express_matched da to'liq usta profili Bu normal — WS faqat asosiy ma'lumot beradi. GET .///status/ dan master_info oling.
+yo'q
+distance_km da xato ( int / double ) U string keladi — double.parse(msg['distance_km'].toString()) .
+Usta accept qildi, lekin 400 60s o'tib ketgan (so'rov keyingi ustaga o'tgan) yoki token balansi yetarli emas.
+8. Eslatma: wss:// (kelajakda)
+Hozir token ws:// orqali ochiq URL'da (shifrlanmagan) ketadi. Productionda xavfsizlik uchun API'ni domen + TLS (nginx + Let's Encrypt)
+orqasiga qo'yib wss:// ga o'tish tavsiya etiladi. O'tilganda Flutter tomonda faqat _base ni
+wss://api.ustahub.net/api/v1/ws/express ga o'zgartirish va cleartext sozlamalarini olib tashlash kifoya — qolgan kod o'zgarmaydi. ```
+=== express-websocket-topshiriq.pdf ===
+Express WebSocket — Flutterchiga topshiriq
+Push (Firebase) allaqachon ishlayapti. Endi faqat WebSocket qo'shiladi — u push'ning real-time juftligi: ilova ochiq bo'lganda WS
+orqali darhol keladi, ilova fonda/yopiq bo'lganda eski push orqali keladi.
+Eng muhim yaxshilik: WS xabarlari push data bilan aynan bir xil formatда ( type maydoni bilan). Shuning uchun mavjud push
+handleringni qayta ishlatasan — WS'dan kelgan JSON'ni o'sha switch(type) ga uzatsang bo'ldi.
+1. Kutubxona
+web_socket_channel: ^3.0.0
+2. Ulanish manzillari
+Token = login'dan olingan o'sha access_token (REST'dagi Bearer bilan bir xil), faqat URL query'da uzatiladi (header emas):
+Usta (24/7 ulanib turadi):
+ws://3.64.241.75:8000/api/v1/ws/express/master?token=<access_token>
+Mijoz (qidiruv davomida):
+ws://3.64.241.75:8000/api/v1/ws/express/client/{session_id}?token=<access_token>
+⚠ URL oxirida / (slash) YO'Q — bo'lsa 403 qaytadi. (REST'da aksincha — slash bor.)
+3. Token
+WS uchun token = REST'dagi Bearer token bilan bir xil, faqat ?token= qilib uzatiladi.
+Token muddati tugasa WS handshake 403 beradi → refresh qilib qayta ulanasan ( channel.ready da ushlanadi).
+⚠
+4. Cleartext ruxsati — SHART (faqat WS uchun yangi)
+ws:// (TLS'siz) ulanish Android 9+ va iOS'da default bloklangan. Push'ga bu kerak emas edi, WS'ning yagona qo'shimcha sozlamasi shu.
+Bo'lmasa release build'da ulanmaydi.
+Android — android/app/src/main/res/xml/network_security_config.xml :
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+<domain-config cleartextTrafficPermitted="true">
+<domain includeSubdomains="false">3.64.241.75</domain>
+</domain-config>
+</network-security-config>
+AndroidManifest.xml → <application android:networkSecurityConfig="@xml/network_security_config" .//>
+iOS — ios/Runner/Info.plist :
+<key>NSAppTransportSecurity</key>
+<dict>
+<key>NSExceptionDomains</key>
+<dict>
+<key>3.64.241.75</key>
+<dict>
+<key>NSExceptionAllowsInsecureHTTPLoads</key><true//
+<key>NSIncludesSubdomains</key><false//
+</dict>
+</dict>
+</dict>
+5. Keladigan xabarlar — push bilan BIR XIL
+Usta kanali: express_request (yangi tezkor so'rov)
+Mijoz kanali: express_matched (usta topildi), express_no_masters (topilmadi)
+Ulanishda: {"type":"status","status":"connected"}
+WS'dan kelgan matnni jsonDecode qilib, mavjud push handleringдаги switch(msg['type']) ga yubor.
+Eslatma: express_request da distance_km , client_latitude , client_longitude — string bo'lib keladi (push'dagi kabi) →
+double.parse(.//) .
+6. Javob qaytarish — REST (o'zgarmagan)
+POST /api/v1/master/express/respond/
+{ "session_id": ".//", "action": "accept" } // yoki "reject"
+7. Ulanish hayotiy davri
+Usta: login'dan keyin WS ochiladi va doimiy ochiq turadi (uzilsa avto-reconnect — backoff bilan).
+Mijoz: POST /client/express/search/ chaqirib session_id olgach WS ochadi, natijani kutadi, natija kelgach yopadi. (WS
+ishlamasa zaxira: GET /client/express/search/{id}/status/ polling.)
+Sen uchun yangi bo'lgan narsa atigi 3 ta
+1. web_socket_channel paketi
+2. WS ulanish (URL + token query + reconnect) — tayyor Dart kodi express-websocket-flutter.pdf da
+3. Cleartext ruxsati ( ws:// uchun) — yuqorida
+Qolgani (token, push handler, REST respond ) senda allaqachon bor.
+To'liq Dart kod (master + client socket klasslari, reconnect bilan) va FAQ: express-websocket-flutter.pdf. Funksiya qanday ishlashi:
+express-service-batafsil.pdf.

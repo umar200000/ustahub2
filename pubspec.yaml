@@ -2,7 +2,7 @@ name: ustahub
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 0.0.1+4
+version: 0.0.1+5
 
 environment:
   sdk: ^3.10.3
@@ -37,6 +37,7 @@ dependencies:
   clarity_flutter: ^1.6.0
 
   firebase_core: ^4.3.0
+  firebase_remote_config: ^6.0.0
   sms_autofill: ^2.4.1
   flutter_bloc: ^9.1.1
   built_collection: ^5.1.1
@@ -84,6 +85,7 @@ dependencies:
   carousel_slider: ^5.1.2
   flutter_map: ^6.1.0
   latlong2: ^0.9.1
+  web_socket_channel: ^3.0.0
 
 dev_dependencies:
   flutter_test:

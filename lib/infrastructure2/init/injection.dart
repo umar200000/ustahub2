@@ -50,4 +50,5 @@ Future<void> init() async {
     ..registerLazySingleton<PaymentBloc>(() => PaymentBloc())
     ..registerLazySingleton<ReviewBloc>(() => ReviewBloc())
     ..registerLazySingleton<FavoriteBloc>(() => FavoriteBloc());
+  // ExpressClientBloc endi ExpressLandingPage ichida yaratiladi (singleton emas)
 }

@@ -15,6 +15,7 @@ import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.
 import 'package:ustahub/presentation/components/un_focus_widget.dart';
 import 'package:ustahub/presentation/routes/routes.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
+import 'package:ustahub/ubdate/ubdate_check_service.dart';
 import 'package:ustahub/utils/responsive.dart' show AdaptiveAppFrame;
 
 // Initialize Alice once and reuse
@@ -85,6 +86,9 @@ class MyApp extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               builder: (context, child) {
                 if (child == null) return const SizedBox.shrink();
+
+                // App ochilganda bir marta majburiy/ixtiyoriy yangilanishni tekshirish
+                UpdateCheckService.scheduleCheck(alice.getNavigatorKey());
 
                 // Apply text scaling for better readability
                 return MediaQuery(
