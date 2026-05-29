@@ -13,8 +13,15 @@ import 'package:ustahub/presentation/styles/style.dart';
 
 class ExpressSearchingPage extends StatefulWidget {
   final String categoryName;
+  final num? basePrice;
+  final num? maxPrice;
 
-  const ExpressSearchingPage({super.key, required this.categoryName});
+  const ExpressSearchingPage({
+    super.key,
+    required this.categoryName,
+    this.basePrice,
+    this.maxPrice,
+  });
 
   @override
   State<ExpressSearchingPage> createState() => _ExpressSearchingPageState();
@@ -184,6 +191,25 @@ class _ExpressSearchingPageState extends State<ExpressSearchingPage>
     _socket = null;
   }
 
+  String _formatPrice(num price) {
+    final str = price.toInt().toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) buf.write(' ');
+      buf.write(str[i]);
+    }
+    return buf.toString();
+  }
+
+  String _buildPriceText() {
+    final base = widget.basePrice!;
+    final max = widget.maxPrice;
+    if (max != null && max > base) {
+      return '${_formatPrice(base)} – ${_formatPrice(max)} ${'sum'.tr()}';
+    }
+    return '${_formatPrice(base)} ${'sum'.tr()}';
+  }
+
   @override
   void dispose() {
     _pulseController.dispose();
@@ -313,6 +339,31 @@ class _ExpressSearchingPageState extends State<ExpressSearchingPage>
                 fontWeight: FontWeight.w600,
               ),
             ),
+            if (widget.basePrice != null) ...[
+              SizedBox(height: 10.h),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.payments_rounded, color: Colors.white70, size: 16.sp),
+                    SizedBox(width: 6.w),
+                    Text(
+                      _buildPriceText(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             SizedBox(height: 12.h),
             Text(
               'express_searching_subtitle'.tr(),

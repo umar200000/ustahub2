@@ -115,6 +115,8 @@ class _ExpressLandingPageState extends State<ExpressLandingPage> {
           value: bloc,
           child: ExpressSearchingPage(
             categoryName: _selectedCategory!.name(context.locale.languageCode),
+            basePrice: _selectedCategory!.basePrice,
+            maxPrice: _selectedCategory!.maxPrice,
           ),
         ),
       ),
@@ -161,6 +163,10 @@ class _ExpressLandingPageState extends State<ExpressLandingPage> {
                       _buildDistrictSelector(),
                       SizedBox(height: 16.h),
                       _buildCategorySelector(),
+                      if (_selectedCategory?.basePrice != null) ...[
+                        SizedBox(height: 12.h),
+                        _buildPriceCard(_selectedCategory!),
+                      ],
                       SizedBox(height: 16.h),
                       _buildPaymentSelector(),
                     ],
@@ -756,6 +762,59 @@ class _ExpressLandingPageState extends State<ExpressLandingPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  String _formatPrice(num price) {
+    final str = price.toInt().toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) buf.write(' ');
+      buf.write(str[i]);
+    }
+    return buf.toString();
+  }
+
+  Widget _buildPriceCard(ExpressCategoryModel cat) {
+    final base = cat.basePrice!;
+    final hasRange = cat.maxPrice != null && cat.maxPrice! > base;
+    final priceText = hasRange
+        ? '${_formatPrice(base)} – ${_formatPrice(cat.maxPrice!)} ${'sum'.tr()}'
+        : '${_formatPrice(base)} ${'sum'.tr()}';
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: Style.primary500.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: Style.primary500.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.payments_rounded, color: Style.primary500, size: 20.sp),
+          SizedBox(width: 10.w),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'express_service_price'.tr(),
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: Style.primary500,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                priceText,
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  color: const Color(0xFF2A2B36),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

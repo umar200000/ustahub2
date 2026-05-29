@@ -99,7 +99,7 @@ class ExpressDistrictModel extends Equatable {
 }
 
 // GET /api/v1/client/express/categories/?province_id=...
-// {id, name_uz, name_ru, name_en, icon_url (optional), express_service_count}
+// {id, name_uz, name_ru, name_en, icon_url (optional), express_service_count, base_price, max_price}
 class ExpressCategoryModel extends Equatable {
   final String? id;
   final String? nameUz;
@@ -107,6 +107,8 @@ class ExpressCategoryModel extends Equatable {
   final String? nameEn;
   final String? iconUrl;
   final int? expressServiceCount;
+  final num? basePrice;
+  final num? maxPrice;
 
   const ExpressCategoryModel({
     this.id,
@@ -115,6 +117,8 @@ class ExpressCategoryModel extends Equatable {
     this.nameEn,
     this.iconUrl,
     this.expressServiceCount,
+    this.basePrice,
+    this.maxPrice,
   });
 
   factory ExpressCategoryModel.fromJson(Map<String, dynamic> json) {
@@ -127,6 +131,12 @@ class ExpressCategoryModel extends Equatable {
       expressServiceCount: json['express_service_count'] is num
           ? (json['express_service_count'] as num).toInt()
           : null,
+      basePrice: json['base_price'] is num
+          ? json['base_price'] as num
+          : num.tryParse(json['base_price']?.toString() ?? ''),
+      maxPrice: json['max_price'] is num
+          ? json['max_price'] as num
+          : num.tryParse(json['max_price']?.toString() ?? ''),
     );
   }
 
@@ -143,7 +153,7 @@ class ExpressCategoryModel extends Equatable {
 
   @override
   List<Object?> get props =>
-      [id, nameUz, nameRu, nameEn, iconUrl, expressServiceCount];
+      [id, nameUz, nameRu, nameEn, iconUrl, expressServiceCount, basePrice, maxPrice];
 }
 
 // POST /api/v1/client/express/search/  → javob
@@ -152,12 +162,16 @@ class ExpressSessionModel extends Equatable {
   final String? status;
   final int? totalMasters;
   final String? message;
+  final num? basePrice;
+  final num? maxPrice;
 
   const ExpressSessionModel({
     this.sessionId,
     this.status,
     this.totalMasters,
     this.message,
+    this.basePrice,
+    this.maxPrice,
   });
 
   factory ExpressSessionModel.fromJson(Map<String, dynamic> json) {
@@ -168,13 +182,19 @@ class ExpressSessionModel extends Equatable {
           ? (json['total_masters'] as num).toInt()
           : null,
       message: json['message'],
+      basePrice: json['base_price'] is num
+          ? json['base_price'] as num
+          : num.tryParse(json['base_price']?.toString() ?? ''),
+      maxPrice: json['max_price'] is num
+          ? json['max_price'] as num
+          : num.tryParse(json['max_price']?.toString() ?? ''),
     );
   }
 
   bool get isExhausted => status == 'exhausted';
 
   @override
-  List<Object?> get props => [sessionId, status, totalMasters, message];
+  List<Object?> get props => [sessionId, status, totalMasters, message, basePrice, maxPrice];
 }
 
 // WS: express_matched
@@ -225,13 +245,23 @@ class ExpressStatusModel extends Equatable {
   });
 
   factory ExpressStatusModel.fromJson(Map<String, dynamic> json) {
-    final data = json['data'] is Map ? json['data'] : json;
+    final data = json['data'] is Map
+        ? Map<String, dynamic>.from(json['data'] as Map)
+        : json;
+    // Backend returns nested master_info when status == 'matched'
+    final masterInfoRaw = data['master_info'];
+    final masterInfo = masterInfoRaw is Map
+        ? Map<String, dynamic>.from(masterInfoRaw as Map)
+        : null;
+    final firstName = masterInfo?['first_name']?.toString() ?? '';
+    final lastName = masterInfo?['last_name']?.toString() ?? '';
+    final masterNameStr = '$firstName $lastName'.trim();
     return ExpressStatusModel(
       sessionId: data['session_id']?.toString(),
-      status: data['status'],
+      status: data['status']?.toString(),
       bookingId: data['booking_id']?.toString(),
-      masterName: data['master_name'],
-      masterPhone: data['master_phone'],
+      masterName: masterNameStr.isEmpty ? null : masterNameStr,
+      masterPhone: masterInfo?['phone']?.toString(),
     );
   }
 

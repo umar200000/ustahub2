@@ -774,5 +774,6 @@
   "express_no_masters_subtitle": "К сожалению, рядом нет свободных мастеров. Попробуйте позже.",
   "express_try_again": "Попробовать снова",
   "express_back_home": "На главную",
-  "express_back": "Назад"
+  "express_back": "Назад",
+  "express_service_price": "Стоимость услуги"
 }

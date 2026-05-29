@@ -751,5 +751,6 @@
   "express_no_masters_subtitle": "Afsuski, hozirda yaqin atrofda bo'sh usta yo'q. Keyinroq qayta urinib ko'ring.",
   "express_try_again": "Qayta urinish",
   "express_back_home": "Bosh sahifaga qaytish",
-  "express_back": "Orqaga"
+  "express_back": "Orqaga",
+  "express_service_price": "Xizmat narxi"
 }

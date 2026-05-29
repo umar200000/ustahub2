@@ -426,5 +426,6 @@
   "express_no_masters_subtitle": "Unfortunately, there are no available masters nearby. Please try again later.",
   "express_try_again": "Try Again",
   "express_back_home": "Back to Home",
-  "express_back": "Back"
+  "express_back": "Back",
+  "express_service_price": "Service price"
 }
