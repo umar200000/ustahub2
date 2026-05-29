@@ -109,7 +109,10 @@ class ExpressClientBloc extends Bloc<ExpressClientEvent, ExpressClientState> {
   ) async {
     emit(state.copyWith(status: ExpressSearchStatus.loadingCategories, clearError: true));
     try {
-      final res = await _repo.getCategories(provinceId: event.provinceId);
+      final res = await _repo.getCategories(
+        provinceId: event.provinceId,
+        districtId: event.districtId,
+      );
       final list = _dataList(res.data)
           .map((e) => ExpressCategoryModel.fromJson(e))
           .toList();
@@ -272,14 +275,25 @@ class ExpressClientBloc extends Bloc<ExpressClientEvent, ExpressClientState> {
       switch (statusVal) {
         case 'matched':
           final bookingId = inner['booking_id']?.toString();
-          debugPrint('[Express] 🎉 MATCHED! bookingId=$bookingId');
+          // Backend returns nested: {"master_info": {"first_name":..., "last_name":..., "phone":...}}
+          final masterInfoRaw = inner['master_info'];
+          final masterInfo = masterInfoRaw is Map
+              ? Map<String, dynamic>.from(masterInfoRaw as Map)
+              : null;
+          final firstName = masterInfo?['first_name']?.toString() ?? '';
+          final lastName = masterInfo?['last_name']?.toString() ?? '';
+          final masterNameStr = '$firstName $lastName'.trim();
+          debugPrint(
+            '[Express] 🎉 MATCHED! bookingId=$bookingId '
+            'master=$masterNameStr',
+          );
           emit(state.copyWith(
             status: ExpressSearchStatus.matched,
             matched: ExpressMatchedModel(
               sessionId: inner['session_id']?.toString(),
               bookingId: bookingId,
-              masterName: inner['master_name']?.toString(),
-              masterPhone: inner['master_phone']?.toString(),
+              masterName: masterNameStr.isEmpty ? null : masterNameStr,
+              masterPhone: masterInfo?['phone']?.toString(),
             ),
           ));
           break;

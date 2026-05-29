@@ -22,9 +22,13 @@ class LoadExpressDistrictsEvent extends ExpressClientEvent {
 
 class GetExpressCategoriesEvent extends ExpressClientEvent {
   final String provinceId;
-  const GetExpressCategoriesEvent({required this.provinceId});
+  final String districtId;
+  const GetExpressCategoriesEvent({
+    required this.provinceId,
+    required this.districtId,
+  });
   @override
-  List<Object?> get props => [provinceId];
+  List<Object?> get props => [provinceId, districtId];
 }
 
 class StartExpressSearchEvent extends ExpressClientEvent {

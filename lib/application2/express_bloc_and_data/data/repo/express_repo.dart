@@ -27,11 +27,17 @@ class ClientExpressRepo {
     );
   }
 
-  // GET /api/v1/client/express/categories/?province_id=...
-  Future<Response> getCategories({required String provinceId}) {
+  // GET /api/v1/client/express/categories/?province_id=...&district_id=...
+  Future<Response> getCategories({
+    required String provinceId,
+    required String districtId,
+  }) {
     return _dio.get(
       'api/v1/client/express/categories/',
-      queryParameters: {'province_id': provinceId},
+      queryParameters: {
+        'province_id': provinceId,
+        'district_id': districtId,
+      },
     );
   }
 

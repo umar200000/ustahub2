@@ -86,7 +86,6 @@ class _ExpressLandingPageState extends State<ExpressLandingPage> {
     });
     if (province?.id != null) {
       _bloc.add(LoadExpressDistrictsEvent(provinceId: province!.id!));
-      _bloc.add(GetExpressCategoriesEvent(provinceId: province.id!));
     }
   }
 
@@ -327,8 +326,19 @@ class _ExpressLandingPageState extends State<ExpressLandingPage> {
           .map((d) => _SelectorItem(id: d.id, label: d.name(lang), model: d))
           .toList(),
       loadingBuilder: (state) => state.districtsLoading,
-      onSelected: (item) =>
-          setState(() => _selectedDistrict = item.model as ExpressDistrictModel),
+      onSelected: (item) {
+        final district = item.model as ExpressDistrictModel;
+        setState(() {
+          _selectedDistrict = district;
+          _selectedCategory = null;
+        });
+        if (_selectedProvince?.id != null && district.id != null) {
+          _bloc.add(GetExpressCategoriesEvent(
+            provinceId: _selectedProvince!.id!,
+            districtId: district.id!,
+          ));
+        }
+      },
     );
   }
 
