@@ -754,5 +754,7 @@
   "express_back": "Orqaga",
   "express_service_price": "Xizmat narxi",
   "express_remote_label": "Masofaviy",
-  "express_remote_note": "Masofaviy xizmat — usta sizning manzilingizga kelmaydi, aloqa orqali yordam beradi"
+  "express_remote_note": "Masofaviy xizmat — usta sizning manzilingizga kelmaydi, aloqa orqali yordam beradi",
+  "quick_book_success_title": "Buyurtma qabul qilindi!",
+  "quick_book_success_desc": "Usta tez orada siz bilan bog'lanadi.\nMasofaviy xizmat — uchrashuvga borish shart emas."
 }

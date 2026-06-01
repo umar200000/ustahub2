@@ -15,6 +15,7 @@ import 'package:ustahub/presentation/pages/reviews/reviews_page.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
+import '../../../application2/booking_bloc_and_data/data/repo/booking_repo.dart';
 import '../../../application2/details_service/data/model/details_model.dart';
 import '../company_details_page/pages/company_details_page.dart';
 
@@ -33,6 +34,9 @@ class _DetailsPageState extends State<DetailsPage>
   int _currentImageIndex = 0;
   bool _isDescriptionExpanded = false;
   int _currentTabIndex = 0;
+
+  // request_based (masofaviy) tezkor buyurtma uchun
+  bool _quickBookingLoading = false;
 
   @override
   void initState() {
@@ -53,6 +57,49 @@ class _DetailsPageState extends State<DetailsPage>
     _tabController.dispose();
     _imagePageController.dispose();
     super.dispose();
+  }
+
+  /// request_based xizmat uchun bir marta bosilganda to'g'ridan-to'g'ri booking yaratadi
+  Future<void> _quickBook(String serviceId) async {
+    if (_quickBookingLoading) return;
+    setState(() => _quickBookingLoading = true);
+    try {
+      final repo = BookingRepo();
+      final res = await repo.quickBooking(serviceId: serviceId);
+      final body = res.data;
+      final success = body is Map && (body['success'] == true);
+      if (!mounted) return;
+      if (success) {
+        _showQuickBookSuccess();
+      } else {
+        final msg = body is Map ? body['message']?.toString() : null;
+        _showQuickBookError(msg ?? 'express_error'.tr());
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _showQuickBookError('express_error'.tr());
+    } finally {
+      if (mounted) setState(() => _quickBookingLoading = false);
+    }
+  }
+
+  void _showQuickBookSuccess() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _QuickBookSuccessSheet(),
+    );
+  }
+
+  void _showQuickBookError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _openFullScreenImage(List<dynamic> images, int initialIndex) {
@@ -1149,19 +1196,25 @@ class _DetailsPageState extends State<DetailsPage>
           ElevatedButton(
             onPressed: () {
               final registerState = context.read<RegisterBloc>().state;
-              if (registerState.userProfile != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BookingPage(service: data),
-                  ),
-                );
-              } else {
+              if (registerState.userProfile == null) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
                         const AuthOptions(showGuestOption: false),
+                  ),
+                );
+                return;
+              }
+              // request_based → to'g'ridan-to'g'ri booking (form yo'q)
+              final isRemote = data.category?.isRemote ?? false;
+              if (isRemote) {
+                _quickBook(data.id ?? '');
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookingPage(service: data),
                   ),
                 );
               }
@@ -1177,7 +1230,16 @@ class _DetailsPageState extends State<DetailsPage>
               elevation: 0,
               shadowColor: Colors.transparent,
             ),
-            child: Row(
+            child: _quickBookingLoading
+                ? SizedBox(
+                    width: 20.w,
+                    height: 20.w,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.shade0,
+                    ),
+                  )
+                : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
@@ -1382,6 +1444,94 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// request_based xizmat uchun muvaffaqiyatli booking bottom sheet
+class _QuickBookSuccessSheet extends StatelessWidget {
+  const _QuickBookSuccessSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 40.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // drag handle
+          Container(
+            width: 40.w,
+            height: 4.h,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE0E0E0),
+              borderRadius: BorderRadius.circular(100),
+            ),
+          ),
+          SizedBox(height: 28.h),
+          // success icon
+          Container(
+            width: 72.w,
+            height: 72.w,
+            decoration: BoxDecoration(
+              color: const Color(0xFF4CAF50).withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.check_circle_rounded,
+              color: const Color(0xFF4CAF50),
+              size: 40.sp,
+            ),
+          ),
+          SizedBox(height: 20.h),
+          Text(
+            "quick_book_success_title".tr(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1A1A2E),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            "quick_book_success_desc".tr(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: const Color(0xFF757575),
+              height: 1.5,
+            ),
+          ),
+          SizedBox(height: 28.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6C63FF),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 14.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                "ok".tr(),
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

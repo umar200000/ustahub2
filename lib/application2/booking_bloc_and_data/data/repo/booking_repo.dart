@@ -70,4 +70,24 @@ class BookingRepo {
     );
     return response;
   }
+
+  /// request_based (masofaviy) xizmat uchun — vaqt/joy/to'lov so'ralmaydi.
+  /// Bugungi sana va joriy vaqt avtomatik qo'yiladi.
+  Future<Response> quickBooking({required String serviceId}) async {
+    final now = DateTime.now();
+    final date =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final time =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:00';
+    final response = await _dio.post(
+      "api/v1/client/bookings/",
+      data: {
+        "service_id": serviceId,
+        "scheduled_date": date,
+        "scheduled_time_start": time,
+        "payment_method": "cash",
+      },
+    );
+    return response;
+  }
 }

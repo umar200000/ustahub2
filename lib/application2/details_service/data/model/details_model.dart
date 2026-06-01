@@ -117,8 +117,12 @@ class ServiceCategory {
   final String? name;
   final String? iconUrl;
   final String? parentId;
+  /// 'on_site' | 'request_based'
+  final String? categoryType;
 
-  ServiceCategory({this.id, this.name, this.iconUrl, this.parentId});
+  ServiceCategory({this.id, this.name, this.iconUrl, this.parentId, this.categoryType});
+
+  bool get isRemote => categoryType == 'request_based';
 
   factory ServiceCategory.fromJson(Map<String, dynamic> json) =>
       ServiceCategory(
@@ -126,6 +130,7 @@ class ServiceCategory {
         name: json["name"],
         iconUrl: json["icon_url"],
         parentId: json["parent_id"],
+        categoryType: json["category_type"]?.toString(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -133,6 +138,7 @@ class ServiceCategory {
     "name": name,
     "icon_url": iconUrl,
     "parent_id": parentId,
+    "category_type": categoryType,
   };
 }
 
