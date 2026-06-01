@@ -99,7 +99,7 @@ class ExpressDistrictModel extends Equatable {
 }
 
 // GET /api/v1/client/express/categories/?province_id=...
-// {id, name_uz, name_ru, name_en, icon_url (optional), express_service_count, base_price, max_price}
+// {id, name_uz, name_ru, name_en, icon_url, express_service_count, base_price, max_price, category_type}
 class ExpressCategoryModel extends Equatable {
   final String? id;
   final String? nameUz;
@@ -109,6 +109,8 @@ class ExpressCategoryModel extends Equatable {
   final int? expressServiceCount;
   final num? basePrice;
   final num? maxPrice;
+  /// 'on_site' | 'request_based'
+  final String? categoryType;
 
   const ExpressCategoryModel({
     this.id,
@@ -119,7 +121,11 @@ class ExpressCategoryModel extends Equatable {
     this.expressServiceCount,
     this.basePrice,
     this.maxPrice,
+    this.categoryType,
   });
+
+  /// Masofaviy xizmat — usta mijoz manziliga bormaydi
+  bool get isRemote => categoryType == 'request_based';
 
   factory ExpressCategoryModel.fromJson(Map<String, dynamic> json) {
     return ExpressCategoryModel(
@@ -137,6 +143,7 @@ class ExpressCategoryModel extends Equatable {
       maxPrice: json['max_price'] is num
           ? json['max_price'] as num
           : num.tryParse(json['max_price']?.toString() ?? ''),
+      categoryType: json['category_type']?.toString(),
     );
   }
 
@@ -153,7 +160,7 @@ class ExpressCategoryModel extends Equatable {
 
   @override
   List<Object?> get props =>
-      [id, nameUz, nameRu, nameEn, iconUrl, expressServiceCount, basePrice, maxPrice];
+      [id, nameUz, nameRu, nameEn, iconUrl, expressServiceCount, basePrice, maxPrice, categoryType];
 }
 
 // POST /api/v1/client/express/search/  → javob

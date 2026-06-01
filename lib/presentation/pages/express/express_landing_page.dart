@@ -622,63 +622,94 @@ class _ExpressLandingPageState extends State<ExpressLandingPage> {
                 runSpacing: 8.h,
                 children: categories.map((cat) {
                   final isSelected = _selectedCategory?.id == cat.id;
+                  final isRemote = cat.isRemote;
+                  final remoteColor = const Color(0xFF6C63FF);
+                  final activeBg = isRemote ? remoteColor : Style.primary500;
                   return GestureDetector(
                     onTap: () => setState(() => _selectedCategory = cat),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: EdgeInsets.symmetric(
                         horizontal: 14.w,
-                        vertical: 10.h,
+                        vertical: 8.h,
                       ),
                       decoration: BoxDecoration(
-                        color: isSelected
-                            ? Style.primary500
-                            : Colors.white,
+                        color: isSelected ? activeBg : Colors.white,
                         borderRadius: BorderRadius.circular(12.r),
                         border: Border.all(
                           color: isSelected
-                              ? Style.primary500
-                              : const Color(0xFFEAEAEA),
+                              ? activeBg
+                              : isRemote
+                                  ? remoteColor.withValues(alpha: 0.35)
+                                  : const Color(0xFFEAEAEA),
                         ),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: Style.primary500.withValues(alpha: 0.25),
+                                  color: activeBg.withValues(alpha: 0.25),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
                               ]
                             : null,
                       ),
-                      child: Row(
+                      child: Column(
                         mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (cat.iconUrl != null &&
-                              cat.iconUrl!.isNotEmpty) ...[
-                            CachedNetworkImage(
-                              imageUrl: cat.iconUrl!,
-                              width: 18.w,
-                              height: 18.w,
-                              fit: BoxFit.contain,
-                              placeholder: (_, _) =>
-                                  SizedBox(width: 18.w, height: 18.w),
-                              errorWidget: (_, _, _) =>
-                                  const SizedBox.shrink(),
-                            ),
-                            SizedBox(width: 6.w),
-                          ],
-                          Text(
-                            cat.name(lang),
-                            style: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : const Color(0xFF2A2B36),
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              fontSize: 13.sp,
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (cat.iconUrl != null &&
+                                  cat.iconUrl!.isNotEmpty) ...[
+                                CachedNetworkImage(
+                                  imageUrl: cat.iconUrl!,
+                                  width: 18.w,
+                                  height: 18.w,
+                                  fit: BoxFit.contain,
+                                  placeholder: (_, _) =>
+                                      SizedBox(width: 18.w, height: 18.w),
+                                  errorWidget: (_, _, _) =>
+                                      const SizedBox.shrink(),
+                                ),
+                                SizedBox(width: 6.w),
+                              ] else if (isRemote) ...[
+                                Icon(
+                                  Icons.wifi_rounded,
+                                  size: 15.sp,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : remoteColor,
+                                ),
+                                SizedBox(width: 5.w),
+                              ],
+                              Text(
+                                cat.name(lang),
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : const Color(0xFF2A2B36),
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  fontSize: 13.sp,
+                                ),
+                              ),
+                            ],
                           ),
+                          if (isRemote) ...[
+                            SizedBox(height: 2.h),
+                            Text(
+                              'express_remote_label'.tr(),
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: isSelected
+                                    ? Colors.white.withValues(alpha: 0.8)
+                                    : remoteColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -782,40 +813,77 @@ class _ExpressLandingPageState extends State<ExpressLandingPage> {
     final priceText = hasRange
         ? '${_formatPrice(base)} – ${_formatPrice(cat.maxPrice!)} ${'sum'.tr()}'
         : '${_formatPrice(base)} ${'sum'.tr()}';
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: Style.primary500.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: Style.primary500.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.payments_rounded, color: Style.primary500, size: 20.sp),
-          SizedBox(width: 10.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final isRemote = cat.isRemote;
+    final accentColor = isRemote ? const Color(0xFF6C63FF) : Style.primary500;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          decoration: BoxDecoration(
+            color: accentColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(14.r),
+            border: Border.all(color: accentColor.withValues(alpha: 0.25)),
+          ),
+          child: Row(
             children: [
-              Text(
-                'express_service_price'.tr(),
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  color: Style.primary500,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                priceText,
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  color: const Color(0xFF2A2B36),
-                  fontWeight: FontWeight.w700,
-                ),
+              Icon(Icons.payments_rounded, color: accentColor, size: 20.sp),
+              SizedBox(width: 10.w),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'express_service_price'.tr(),
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: accentColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    priceText,
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      color: const Color(0xFF2A2B36),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
+        ),
+        if (isRemote) ...[
+          SizedBox(height: 6.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6C63FF).withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(
+                  color: const Color(0xFF6C63FF).withValues(alpha: 0.2)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.wifi_rounded,
+                    size: 16.sp, color: const Color(0xFF6C63FF)),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    'express_remote_note'.tr(),
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF6C63FF),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
-      ),
+      ],
     );
   }
 

@@ -775,5 +775,7 @@
   "express_try_again": "Попробовать снова",
   "express_back_home": "На главную",
   "express_back": "Назад",
-  "express_service_price": "Стоимость услуги"
+  "express_service_price": "Стоимость услуги",
+  "express_remote_label": "Удалённо",
+  "express_remote_note": "Дистанционная услуга — мастер не приедет, помощь оказывается онлайн"
 }

@@ -752,5 +752,7 @@
   "express_try_again": "Qayta urinish",
   "express_back_home": "Bosh sahifaga qaytish",
   "express_back": "Orqaga",
-  "express_service_price": "Xizmat narxi"
+  "express_service_price": "Xizmat narxi",
+  "express_remote_label": "Masofaviy",
+  "express_remote_note": "Masofaviy xizmat — usta sizning manzilingizga kelmaydi, aloqa orqali yordam beradi"
 }
