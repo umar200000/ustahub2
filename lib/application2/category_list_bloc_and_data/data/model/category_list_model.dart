@@ -42,6 +42,10 @@ class CategoryListItem {
   final String? categoryNameUz;
   final String? currencyCode;
   final String? currencySymbol;
+  /// 'on_site' | 'request_based'
+  final String? categoryType;
+
+  bool get isRemote => categoryType == 'request_based';
 
   CategoryListItem({
     this.id,
@@ -57,6 +61,7 @@ class CategoryListItem {
     this.categoryNameUz,
     this.currencyCode,
     this.currencySymbol,
+    this.categoryType,
   });
 
   factory CategoryListItem.fromJson(Map<String, dynamic> json) =>
@@ -74,6 +79,7 @@ class CategoryListItem {
         categoryNameUz: json["category_name_uz"],
         currencyCode: json["currency_code"],
         currencySymbol: json["currency_symbol"],
+        categoryType: json["category_type"]?.toString(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -90,5 +96,6 @@ class CategoryListItem {
     "category_name_uz": categoryNameUz,
     "currency_code": currencyCode,
     "currency_symbol": currencySymbol,
+    "category_type": categoryType,
   };
 }
