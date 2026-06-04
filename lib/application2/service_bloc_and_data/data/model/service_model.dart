@@ -73,6 +73,10 @@ class ServicesModel {
   final String? provinceName;
   final String? providerName;
   final bool? isFavorite;
+  /// 'on_site' | 'request_based'
+  final String? categoryType;
+
+  bool get isRemote => categoryType == 'request_based';
 
   ServicesModel({
     this.providerName,
@@ -94,6 +98,7 @@ class ServicesModel {
     this.currencySymbol,
     this.provinceName,
     this.isFavorite,
+    this.categoryType,
   });
 
   factory ServicesModel.fromJson(Map<String, dynamic> json) => ServicesModel(
@@ -118,6 +123,7 @@ class ServicesModel {
     provinceName: json["province_name"],
     providerName: json["provider_name"],
     isFavorite: _parseBool(json["is_favorite"]),
+    categoryType: json["category_type"]?.toString(),
   );
 
   Map<String, dynamic> toJson() => {

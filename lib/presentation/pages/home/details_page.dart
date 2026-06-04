@@ -822,11 +822,45 @@ class _DetailsPageState extends State<DetailsPage>
                         ),
                       ),
                       Gap(4.h),
-                      Text(
-                        categoryName,
-                        style: fonts.paragraphP3Regular.copyWith(
-                          color: colors.neutral500,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            categoryName,
+                            style: fonts.paragraphP3Regular.copyWith(
+                              color: colors.neutral500,
+                            ),
+                          ),
+                          if (data.category?.isRemote == true) ...[
+                            SizedBox(width: 6.w),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 7.w, vertical: 2.h),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6C63FF)
+                                    .withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6.r),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.wifi_rounded,
+                                      size: 11.sp,
+                                      color: const Color(0xFF6C63FF)),
+                                  SizedBox(width: 3.w),
+                                  Text(
+                                    'express_remote_label'.tr(),
+                                    style: TextStyle(
+                                      fontSize: 10.sp,
+                                      color: const Color(0xFF6C63FF),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),

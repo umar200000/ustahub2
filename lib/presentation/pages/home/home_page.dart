@@ -245,6 +245,7 @@ class _HomePageState extends State<HomePage> {
                                           mainImageUrl:
                                               service.primaryImageUrl,
                                           isFavorite: isFav,
+                                          isRemote: service.isRemote,
                                           onFavorite: () {
                                             context.read<ServiceBloc>().add(
                                                   UpdateServiceFavoriteEvent(

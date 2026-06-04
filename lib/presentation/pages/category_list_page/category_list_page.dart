@@ -130,6 +130,7 @@ class CategoryListPage extends StatelessWidget {
                               rating: 4.5,
                               reviewCount: 120,
                               duration: "30 min",
+                              isRemote: service.isRemote,
                             );
                           },
                         ),

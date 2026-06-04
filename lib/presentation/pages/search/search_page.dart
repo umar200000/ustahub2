@@ -361,6 +361,7 @@ class _SearchPageState extends State<SearchPage> {
           isFavorite: false,
           onFavorite: () {},
           provinceName: item.provinceName,
+          isRemote: item.isRemote,
         );
       },
     );

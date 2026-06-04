@@ -23,6 +23,8 @@ class ServiceProviderCard extends StatelessWidget {
   final VoidCallback? onFavorite;
   final bool isFavorite;
   final String? provinceName;
+  /// true → request_based (masofaviy xizmat)
+  final bool isRemote;
 
   const ServiceProviderCard({
     super.key,
@@ -40,6 +42,7 @@ class ServiceProviderCard extends StatelessWidget {
     this.onFavorite,
     this.isFavorite = false,
     this.provinceName,
+    this.isRemote = false,
   });
 
   @override
@@ -127,32 +130,65 @@ class ServiceProviderCard extends StatelessWidget {
               ),
             ),
           ),
-          if (provinceName != null && provinceName!.isNotEmpty)
-            Positioned(
-              top: 12.h,
-              left: 12.w,
-              child: _glassChip(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.location_on_rounded,
-                      size: 14,
-                      color: Colors.white,
+          Positioned(
+            top: 12.h,
+            left: 12.w,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (provinceName != null && provinceName!.isNotEmpty)
+                  _glassChip(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.location_on_rounded,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          provinceName!,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      provinceName!,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  ),
+                if (isRemote) ...[
+                  if (provinceName != null && provinceName!.isNotEmpty)
+                    SizedBox(width: 6.w),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C63FF).withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(20.r),
                     ),
-                  ],
-                ),
-              ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.wifi_rounded,
+                            size: 13.sp, color: Colors.white),
+                        SizedBox(width: 4.w),
+                        Text(
+                          'express_remote_label'.tr(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
             ),
+          ),
           Positioned(
             top: 10.h,
             right: 10.w,
@@ -252,36 +288,43 @@ class ServiceProviderCard extends StatelessWidget {
   }
 
   Widget _buildCategoryPill(dynamic colors) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      decoration: BoxDecoration(
-        color: colors.blue500.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.work_outline_rounded,
-            size: 13.sp,
-            color: colors.blue500,
+    final Color pillColor =
+        isRemote ? const Color(0xFF6C63FF) : colors.blue500;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+          decoration: BoxDecoration(
+            color: pillColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(8.r),
           ),
-          SizedBox(width: 5.w),
-          Flexible(
-            child: Text(
-              profession,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-                color: colors.blue500,
-                letterSpacing: 0.2,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isRemote ? Icons.wifi_rounded : Icons.work_outline_rounded,
+                size: 13.sp,
+                color: pillColor,
               ),
-            ),
+              SizedBox(width: 5.w),
+              Flexible(
+                child: Text(
+                  profession,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: pillColor,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
