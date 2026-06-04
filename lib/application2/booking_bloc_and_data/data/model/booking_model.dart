@@ -106,6 +106,10 @@ class BookingData {
   final dynamic canceledAt;
   final String? createdAt;
   final String? updatedAt;
+  /// 'on_site' | 'request_based'
+  final String? categoryType;
+
+  bool get isRemote => categoryType == 'request_based';
 
   BookingData({
     this.id,
@@ -147,6 +151,7 @@ class BookingData {
     this.canceledAt,
     this.createdAt,
     this.updatedAt,
+    this.categoryType,
   });
 
   factory BookingData.fromJson(Map<String, dynamic> json) => BookingData(
@@ -191,6 +196,7 @@ class BookingData {
     canceledAt: json["canceled_at"],
     createdAt: json["created_at"],
     updatedAt: json["updated_at"],
+    categoryType: json["category_type"]?.toString(),
   );
 
   Map<String, dynamic> toJson() => {

@@ -748,8 +748,49 @@ class _OrdersPageState extends State<OrdersPage> {
                             ),
                           if (data.master != null) Gap(16.h),
 
-                          // Confirm Arrival Button (only for 'active' status)
-                          if (data.status?.toLowerCase() == 'active')
+                          // request_based active → masofaviy banner
+                          if (data.isRemote &&
+                              ['active', 'in_progress', 'pending'].contains(
+                                data.status?.toLowerCase()))
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              child: Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16.w, vertical: 12.h),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF6C63FF)
+                                      .withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                  border: Border.all(
+                                    color: const Color(0xFF6C63FF)
+                                        .withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.wifi_rounded,
+                                        size: 18.sp,
+                                        color: const Color(0xFF6C63FF)),
+                                    SizedBox(width: 10.w),
+                                    Expanded(
+                                      child: Text(
+                                        'express_remote_note'.tr(),
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          color: const Color(0xFF6C63FF),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                          // Confirm Arrival Button (only for 'active' on_site)
+                          if (data.status?.toLowerCase() == 'active' &&
+                              !data.isRemote)
                             Padding(
                               padding: EdgeInsets.only(bottom: 16.h),
                               child: SizedBox(
@@ -1100,37 +1141,38 @@ class _OrdersPageState extends State<OrdersPage> {
                           ),
                           Gap(16.h),
 
-                          // Price Info
-                          _buildSectionCard(
-                            colors,
-                            title: "payment_details".tr(),
-                            child: Column(
-                              children: [
-                                _buildPriceRow(
-                                  "service_fee".tr(),
-                                  "${data.basePrice} ${"uzs".tr()}",
-                                  fonts,
-                                  colors,
-                                ),
-                                _buildPriceRow(
-                                  "payment_method".tr(),
-                                  data.paymentMethod == "card"
-                                      ? "card".tr()
-                                      : "cash".tr(),
-                                  fonts,
-                                  colors,
-                                ),
-                                const Divider(),
-                                _buildPriceRow(
-                                  "total_price".tr(),
-                                  "${data.totalPrice} ${"uzs".tr()}",
-                                  fonts,
-                                  colors,
-                                  isTotal: true,
-                                ),
-                              ],
+                          // Price Info — request_based uchun ko'rsatilmaydi
+                          if (!data.isRemote)
+                            _buildSectionCard(
+                              colors,
+                              title: "payment_details".tr(),
+                              child: Column(
+                                children: [
+                                  _buildPriceRow(
+                                    "service_fee".tr(),
+                                    "${data.basePrice} ${"uzs".tr()}",
+                                    fonts,
+                                    colors,
+                                  ),
+                                  _buildPriceRow(
+                                    "payment_method".tr(),
+                                    data.paymentMethod == "card"
+                                        ? "card".tr()
+                                        : "cash".tr(),
+                                    fonts,
+                                    colors,
+                                  ),
+                                  const Divider(),
+                                  _buildPriceRow(
+                                    "total_price".tr(),
+                                    "${data.totalPrice} ${"uzs".tr()}",
+                                    fonts,
+                                    colors,
+                                    isTotal: true,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
                           Gap(16.h),
 
                           // User Comment
