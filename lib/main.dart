@@ -27,6 +27,8 @@ import 'package:ustahub/utils/sms_helper.dart';
 
 import 'application2/booking_bloc_and_data/bloc/booking_bloc.dart';
 import 'infrastructure/services/device_info/device_info_service.dart';
+import 'package:dio/dio.dart';
+import 'core/services/support_service.dart';
 import 'infrastructure2/init/injection.dart';
 
 Future<void> main() async {
@@ -50,6 +52,9 @@ Future<void> main() async {
     );
 
     await AppInit.create;
+
+    // Backend'dan support kontakt ma'lumotlarini yukla (xato bo'lsa fallback)
+    unawaited(SupportService().load(sl<Dio>()));
 
     AnalyticsService.logAppActivated();
 

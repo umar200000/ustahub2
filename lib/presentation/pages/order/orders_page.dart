@@ -11,6 +11,7 @@ import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
 import 'package:ustahub/presentation/pages/booking_page/pages/payment_page.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
+import 'package:ustahub/core/services/support_service.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 class OrdersPage extends StatefulWidget {
@@ -116,7 +117,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 child: ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(bottomSheetContext);
-                    final uri = Uri.parse("https://t.me/umar9334");
+                    final uri = Uri.parse(SupportService().telegramUrl);
                     if (await canLaunchUrl(uri)) {
                       await launchUrl(
                         uri,
