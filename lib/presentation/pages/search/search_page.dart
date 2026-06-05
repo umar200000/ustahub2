@@ -550,9 +550,12 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
     if (_selectedProvinceId != null) _loadDistricts(_selectedProvinceId!);
   }
 
+  // O'zbekiston region_id (barqaror — o'zgarmaydi)
+  static const _uzbekistanRegionId = 'ca20ece0-c589-4cd7-8778-18ec0abfcc9f';
+
   Future<void> _loadProvinces() async {
     try {
-      final res = await _repo.getProvinces();
+      final res = await _repo.getProvinces(regionId: _uzbekistanRegionId);
       final body = res.data;
       if (body is Map && body['data'] is List) {
         final list = (body['data'] as List)
