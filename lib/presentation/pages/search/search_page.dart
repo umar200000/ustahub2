@@ -527,7 +527,7 @@ class _SearchFilterSheet extends StatefulWidget {
 }
 
 class _SearchFilterSheetState extends State<_SearchFilterSheet> {
-  final ExpressRepo _repo = ExpressRepo();
+  final ClientExpressRepo _repo = ClientExpressRepo();
 
   List<ExpressProvinceModel> _provinces = [];
   List<ExpressDistrictModel> _districts = [];
