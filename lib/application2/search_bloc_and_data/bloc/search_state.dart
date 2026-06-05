@@ -6,6 +6,10 @@ class SearchState extends Equatable {
   final bool hasReachedMax;
   final String? errorMessage;
   final String query;
+  final String? selectedProvinceId;
+  final String? selectedProvinceName;
+  final String? selectedDistrictId;
+  final String? selectedDistrictName;
 
   const SearchState({
     this.status = Status2.initial,
@@ -13,7 +17,14 @@ class SearchState extends Equatable {
     this.hasReachedMax = false,
     this.errorMessage,
     this.query = '',
+    this.selectedProvinceId,
+    this.selectedProvinceName,
+    this.selectedDistrictId,
+    this.selectedDistrictName,
   });
+
+  bool get hasFilter =>
+      selectedProvinceId != null || selectedDistrictId != null;
 
   SearchState copyWith({
     Status2? status,
@@ -21,6 +32,12 @@ class SearchState extends Equatable {
     bool? hasReachedMax,
     String? errorMessage,
     String? query,
+    String? selectedProvinceId,
+    String? selectedProvinceName,
+    String? selectedDistrictId,
+    String? selectedDistrictName,
+    bool clearProvince = false,
+    bool clearDistrict = false,
   }) {
     return SearchState(
       status: status ?? this.status,
@@ -28,6 +45,14 @@ class SearchState extends Equatable {
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       errorMessage: errorMessage ?? this.errorMessage,
       query: query ?? this.query,
+      selectedProvinceId:
+          clearProvince ? null : selectedProvinceId ?? this.selectedProvinceId,
+      selectedProvinceName:
+          clearProvince ? null : selectedProvinceName ?? this.selectedProvinceName,
+      selectedDistrictId:
+          clearDistrict ? null : selectedDistrictId ?? this.selectedDistrictId,
+      selectedDistrictName:
+          clearDistrict ? null : selectedDistrictName ?? this.selectedDistrictName,
     );
   }
 
@@ -38,5 +63,9 @@ class SearchState extends Equatable {
     hasReachedMax,
     errorMessage,
     query,
+    selectedProvinceId,
+    selectedProvinceName,
+    selectedDistrictId,
+    selectedDistrictName,
   ];
 }

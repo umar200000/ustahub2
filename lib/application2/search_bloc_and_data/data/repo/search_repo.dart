@@ -9,10 +9,19 @@ class SearchRepo {
     required String query,
     int skip = 0,
     int limit = 20,
+    String? provinceId,
+    String? districtId,
   }) async {
+    final params = <String, dynamic>{
+      "search": query,
+      "skip": skip,
+      "limit": limit,
+    };
+    if (provinceId != null) params["province_id"] = provinceId;
+    if (districtId != null) params["district_id"] = districtId;
     final response = await _dio.get(
       "api/v1/client/services/",
-      queryParameters: {"search": query, "skip": skip, "limit": limit},
+      queryParameters: params,
     );
     return response;
   }

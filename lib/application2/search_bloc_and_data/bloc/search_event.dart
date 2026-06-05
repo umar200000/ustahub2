@@ -10,9 +10,33 @@ abstract class SearchEvent extends Equatable {
 class SearchQueryEvent extends SearchEvent {
   final String query;
   final bool isNewSearch;
+  final String? provinceId;
+  final String? districtId;
 
-  const SearchQueryEvent({required this.query, this.isNewSearch = false});
+  const SearchQueryEvent({
+    required this.query,
+    this.isNewSearch = false,
+    this.provinceId,
+    this.districtId,
+  });
 
   @override
-  List<Object?> get props => [query, isNewSearch];
+  List<Object?> get props => [query, isNewSearch, provinceId, districtId];
+}
+
+class SearchFilterEvent extends SearchEvent {
+  final String? provinceId;
+  final String? provinceName;
+  final String? districtId;
+  final String? districtName;
+
+  const SearchFilterEvent({
+    this.provinceId,
+    this.provinceName,
+    this.districtId,
+    this.districtName,
+  });
+
+  @override
+  List<Object?> get props => [provinceId, provinceName, districtId, districtName];
 }

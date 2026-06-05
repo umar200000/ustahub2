@@ -23,6 +23,30 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   SearchBloc() : super(const SearchState()) {
     on<SearchQueryEvent>(_onSearchQuery, transformer: debounce(_duration));
+    on<SearchFilterEvent>(_onSearchFilter);
+  }
+
+  void _onSearchFilter(SearchFilterEvent event, Emitter<SearchState> emit) {
+    emit(state.copyWith(
+      selectedProvinceId: event.provinceId,
+      selectedProvinceName: event.provinceName,
+      selectedDistrictId: event.districtId,
+      selectedDistrictName: event.districtName,
+      clearProvince: event.provinceId == null,
+      clearDistrict: event.districtId == null,
+      items: [],
+      hasReachedMax: false,
+      status: Status2.initial,
+    ));
+    // Agar query bor bo'lsa, qayta qidirish
+    if (state.query.isNotEmpty) {
+      add(SearchQueryEvent(
+        query: state.query,
+        isNewSearch: true,
+        provinceId: event.provinceId,
+        districtId: event.districtId,
+      ));
+    }
   }
 
   Future<void> _onSearchQuery(
@@ -30,8 +54,16 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     Emitter<SearchState> emit,
   ) async {
     if (event.query.isEmpty) {
-      return emit(const SearchState());
+      return emit(state.copyWith(
+        status: Status2.initial,
+        items: [],
+        hasReachedMax: false,
+        query: '',
+      ));
     }
+
+    final provinceId = event.provinceId ?? state.selectedProvinceId;
+    final districtId = event.districtId ?? state.selectedDistrictId;
 
     // Yangi qidiruv bo'lsa, holatni boshlang'ichga qaytaramiz
     if (event.isNewSearch || event.query != state.query) {
@@ -52,6 +84,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         query: event.query,
         skip: state.items.length,
         limit: 20,
+        provinceId: provinceId,
+        districtId: districtId,
       );
 
       if (response.statusCode == 200) {
