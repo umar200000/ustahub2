@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UstaHub — Станьте мастером</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --navy:#0B1D3A;
+    --navy2:#0d2244;
+    --teal:#1BBDB5;
+    --teal-dark:#13908A;
+    --orange:#FF6B1A;
+    --orange2:#F5A623;
+    --white:#fff;
+    --light:#F5F7FA;
+    --gray:#666;
+    --text:#1a1a2e;
+  }
+  body{font-family:'Segoe UI',Arial,sans-serif;color:var(--text);overflow-x:hidden}
+  a{text-decoration:none;color:inherit}
+
+  /* HEADER */
+  header{background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .logo{display:flex;align-items:center;gap:8px;color:#fff;font-size:22px;font-weight:700}
+  .logo svg{width:32px;height:32px}
+  .lang-switch{display:flex;gap:6px;align-items:center}
+  .lang-btn{background:transparent;border:1.5px solid rgba(255,255,255,0.4);color:#fff;padding:5px 12px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
+  .lang-btn.active,.lang-btn:hover{background:var(--teal);border-color:var(--teal)}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+  .hamburger span{width:24px;height:2px;background:#fff;display:block;border-radius:2px}
+
+  /* HERO */
+  .hero{background:var(--navy);padding:60px 5% 0;display:flex;align-items:flex-end;justify-content:space-between;gap:40px;min-height:520px;position:relative;overflow:hidden}
+  .hero-left{flex:1;max-width:520px;padding-bottom:60px}
+  .hero-left h1{font-size:clamp(28px,4vw,44px);font-weight:700;color:#fff;line-height:1.2;margin-bottom:12px}
+  .hero-left h1 span{color:var(--orange2)}
+  .hero-sub{color:rgba(255,255,255,0.8);font-size:15px;line-height:1.6;margin-bottom:28px;max-width:400px}
+  .hero-btns{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:28px}
+  .btn-primary{background:var(--teal);color:#fff;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:.2s;white-space:nowrap}
+  .btn-primary:hover{background:var(--teal-dark)}
+  .btn-outline{background:transparent;color:#fff;padding:13px 24px;border-radius:8px;font-size:15px;font-weight:600;border:2px solid rgba(255,255,255,0.7);cursor:pointer;display:flex;align-items:center;gap:8px;transition:.2s;white-space:nowrap}
+  .btn-outline:hover{background:rgba(255,255,255,0.1)}
+  .btn-outline .play-icon{width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:12px solid #fff;display:inline-block}
+  .hero-badges{display:flex;flex-wrap:wrap;gap:10px}
+  .badge{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);color:#fff;padding:8px 16px;border-radius:24px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px}
+  .badge svg{width:16px;height:16px;flex-shrink:0}
+  .hero-right{flex:0 0 420px;max-width:420px;display:flex;justify-content:center;align-items:flex-end;position:relative}
+  .hero-img-wrap{position:relative;width:100%;height:460px}
+  .hero-img-wrap img{width:100%;height:100%;object-fit:contain;object-position:bottom}
+  /* Floating icons around hero image */
+  .float-icon{position:absolute;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;width:52px;height:52px}
+  .fi1{top:10%;left:-10%}
+  .fi2{top:5%;right:5%}
+  .fi3{top:45%;right:-8%}
+  .fi4{bottom:20%;right:-5%}
+  .fi5{top:60%;left:-12%}
+
+  /* SECTION COMMON */
+  section{padding:64px 5%}
+  .section-title{font-size:clamp(22px,3vw,32px);font-weight:700;text-align:center;margin-bottom:48px;color:var(--text)}
+
+  /* HOW IT WORKS */
+  .how-works{background:#fff}
+  .steps{display:flex;align-items:flex-start;justify-content:center;gap:0;flex-wrap:wrap}
+  .step{flex:1;min-width:160px;max-width:220px;text-align:center;padding:0 16px;position:relative}
+  .step-num{width:52px;height:52px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;margin:0 auto 16px}
+  .step-icon{width:56px;height:56px;background:var(--light);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px}
+  .step h3{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text)}
+  .step p{font-size:13px;color:var(--gray);line-height:1.5}
+  .step-arrow{display:flex;align-items:center;padding-top:26px;color:var(--teal);font-size:28px;font-weight:300}
+
+  /* TOKENS */
+  .tokens-section{background:var(--light)}
+  .token-rows{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .token-row{background:#fff;border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+  .token-row-left{display:flex;align-items:center;gap:16px}
+  .token-icon{width:48px;height:48px;background:var(--light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+  .token-row h3{font-size:15px;font-weight:700;margin-bottom:4px}
+  .token-row p{font-size:13px;color:var(--gray)}
+  .token-amount{color:var(--teal);font-size:22px;font-weight:800;white-space:nowrap;background:rgba(27,189,181,0.1);padding:8px 16px;border-radius:8px}
+  .token-amount span{font-size:12px;font-weight:600;display:block;text-align:center}
+
+  /* WHY REGISTER BANNER */
+  .why-banner{background:var(--navy2);padding:48px 5%}
+  .why-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:40px;flex-wrap:wrap}
+  .why-text{flex:1;min-width:200px}
+  .why-text h2{font-size:clamp(20px,2.5vw,28px);font-weight:700;color:#fff;margin-bottom:24px;line-height:1.3}
+  .why-features{display:flex;flex-wrap:wrap;gap:16px}
+  .why-feat{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:10px;color:#fff;font-size:13px;font-weight:500;flex:1;min-width:140px}
+  .why-feat svg{width:24px;height:24px;flex-shrink:0}
+  .why-clock{flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .clock-circle{width:140px;height:140px;border-radius:50%;background:var(--orange);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff}
+  .clock-circle .clock-icon{font-size:40px;line-height:1}
+  .clock-circle span{font-size:13px;font-weight:600;margin-top:4px}
+
+  /* WHAT ARE TOKENS */
+  .what-tokens{background:#fff}
+  .tokens-content{display:flex;align-items:center;gap:48px;flex-wrap:wrap;max-width:900px;margin:0 auto}
+  .tokens-img{flex:0 0 220px;display:flex;align-items:center;justify-content:center}
+  .coins-visual{width:180px;height:180px;position:relative}
+  .coins-visual .coin{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff}
+  .coin1{width:110px;height:110px;background:var(--orange2);top:0;left:0}
+  .coin2{width:80px;height:80px;background:var(--orange);bottom:0;right:0}
+  .coin3{width:60px;height:60px;background:#e8910a;top:50%;right:-10px;transform:translateY(-50%)}
+  .tokens-list{flex:1;min-width:260px}
+  .tokens-list ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .tokens-list li{display:flex;align-items:flex-start;gap:10px;font-size:14px;line-height:1.5;color:var(--gray)}
+  .tokens-list li::before{content:'✔';color:var(--teal);font-size:16px;flex-shrink:0;margin-top:1px}
+  .tokens-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1}
+  .token-info-card{background:var(--light);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--gray);line-height:1.5}
+  .token-info-card::before{content:attr(data-check);color:var(--teal);font-weight:700;display:block;margin-bottom:4px}
+
+  /* TEZKOR + REFERRAL */
+  .two-col{background:var(--light);padding:48px 5%}
+  .two-col-inner{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:0 auto}
+  .card-box{background:#fff;border-radius:16px;padding:32px;position:relative;overflow:hidden}
+  .card-box h3{font-size:20px;font-weight:700;margin-bottom:8px}
+  .tezkor-badge{display:inline-block;background:var(--teal);color:#fff;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+  .card-box p{font-size:14px;color:var(--gray);line-height:1.6;margin-bottom:20px}
+  .btn-teal-sm{background:var(--teal);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+  .btn-teal-sm:hover{background:var(--teal-dark)}
+  .timer-display{position:absolute;right:20px;top:50%;transform:translateY(-50%);background:var(--navy);color:#fff;border-radius:16px;padding:20px 24px;text-align:center;font-size:32px;font-weight:800;min-width:100px}
+  .timer-display small{display:block;font-size:11px;font-weight:400;margin-top:4px;color:rgba(255,255,255,0.7)}
+  .referral-visual{display:flex;align-items:center;gap:-10px;margin:20px 0}
+  .person-circle{width:52px;height:52px;border-radius:50%;background:var(--light);border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:24px;margin-left:-10px}
+  .person-circle:first-child{margin-left:0}
+  .arrow-right{font-size:24px;color:var(--teal);margin:0 8px}
+  .token-reward{background:var(--teal);color:#fff;padding:10px 20px;border-radius:8px;font-size:20px;font-weight:800;display:inline-block;margin-top:8px}
+  .token-reward small{font-size:12px;display:block;font-weight:400}
+
+  /* GUIDES */
+  .guides{background:#fff}
+  .guides-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:900px;margin:0 auto}
+  .guide-card{background:var(--light);border-radius:12px;padding:20px;position:relative;cursor:pointer;transition:.2s}
+  .guide-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+  .guide-icon{font-size:28px;margin-bottom:12px}
+  .guide-card h4{font-size:14px;font-weight:700;margin-bottom:6px}
+  .guide-card p{font-size:12px;color:var(--gray);line-height:1.4}
+  .guide-arrow{position:absolute;top:16px;right:16px;color:var(--teal);font-size:20px}
+
+  /* CATEGORIES */
+  .categories{background:var(--light)}
+  .cats-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;max-width:900px;margin:0 auto}
+  .cat-item{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:.2s;min-width:90px}
+  .cat-item:hover .cat-circle{background:var(--teal);transform:scale(1.05)}
+  .cat-item:hover .cat-circle svg,.cat-item:hover .cat-circle span{color:#fff;fill:#fff}
+  .cat-circle{width:80px;height:80px;border-radius:50%;background:#fff;border:2px solid rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:center;font-size:32px;transition:.3s;overflow:hidden}
+  .cat-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+  .cat-label{font-size:13px;font-weight:500;text-align:center;color:var(--text)}
+
+  /* FAQ */
+  .faq{background:#fff}
+  .faq-list{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .faq-item{border:1.5px solid rgba(0,0,0,0.08);border-radius:12px;overflow:hidden}
+  .faq-question{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:15px;font-weight:600;gap:12px;user-select:none;transition:.2s}
+  .faq-question:hover{background:var(--light)}
+  .faq-toggle{font-size:22px;color:var(--teal);flex-shrink:0;transition:.3s}
+  .faq-answer{max-height:0;overflow:hidden;transition:.35s ease}
+  .faq-answer.open{max-height:200px}
+  .faq-answer-inner{padding:0 20px 18px;font-size:14px;color:var(--gray);line-height:1.6}
+
+  /* CTA BOTTOM */
+  .cta-bottom{background:var(--navy);padding:56px 5%;text-align:center}
+  .cta-bottom h2{font-size:clamp(22px,3vw,34px);font-weight:700;color:#fff;margin-bottom:12px}
+  .cta-bottom p{color:rgba(255,255,255,0.75);font-size:15px;margin-bottom:28px}
+  .btn-orange{background:var(--orange);color:#fff;padding:15px 40px;border-radius:8px;font-size:16px;font-weight:700;border:none;cursor:pointer;transition:.2s}
+  .btn-orange:hover{background:#e55a10}
+
+  /* FOOTER */
+  footer{background:#060e1e;padding:32px 5%}
+  .footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px}
+  .footer-links{display:flex;gap:24px;flex-wrap:wrap}
+  .footer-links a{color:rgba(255,255,255,0.6);font-size:14px;transition:.2s}
+  .footer-links a:hover{color:#fff}
+  .footer-social{display:flex;gap:14px}
+  .social-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;transition:.2s;border:1px solid rgba(255,255,255,0.15)}
+  .social-btn:hover{background:var(--teal)}
+  .footer-copy{text-align:center;color:rgba(255,255,255,0.35);font-size:13px;border-top:1px solid rgba(255,255,255,0.08);padding-top:20px}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    .hero{flex-direction:column;padding:40px 5% 0;min-height:auto}
+    .hero-right{flex:none;width:100%;max-width:360px;margin:0 auto}
+    .hero-img-wrap{height:320px}
+    .float-icon{display:none}
+    .steps{flex-direction:column;align-items:center}
+    .step-arrow{display:none}
+    .step{max-width:100%;padding:16px 0}
+    .two-col-inner{grid-template-columns:1fr}
+    .timer-display{position:static;transform:none;margin-top:16px;display:inline-block}
+    .tokens-content{flex-direction:column;align-items:center}
+    .hamburger{display:flex}
+    .why-inner{flex-direction:column}
+    .footer-inner{flex-direction:column;align-items:flex-start}
+    .tokens-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:480px){
+    .hero-btns{flex-direction:column}
+    .btn-primary,.btn-outline{width:100%;justify-content:center;text-align:center}
+    .cats-grid{gap:10px}
+    .cat-circle{width:64px;height:64px;font-size:26px}
+    .cat-label{font-size:11px}
+  }
+
+  /* LANG HIDDEN */
+  [data-lang]{display:none}
+  [data-lang].active{display:block}
+  span[data-lang]{display:none}
+  span[data-lang].active{display:inline}
+
+  /* Scroll smooth */
+  html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="16" fill="#1BBDB5"/>
+      <path d="M8 22 L16 10 L24 22" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="16" cy="10" r="3" fill="#fff"/>
+    </svg>
+    <span style="color:#fff;font-size:20px;font-weight:800;letter-spacing:-0.5px">USTA<span style="color:#1BBDB5">HUB</span></span>
+  </div>
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('ru')">RU</button>
+    <button class="lang-btn" onclick="setLang('uz')">UZ</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+  </div>
+  <button class="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <h1>
+      <span data-lang="ru" class="active">Станьте мастером UstaHub<br>и получите <span style="color:#F5A623">250 токенов</span></span>
+      <span data-lang="uz">UstaHub ustasi bo'ling<br>va <span style="color:#F5A623">250 token</span> oling</span>
+      <span data-lang="en">Become a UstaHub master<br>and get <span style="color:#F5A623">250 tokens</span></span>
+    </h1>
+    <p class="hero-sub">
+      <span data-lang="ru" class="active">Первые 1 000 мастеров получат бонус по 250 токенов.<br>До 20 июля готовим профиль, проходим мастера и начинаем получать стабильные заказы.</span>
+      <span data-lang="uz">Birinchi 1 000 usta 250 ta token bonus oladi.<br>20-iyulgacha profil to'ldiring, ustadan o'ting va barqaror buyurtmalar olishni boshlang.</span>
+      <span data-lang="en">The first 1,000 masters will receive a bonus of 250 tokens.<br>By July 20, complete your profile, pass master verification and start getting steady orders.</span>
+    </p>
+    <div class="hero-btns">
+      <button class="btn-primary">
+        <span data-lang="ru" class="active">Зарегистрироваться как мастер</span>
+        <span data-lang="uz">Usta sifatida ro'yxatdan o'ting</span>
+        <span data-lang="en">Register as a master</span>
+      </button>
+      <button class="btn-outline">
+        <span class="play-icon"></span>
+        <span data-lang="ru" class="active">Как получить токены</span>
+        <span data-lang="uz">Token qanday olish mumkin</span>
+        <span data-lang="en">How to get tokens</span>
+      </button>
+    </div>
+    <div class="hero-badges">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/></svg>
+        <span data-lang="ru" class="active">До 20 июля</span>
+        <span data-lang="uz">20-iyulgacha</span>
+        <span data-lang="en">Until July 20</span>
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span data-lang="ru" class="active">Первые 1 000 мастеров</span>
+        <span data-lang="uz">Birinchi 1 000 usta</span>
+        <span data-lang="en">First 1,000 masters</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-wrap">
+      <!-- Float icons -->
+      <div class="float-icon fi1">🔧</div>
+      <div class="float-icon fi2">🪣</div>
+      <div class="float-icon fi3">🚗</div>
+      <div class="float-icon fi4">⚡</div>
+      <div class="float-icon fi5">🔩</div>
+      <!-- Master illustration -->
+      <div style="width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center">
+        <div style="position:relative;width:280px;height:440px">
+          <!-- Phone mockup -->
+          <div style="position:absolute;right:0;top:30px;background:#1a2a4a;border-radius:20px;padding:12px 10px;width:130px;border:2px solid rgba(255,255,255,0.15);box-shadow:0 8px 32px rgba(0,0,0,0.4)">
+            <div style="background:#0d1f38;border-radius:12px;padding:8px;margin-bottom:6px">
+              <div style="color:#1BBDB5;font-size:10px;font-weight:700;margin-bottom:4px">USTAHUB</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+                <span style="color:rgba(255,255,255,0.7);font-size:9px">Мастер</span>
+                <span style="background:#1BBDB5;color:#fff;font-size:8px;padding:1px 5px;border-radius:4px">PRO</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+                <span style="color:rgba(255,255,255,0.5);font-size:9px">Рейтинг</span>
+                <span style="color:#F5A623;font-size:9px;font-weight:700">★ 4.9</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+                <span style="color:rgba(255,255,255,0.5);font-size:9px">Заказы</span>
+                <span style="color:#fff;font-size:9px;font-weight:700">3</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:rgba(255,255,255,0.5);font-size:9px">Токены</span>
+                <span style="color:#F5A623;font-size:10px;font-weight:800">250</span>
+              </div>
+            </div>
+            <div style="text-align:center;color:#fff;font-size:20px;font-weight:800;background:linear-gradient(135deg,#1BBDB5,#0d8a84);border-radius:8px;padding:6px">250</div>
+          </div>
+          <!-- Master figure (CSS art) -->
+          <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:220px;height:360px;display:flex;flex-direction:column;align-items:center">
+            <!-- Head with tubeteika -->
+            <div style="position:relative;margin-bottom:4px">
+              <div style="width:72px;height:20px;background:#333;border-radius:10px 10px 0 0;margin:0 auto;position:relative">
+                <div style="position:absolute;width:100%;height:8px;background:#1BBDB5;top:0;border-radius:10px 10px 0 0;opacity:0.8"></div>
+                <!-- Tubeteika pattern dots -->
+                <div style="position:absolute;top:3px;left:50%;transform:translateX(-50%);display:flex;gap:6px">
+                  <div style="width:4px;height:4px;background:#fff;border-radius:50%;opacity:0.6"></div>
+                  <div style="width:4px;height:4px;background:#fff;border-radius:50%;opacity:0.6"></div>
+                  <div style="width:4px;height:4px;background:#fff;border-radius:50%;opacity:0.6"></div>
+                </div>
+              </div>
+              <div style="width:68px;height:68px;background:#f0c27f;border-radius:50%;border:2px solid #e8b068;display:flex;align-items:center;justify-content:center;font-size:32px">👷</div>
+            </div>
+            <!-- Body with uniform -->
+            <div style="width:160px;height:260px;background:#1a5276;border-radius:16px 16px 8px 8px;position:relative;display:flex;flex-direction:column;align-items:center;padding:10px 8px">
+              <!-- UstaHub logo on chest -->
+              <div style="background:#1BBDB5;color:#fff;font-size:8px;font-weight:800;padding:4px 8px;border-radius:4px;margin-bottom:8px">USTAHUB PRO</div>
+              <!-- Tool belt -->
+              <div style="position:absolute;top:80px;left:0;right:0;height:20px;background:#0d3b56;display:flex;align-items:center;justify-content:center;gap:12px">
+                <div style="width:14px;height:14px;background:#e8b068;border-radius:3px;font-size:8px;display:flex;align-items:center;justify-content:center">🔧</div>
+                <div style="width:14px;height:14px;background:#e8b068;border-radius:3px;font-size:8px;display:flex;align-items:center;justify-content:center">⚙</div>
+              </div>
+              <!-- Arms holding phone -->
+              <div style="position:absolute;top:40px;right:-20px;width:40px;height:70px;background:#1a5276;border-radius:0 10px 10px 0;transform:rotate(-15deg)"></div>
+              <div style="position:absolute;top:40px;left:-20px;width:40px;height:70px;background:#1a5276;border-radius:10px 0 0 10px;transform:rotate(15deg)"></div>
+              <!-- Legs -->
+              <div style="position:absolute;bottom:-60px;left:20px;width:50px;height:70px;background:#1a3a5c;border-radius:4px 4px 8px 8px"></div>
+              <div style="position:absolute;bottom:-60px;right:20px;width:50px;height:70px;background:#1a3a5c;border-radius:4px 4px 8px 8px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-works">
+  <h2 class="section-title">
+    <span data-lang="ru" class="active">Как это работает</span>
+    <span data-lang="uz">Bu qanday ishlaydi</span>
+    <span data-lang="en">How it works</span>
+  </h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-icon">🪪</div>
+      <h3 data-lang="ru" class="active">Пройдите myID</h3>
+      <h3 data-lang="uz">myID orqali o'ting</h3>
+      <h3 data-lang="en">Complete myID</h3>
+      <p>
+        <span data-lang="ru" class="active">Подтвердите личность через myID быстро и безопасно.</span>
+        <span data-lang="uz">myID orqali shaxsingizni tez va xavfsiz tasdiqlang.</span>
+        <span data-lang="en">Verify your identity through myID quickly and securely.</span>
+      </p>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-icon">📝</div>
+      <h3 data-lang="ru" class="active">Заполните профиль</h3>
+      <h3 data-lang="uz">Profilni to'ldiring</h3>
+      <h3 data-lang="en">Fill your profile</h3>
+      <p>
+        <span data-lang="ru" class="active">Добавьте опыт, фото, услуги и районы работы.</span>
+        <span data-lang="uz">Tajriba, rasm, xizmatlar va ish hududlarini qo'shing.</span>
+        <span data-lang="en">Add experience, photos, services and work areas.</span>
+      </p>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-icon">📸</div>
+      <h3 data-lang="ru" class="active">Добавьте фото работ</h3>
+      <h3 data-lang="uz">Ish fotosuratlarini qo'shing</h3>
+      <h3 data-lang="en">Add work photos</h3>
+      <p>
+        <span data-lang="ru" class="active">Покажите своё портфолио — больше доверия, больше заказов.</span>
+        <span data-lang="uz">Portfolio ko'rsating — ko'proq ishonch, ko'proq buyurtma.</span>
+        <span data-lang="en">Show your portfolio — more trust, more orders.</span>
+      </p>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-icon">🎯</div>
+      <h3 data-lang="ru" class="active">Получайте первые заказы</h3>
+      <h3 data-lang="uz">Birinchi buyurtmalarni oling</h3>
+      <h3 data-lang="en">Get your first orders</h3>
+      <p>
+        <span data-lang="ru" class="active">После модерации начинайте брать заказы и получать токены.</span>
+        <span data-lang="uz">Moderatsiyadan so'ng buyurtma oling va token ishlang.</span>
+        <span data-lang="en">After moderation, start taking orders and earning tokens.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO GET 250 TOKENS -->
+<section class="tokens-section">
+  <h2 class="section-title">
+    <span data-lang="ru" class="active">Как получить 250 токенов</span>
+    <span data-lang="uz">250 token qanday olish mumkin</span>
+    <span data-lang="en">How to get 250 tokens</span>
+  </h2>
+  <div class="token-rows">
+    <div class="token-row">
+      <div class="token-row-left">
+        <div class="token-icon">🏅</div>
+        <div>
+          <h3>
+            <span data-lang="ru" class="active">Бонус за профиль</span>
+            <span data-lang="uz">Profil uchun bonus</span>
+            <span data-lang="en">Profile bonus</span>
+          </h3>
+          <p>
+            <span data-lang="ru" class="active">Бонус за выделение профиля мастера</span>
+            <span data-lang="uz">Usta profilini ajratish uchun bonus</span>
+            <span data-lang="en">Bonus for highlighting master profile</span>
+          </p>
+        </div>
+      </div>
+      <div class="token-amount">+150<span>ТОКЕНОВ</span></div>
+    </div>
+    <div class="token-row">
+      <div class="token-row-left">
+        <div class="token-icon">👤</div>
+        <div>
+          <h3>
+            <span data-lang="ru" class="active">Заполненный профиль</span>
+            <span data-lang="uz">To'ldirilgan profil</span>
+            <span data-lang="en">Completed profile</span>
+          </h3>
+          <p>
+            <span data-lang="ru" class="active">После заполнения профиля до 80%</span>
+            <span data-lang="uz">Profil 80% ga to'ldirilgandan so'ng</span>
+            <span data-lang="en">After filling the profile to 80%</span>
+          </p>
+        </div>
+      </div>
+      <div class="token-amount">+40<span>ТОКЕНОВ</span></div>
+    </div>
+    <div class="token-row">
+      <div class="token-row-left">
+        <div class="token-icon">📷</div>
+        <div>
+          <h3>
+            <span data-lang="ru" class="active">Фото работ</span>
+            <span data-lang="uz">Ish fotolari</span>
+            <span data-lang="en">Work photos</span>
+          </h3>
+          <p>
+            <span data-lang="ru" class="active">После загрузки фото работ (минимум 3)</span>
+            <span data-lang="uz">Ish fotosuratlarini yuklash (kamida 3)</span>
+            <span data-lang="en">After uploading work photos (minimum 3)</span>
+          </p>
+        </div>
+      </div>
+      <div class="token-amount">+30<span>ТОКЕНОВ</span></div>
+    </div>
+    <div class="token-row">
+      <div class="token-row-left">
+        <div class="token-icon">📦</div>
+        <div>
+          <h3>
+            <span data-lang="ru" class="active">Первые заказы</span>
+            <span data-lang="uz">Birinchi buyurtmalar</span>
+            <span data-lang="en">First orders</span>
+          </h3>
+          <p>
+            <span data-lang="ru" class="active">После первых 3 заказов</span>
+            <span data-lang="uz">Birinchi 3 buyurtmadan so'ng</span>
+            <span data-lang="en">After the first 3 orders</span>
+          </p>
+        </div>
+      </div>
+      <div class="token-amount">+30<span>ТОКЕНОВ</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY REGISTER BANNER -->
+<div class="why-banner">
+  <div class="why-inner">
+    <div class="why-text">
+      <h2>
+        <span data-lang="ru" class="active">Почему стоит зарегистрироваться до 20 июля</span>
+        <span data-lang="uz">Nima uchun 20-iyulgacha ro'yxatdan o'tish kerak</span>
+        <span data-lang="en">Why register before July 20</span>
+      </h2>
+      <div class="why-features">
+        <div class="why-feat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+          <span data-lang="ru" class="active">Готовый профиль к запуску</span>
+          <span data-lang="uz">Ishga tayyor profil</span>
+          <span data-lang="en">Profile ready for launch</span>
+        </div>
+        <div class="why-feat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span data-lang="ru" class="active">Больше доверия и заказов</span>
+          <span data-lang="uz">Ko'proq ishonch va buyurtmalar</span>
+          <span data-lang="en">More trust and orders</span>
+        </div>
+        <div class="why-feat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+          <span data-lang="ru" class="active">Первая волна мастеров UstaHub</span>
+          <span data-lang="uz">UstaHub ustalarining birinchi to'lqini</span>
+          <span data-lang="en">First wave of UstaHub masters</span>
+        </div>
+        <div class="why-feat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+          <span data-lang="ru" class="active">250 токенов стартового бонуса</span>
+          <span data-lang="uz">250 token boshlang'ich bonus</span>
+          <span data-lang="en">250 tokens starting bonus</span>
+        </div>
+      </div>
+    </div>
+    <div class="why-clock">
+      <div class="clock-circle">
+        <div class="clock-icon">⏰</div>
+        <span>
+          <span data-lang="ru" class="active">До 20 июля</span>
+          <span data-lang="uz">20-iyulgacha</span>
+          <span data-lang="en">Until July 20</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT ARE TOKENS -->
+<section class="what-tokens">
+  <h2 class="section-title">
+    <span data-lang="ru" class="active">Что такое токены</span>
+    <span data-lang="uz">Tokenlar nima</span>
+    <span data-lang="en">What are tokens</span>
+  </h2>
+  <div class="tokens-content">
+    <div class="tokens-img">
+      <div class="coins-visual">
+        <div class="coin coin1">🪙</div>
+        <div class="coin coin2">💰</div>
+        <div class="coin coin3">⭐</div>
+      </div>
+    </div>
+    <div class="tokens-grid">
+      <div class="token-info-card" data-check="✔">
+        <span data-lang="ru" class="active">Токены — это внутренняя валюта мастера</span>
+        <span data-lang="uz">Tokenlar — ustaning ichki valyutasi</span>
+        <span data-lang="en">Tokens are the master's internal currency</span>
+      </div>
+      <div class="token-info-card" data-check="✔">
+        <span data-lang="ru" class="active">Они нужны для продвижения заказов</span>
+        <span data-lang="uz">Ular buyurtmalarni targ'ib qilish uchun kerak</span>
+        <span data-lang="en">They are needed to promote orders</span>
+      </div>
+      <div class="token-info-card" data-check="✔">
+        <span data-lang="ru" class="active">Принимаются в 0-платных заявках</span>
+        <span data-lang="uz">0-pullik arizalarda qabul qilinadi</span>
+        <span data-lang="en">Accepted in 0-paid applications</span>
+      </div>
+      <div class="token-info-card" data-check="✔">
+        <span data-lang="ru" class="active">Списываются при платных заявках и премиум услугах</span>
+        <span data-lang="uz">Pullik ariza va premium xizmatlar uchun yechiladi</span>
+        <span data-lang="en">Deducted for paid applications and premium services</span>
+      </div>
+      <div class="token-info-card" data-check="✔" style="grid-column:1/-1">
+        <span data-lang="ru" class="active">Если тратите не вышли на связь, поддержка поможет разобраться</span>
+        <span data-lang="uz">Agar aloqa bo'lmasa, qo'llab-quvvatlash yordam beradi</span>
+        <span data-lang="en">If you didn't get a response, support will help you figure it out</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEZKOR XIZMAT + REFERRAL -->
+<div class="two-col">
+  <div class="two-col-inner">
+    <div class="card-box">
+      <div class="tezkor-badge">Tezkor Xizmat</div>
+      <h3 style="margin-top:4px">
+        <span data-lang="ru" class="active">Срочный вызов мастера за минуты</span>
+        <span data-lang="uz">Daqiqalar ichida ustani shoshilinch chaqirish</span>
+        <span data-lang="en">Emergency master call in minutes</span>
+      </h3>
+      <p>
+        <span data-lang="ru" class="active">Когда у клиента аварийная ситуация — он отправляет запрос в Tezkor Xizmat. Подходите для срочных заявок — ваш шанс!</span>
+        <span data-lang="uz">Mijozda favqulodda vaziyat bo'lganda u Tezkor Xizmatga so'rov yuboradi. Shoshilinch arizalar uchun mos — bu sizning imkoniyatingiz!</span>
+        <span data-lang="en">When a client has an emergency, they send a request to Tezkor Xizmat. Perfect for urgent orders — your chance!</span>
+      </p>
+      <button class="btn-teal-sm">
+        <span data-lang="ru" class="active">Узнать больше</span>
+        <span data-lang="uz">Ko'proq bilish</span>
+        <span data-lang="en">Learn more</span>
+      </button>
+      <div class="timer-display">
+        02:45
+        <small>
+          <span data-lang="ru" class="active">минут</span>
+          <span data-lang="uz">daqiqa</span>
+          <span data-lang="en">minutes</span>
+        </small>
+      </div>
+    </div>
+    <div class="card-box">
+      <h3>
+        <span data-lang="ru" class="active">Реферальная программа</span>
+        <span data-lang="uz">Referral dasturi</span>
+        <span data-lang="en">Referral program</span>
+      </h3>
+      <p>
+        <span data-lang="ru" class="active">Приглашайте мастеров — вместе растём и зарабатываем!</span>
+        <span data-lang="uz">Ustalarni taklif qiling — birga o'sib, daromad qilamiz!</span>
+        <span data-lang="en">Invite masters — grow and earn together!</span>
+      </p>
+      <div class="referral-visual">
+        <div class="person-circle">👷</div>
+        <div class="arrow-right">→</div>
+        <div class="person-circle">👷</div>
+        <div class="arrow-right">→</div>
+        <div class="person-circle">👷</div>
+      </div>
+      <div class="token-reward">
+        +10 <span data-lang="ru" class="active">токенов за каждого</span><span data-lang="uz">har bir uchun token</span><span data-lang="en">tokens per person</span>
+        <small>
+          <span data-lang="ru" class="active">за каждого приглашённого мастера</span>
+          <span data-lang="uz">taklif qilingan har bir usta uchun</span>
+          <span data-lang="en">for every invited master</span>
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDES -->
+<section class="guides">
+  <h2 class="section-title">
+    <span data-lang="ru" class="active">Гайды и обучение</span>
+    <span data-lang="uz">Qo'llanmalar va o'qitish</span>
+    <span data-lang="en">Guides and training</span>
+  </h2>
+  <div class="guides-grid">
+    <div class="guide-card">
+      <div class="guide-icon">📘</div>
+      <h4>
+        <span data-lang="ru" class="active">Мини-гайды и советы</span>
+        <span data-lang="uz">Mini-qo'llanmalar va maslahatlar</span>
+        <span data-lang="en">Mini guides and tips</span>
+      </h4>
+      <p>
+        <span data-lang="ru" class="active">Полезные материалы и рекомендации</span>
+        <span data-lang="uz">Foydali materiallar va tavsiyalar</span>
+        <span data-lang="en">Useful materials and recommendations</span>
+      </p>
+      <div class="guide-arrow">›</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-icon">⚡</div>
+      <h4>Tezkor Xizmat</h4>
+      <p>
+        <span data-lang="ru" class="active">Как быстро принимать срочные заявки</span>
+        <span data-lang="uz">Shoshilinch arizalarni tez qabul qilish</span>
+        <span data-lang="en">How to quickly accept urgent orders</span>
+      </p>
+      <div class="guide-arrow">›</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-icon">🎓</div>
+      <h4>
+        <span data-lang="ru" class="active">Бесплатные уроки</span>
+        <span data-lang="uz">Bepul darslar</span>
+        <span data-lang="en">Free lessons</span>
+      </h4>
+      <p>
+        <span data-lang="ru" class="active">Видеоуроки от экспертов</span>
+        <span data-lang="uz">Ekspertlardan video darslar</span>
+        <span data-lang="en">Video lessons from experts</span>
+      </p>
+      <div class="guide-arrow">›</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-icon">📰</div>
+      <h4>
+        <span data-lang="ru" class="active">Полезные статьи</span>
+        <span data-lang="uz">Foydali maqolalar</span>
+        <span data-lang="en">Useful articles</span>
+      </h4>
+      <p>
+        <span data-lang="ru" class="active">Новости и советы для мастеров</span>
+        <span data-lang="uz">Ustalar uchun yangiliklar va maslahatlar</span>
+        <span data-lang="en">News and tips for masters</span>
+      </p>
+      <div class="guide-arrow">›</div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="categories">
+  <h2 class="section-title">
+    <span data-lang="ru" class="active">Для каких сфер подходит UstaHub</span>
+    <span data-lang="uz">UstaHub qaysi sohalarga mos keladi</span>
+    <span data-lang="en">Which fields does UstaHub serve</span>
+  </h2>
+  <div class="cats-grid">
+    <div class="cat-item">
+      <div class="cat-circle">🔧</div>
+      <div class="cat-label">
+        <span data-lang="ru" class="active">Сантехник</span>
+        <span data-lang="uz">Santexnik</span>
+        <span data-lang="en">Plumber</span>
+      </div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-circle">⚡</div>
+      <div class="cat-label">
+        <span data-lang="ru" class="active">Электрик</span>
+        <span data-lang="uz">Elektrik</span>
+        <span data-lang="en">Electrician</span>
+      </div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-circle">🧹</div>
+      <div class="cat-label">
+        <span data-lang="ru" class="active">Клининг</span>
+        <span data-lang="uz">Tozalash</span>
+        <span data-lang="en">Cleaning</span>
+      </div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-circle">🎨</div>
+      <div class="cat-label">
+        <span data-lang="ru" class="active">Маляр</span>
+        <span data-lang="uz">Bo'yoqchi</span>
+        <span data-lang="en">Painter</span>
+      </div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-circle">🏗️</div>
+      <div class="cat-label">
+        <span data-lang="ru" class="active">Ремонт</span>
+        <span data-lang="uz">Ta'mirlash</span>
+        <span data-lang="en">Repair</span>
+      </div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-circle">🚗</div>
+      <div class="cat-label">
+        <span data-lang="ru" class="active">Авто-услуги</span>
+        <span data-lang="uz">Avto-xizmat</span>
+        <span data-lang="en">Auto services</span>
+      </div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-circle">🪑</div>
+      <div class="cat-label">
+        <span data-lang="ru" class="active">Мебельщик</span>
+        <span data-lang="uz">Mebelchi</span>
+        <span data-lang="en">Furniture</span>
+      </div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-circle" style="font-size:24px">+</div>
+      <div class="cat-label">
+        <span data-lang="ru" class="active">Другие услуги</span>
+        <span data-lang="uz">Boshqa xizmatlar</span>
+        <span data-lang="en">Other services</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <h2 class="section-title">
+    <span data-lang="ru" class="active">Частые вопросы</span>
+    <span data-lang="uz">Ko'p so'raladigan savollar</span>
+    <span data-lang="en">Frequently asked questions</span>
+  </h2>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span data-lang="ru" class="active">Когда начнут приходить заказы?</span>
+        <span data-lang="uz">Buyurtmalar qachon kela boshlaydi?</span>
+        <span data-lang="en">When will orders start coming?</span>
+        <span class="faq-toggle">∨</span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span data-lang="ru" class="active">После прохождения модерации и заполнения профиля заказы начнут поступать. Обычно это занимает 1-3 дня после полного оформления профиля.</span>
+          <span data-lang="uz">Moderatsiyadan o'tib, profil to'ldirilgandan so'ng buyurtmalar kela boshlaydi. Odatda bu profil to'liq rasmiylashtirilgandan 1-3 kun davom etadi.</span>
+          <span data-lang="en">After passing moderation and completing your profile, orders will start coming in. Usually this takes 1-3 days after completing your profile.</span>
+        </div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span data-lang="ru" class="active">Что такое myID?</span>
+        <span data-lang="uz">myID nima?</span>
+        <span data-lang="en">What is myID?</span>
+        <span class="faq-toggle">∨</span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span data-lang="ru" class="active">myID — это система цифровой идентификации граждан Узбекистана. Она позволяет безопасно подтвердить вашу личность без посещения офиса.</span>
+          <span data-lang="uz">myID — O'zbekiston fuqarolarining raqamli identifikatsiya tizimi. U sizga ofisga bormay xavfsiz ravishda shaxsingizni tasdiqlash imkonini beradi.</span>
+          <span data-lang="en">myID is a digital identification system for citizens of Uzbekistan. It allows you to securely verify your identity without visiting an office.</span>
+        </div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span data-lang="ru" class="active">Что такое Tezkor Xizmat?</span>
+        <span data-lang="uz">Tezkor Xizmat nima?</span>
+        <span data-lang="en">What is Tezkor Xizmat?</span>
+        <span class="faq-toggle">∨</span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span data-lang="ru" class="active">Tezkor Xizmat — это функция срочного вызова мастера. Клиент отправляет запрос, и ближайший доступный мастер получает уведомление в течение минут.</span>
+          <span data-lang="uz">Tezkor Xizmat — ustani shoshilinch chaqirish funksiyasi. Mijoz so'rov yuboradi va eng yaqin mavjud usta bir necha daqiqa ichida bildirishnoma oladi.</span>
+          <span data-lang="en">Tezkor Xizmat is an emergency master call feature. A client sends a request and the nearest available master gets a notification within minutes.</span>
+        </div>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        <span data-lang="ru" class="active">Как получить реферальные токены?</span>
+        <span data-lang="uz">Referral tokenlarni qanday olish mumkin?</span>
+        <span data-lang="en">How to get referral tokens?</span>
+        <span class="faq-toggle">∨</span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <span data-lang="ru" class="active">Поделитесь своей реферальной ссылкой с другими мастерами. Когда они зарегистрируются и выполнят первый заказ, вы получите +10 токенов за каждого.</span>
+          <span data-lang="uz">Referral havolangizni boshqa ustalar bilan ulashing. Ular ro'yxatdan o'tib, birinchi buyurtmani bajarganda, har biri uchun +10 token olasiz.</span>
+          <span data-lang="en">Share your referral link with other masters. When they register and complete their first order, you get +10 tokens for each one.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BOTTOM BANNER -->
+<div class="cta-bottom">
+  <h2>
+    <span data-lang="ru" class="active">Войдите в первую волну мастеров UstaHub</span>
+    <span data-lang="uz">UstaHub ustalarining birinchi to'lqiniga qo'shiling</span>
+    <span data-lang="en">Join the first wave of UstaHub masters</span>
+  </h2>
+  <p>
+    <span data-lang="ru" class="active">Зарегистрируйтесь сейчас, подготовьте профиль до 20 июля и получите 250 токенов</span>
+    <span data-lang="uz">Hozir ro'yxatdan o'ting, 20-iyulgacha profilingizni tayyorlang va 250 token oling</span>
+    <span data-lang="en">Register now, prepare your profile before July 20 and get 250 tokens</span>
+  </p>
+  <button class="btn-orange">
+    <span data-lang="ru" class="active">Зарегистрироваться</span>
+    <span data-lang="uz">Ro'yxatdan o'tish</span>
+    <span data-lang="en">Register</span>
+  </button>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="logo">
+      <svg viewBox="0 0 32 32" fill="none" width="28" height="28">
+        <circle cx="16" cy="16" r="16" fill="#1BBDB5"/>
+        <path d="M8 22 L16 10 L24 22" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="16" cy="10" r="3" fill="#fff"/>
+      </svg>
+      <span style="color:#fff;font-size:18px;font-weight:800">USTA<span style="color:#1BBDB5">HUB</span></span>
+    </div>
+    <div class="footer-links">
+      <a href="#">
+        <span data-lang="ru" class="active">Как это работает</span>
+        <span data-lang="uz">Bu qanday ishlaydi</span>
+        <span data-lang="en">How it works</span>
+      </a>
+      <a href="#">
+        <span data-lang="ru" class="active">Токены</span>
+        <span data-lang="uz">Tokenlar</span>
+        <span data-lang="en">Tokens</span>
+      </a>
+      <a href="#">Tezkor Xizmat</a>
+      <a href="#">FAQ</a>
+    </div>
+    <div class="footer-social">
+      <a href="#" class="social-btn" aria-label="Telegram">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.7 8c-.12.58-.46.72-.93.44l-2.58-1.9-1.24 1.2c-.14.14-.26.26-.52.26l.18-2.6 4.72-4.26c.2-.18-.04-.28-.32-.1L7.66 14.3l-2.52-.79c-.54-.17-.56-.54.12-.8l9.84-3.8c.45-.17.85.11.54.89z"/></svg>
+      </a>
+      <a href="#" class="social-btn" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="#" class="social-btn" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M21.6 7.2s-.2-1.4-.8-2c-.8-.8-1.7-.8-2.1-.9C16.2 4.1 12 4.1 12 4.1s-4.2 0-6.7.2c-.4.1-1.3.1-2.1.9-.6.6-.8 2-.8 2S2.2 8.8 2.2 10.4v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.3.8C7 18 12 18 12 18s4.2 0 6.7-.2c.4-.1 1.3-.1 2.1-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5c0-1.6-.2-3.2-.2-3.2zM9.9 14.1V9.4l5.7 2.4-5.7 2.3z"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2025 UstaHub.
+    <span data-lang="ru" class="active">Все права защищены.</span>
+    <span data-lang="uz">Barcha huquqlar himoyalangan.</span>
+    <span data-lang="en">All rights reserved.</span>
+  </div>
+</footer>
+
+<script>
+var currentLang = 'ru';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-lang]').forEach(function(el) {
+    if (el.getAttribute('data-lang') === lang) {
+      el.classList.add('active');
+    } else {
+      el.classList.remove('active');
+    }
+  });
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+  });
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    if (btn.textContent.trim().toLowerCase() === lang) btn.classList.add('active');
+  });
+  document.documentElement.lang = lang;
+}
+
+function toggleFaq(el) {
+  var answer = el.nextElementSibling;
+  var toggle = el.querySelector('.faq-toggle');
+  var isOpen = answer.classList.contains('open');
+  document.querySelectorAll('.faq-answer').forEach(function(a){a.classList.remove('open')});
+  document.querySelectorAll('.faq-toggle').forEach(function(t){t.style.transform='rotate(0deg)'});
+  if (!isOpen) {
+    answer.classList.add('open');
+    toggle.style.transform = 'rotate(180deg)';
+  }
+}
+
+// Timer animation
+(function(){
+  var totalSecs = 165;
+  var el = document.querySelector('.timer-display');
+  setInterval(function(){
+    totalSecs--;
+    if(totalSecs < 0) totalSecs = 165;
+    var m = Math.floor(totalSecs/60);
+    var s = totalSecs % 60;
+    var timeStr = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    if(el) el.childNodes[0].textContent = timeStr;
+  }, 1000);
+})();
+</script>
+</body>
+</html>
