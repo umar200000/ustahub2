@@ -366,6 +366,49 @@ class _ReviewsPageState extends State<ReviewsPage> {
   }
 }
 
+void _showFullImage(BuildContext context, List<ReviewImage> images, int initial) {
+  final validImages = images.where((i) => i.imageUrl != null && i.imageUrl!.isNotEmpty).toList();
+  if (validImages.isEmpty) return;
+  final controller = PageController(initialPage: initial.clamp(0, validImages.length - 1));
+  showDialog(
+    context: context,
+    barrierColor: Colors.black87,
+    builder: (_) => Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.zero,
+      child: Stack(
+        children: [
+          PageView.builder(
+            controller: controller,
+            itemCount: validImages.length,
+            itemBuilder: (_, i) => InteractiveViewer(
+              child: Center(
+                child: Image.network(
+                  validImages[i].imageUrl!,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, color: Colors.white, size: 64),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 12,
+            right: 12,
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                child: const Icon(Icons.close, color: Colors.white, size: 20),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 class _ReviewCard extends StatelessWidget {
   final ReviewData review;
   final CustomColorSet colors;
@@ -526,6 +569,38 @@ class _ReviewCard extends StatelessWidget {
                 fontSize: 13.sp,
                 color: colors.neutral700,
                 height: 1.5,
+              ),
+            ),
+          ],
+          if (review.images.isNotEmpty) ...[
+            SizedBox(height: 12.h),
+            SizedBox(
+              height: 90.h,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: review.images.length,
+                itemBuilder: (context, i) {
+                  final img = review.images[i];
+                  if (img.imageUrl == null || img.imageUrl!.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return GestureDetector(
+                    onTap: () => _showFullImage(context, review.images, i),
+                    child: Container(
+                      width: 80.w,
+                      height: 80.h,
+                      margin: EdgeInsets.only(right: 8.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.r),
+                        color: colors.neutral100,
+                        image: DecorationImage(
+                          image: NetworkImage(img.imageUrl!),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],

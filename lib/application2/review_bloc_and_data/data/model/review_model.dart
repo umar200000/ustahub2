@@ -33,6 +33,20 @@ class ReviewListResponse {
       );
 }
 
+class ReviewImage {
+  final String? id;
+  final String? imageUrl;
+  final int order;
+
+  ReviewImage({this.id, this.imageUrl, this.order = 0});
+
+  factory ReviewImage.fromJson(Map<String, dynamic> json) => ReviewImage(
+        id: json["id"],
+        imageUrl: json["image_url"],
+        order: json["order"] ?? 0,
+      );
+}
+
 class ReviewData {
   final String? id;
   final String? bookingId;
@@ -56,6 +70,7 @@ class ReviewData {
   final String? serviceTitle;
   final String? providerName;
   final String? providerLogo;
+  final List<ReviewImage> images;
 
   ReviewData({
     this.id,
@@ -80,6 +95,7 @@ class ReviewData {
     this.serviceTitle,
     this.providerName,
     this.providerLogo,
+    this.images = const [],
   });
 
   factory ReviewData.fromJson(Map<String, dynamic> json) => ReviewData(
@@ -97,20 +113,18 @@ class ReviewData {
         updatedAt: json["updated_at"],
         isFlagged: json["is_flagged"],
         moderationStatus: json["moderation_status"],
-        user: json["user"] == null
-            ? null
-            : ReviewUser.fromJson(json["user"]),
-        service: json["service"] == null
-            ? null
-            : ReviewService.fromJson(json["service"]),
-        provider: json["provider"] == null
-            ? null
-            : ReviewProvider.fromJson(json["provider"]),
+        user: json["user"] == null ? null : ReviewUser.fromJson(json["user"]),
+        service: json["service"] == null ? null : ReviewService.fromJson(json["service"]),
+        provider: json["provider"] == null ? null : ReviewProvider.fromJson(json["provider"]),
         userName: json["user_name"],
         userAvatar: json["user_avatar"],
         serviceTitle: json["service_title"],
         providerName: json["provider_name"],
         providerLogo: json["provider_logo"],
+        images: json["images"] == null
+            ? []
+            : List<ReviewImage>.from(
+                (json["images"] as List).map((x) => ReviewImage.fromJson(x))),
       );
 }
 
