@@ -74,9 +74,11 @@ class _OrdersPageState extends State<OrdersPage> {
     FontSet fonts,
     dynamic data,
   ) {
+    final price = data.basePrice ?? data.totalPrice;
     final service = ServiceData(
       id: data.serviceId as String?,
       title: data.serviceTitle as String?,
+      basePrice: price != null ? price.toString() : null,
     );
     Navigator.push(
       context,
