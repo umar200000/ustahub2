@@ -17,7 +17,7 @@ class BookingRepo {
           imageFile.path,
           filename: imageFile.path.split('/').last,
         ),
-        'folder': 'review_images',
+        'folder': 'images',
       });
       final response = await _dio.post(
         'api/v1/uploads/images/',
