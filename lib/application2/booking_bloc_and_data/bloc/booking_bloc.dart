@@ -51,15 +51,26 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       }
 
       try {
-        final response = await _bookingRepo.bookingService(
-          serviceId: event.serviceId,
-          latitude: event.latitude,
-          longitude: event.longitude,
-          scheduledDate: event.scheduledDate,
-          scheduledTimeStart: event.scheduledTimeStart,
-          address: event.address,
-          userComment: event.userComment,
-        );
+        final response = event.isRecall && event.recallMasterId != null
+            ? await _bookingRepo.recallBooking(
+                serviceId: event.serviceId,
+                recallMasterId: event.recallMasterId!,
+                scheduledDate: event.scheduledDate,
+                scheduledTimeStart: event.scheduledTimeStart,
+                latitude: event.latitude,
+                longitude: event.longitude,
+                address: event.address,
+                userComment: event.userComment,
+              )
+            : await _bookingRepo.bookingService(
+                serviceId: event.serviceId,
+                latitude: event.latitude,
+                longitude: event.longitude,
+                scheduledDate: event.scheduledDate,
+                scheduledTimeStart: event.scheduledTimeStart,
+                address: event.address,
+                userComment: event.userComment,
+              );
 
         if (response.statusCode == 200 || response.statusCode == 201) {
           final bookingModel = BookingModel.fromJson(response.data);

@@ -21,6 +21,8 @@ class CreateBookingEvent extends BookingEvent {
   final String? providerName;
   final String? providerLogo;
   final double? totalPrice;
+  final bool isRecall;
+  final String? recallMasterId;
 
   const CreateBookingEvent({
     required this.serviceId,
@@ -34,6 +36,8 @@ class CreateBookingEvent extends BookingEvent {
     this.providerName,
     this.providerLogo,
     this.totalPrice,
+    this.isRecall = false,
+    this.recallMasterId,
   });
 
   @override
@@ -49,6 +53,8 @@ class CreateBookingEvent extends BookingEvent {
     providerName,
     providerLogo,
     totalPrice,
+    isRecall,
+    recallMasterId,
   ];
 }
 

@@ -12,6 +12,8 @@ import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dar
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
+import 'package:ustahub/application2/details_service/data/model/details_model.dart';
+import 'package:ustahub/presentation/pages/booking_page/pages/booking_page.dart';
 import 'package:ustahub/presentation/pages/booking_page/pages/payment_page.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/core/services/support_service.dart';
@@ -72,179 +74,24 @@ class _OrdersPageState extends State<OrdersPage> {
     FontSet fonts,
     dynamic data,
   ) {
-    DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
-    TimeOfDay selectedTime = const TimeOfDay(hour: 10, minute: 0);
-    bool isLoading = false;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setModalState) {
-            return Container(
-              padding: EdgeInsets.fromLTRB(
-                20.w,
-                20.h,
-                20.w,
-                MediaQuery.of(ctx).viewInsets.bottom + 24.h,
-              ),
-              decoration: BoxDecoration(
-                color: colors.shade0,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40.w,
-                      height: 4.h,
-                      decoration: BoxDecoration(
-                        color: colors.neutral300,
-                        borderRadius: BorderRadius.circular(2.r),
-                      ),
-                    ),
-                  ),
-                  Gap(16.h),
-                  Row(
-                    children: [
-                      Icon(Icons.replay_rounded, color: colors.primary500, size: 22.sp),
-                      Gap(8.w),
-                      Text(
-                        "recall_booking".tr(),
-                        style: fonts.headingH3Bold.copyWith(color: colors.neutral800),
-                      ),
-                    ],
-                  ),
-                  Gap(8.h),
-                  if (data.master != null)
-                    Text(
-                      '${data.master?.firstName ?? ''} ${data.master?.lastName ?? ''}',
-                      style: fonts.paragraphP2Regular.copyWith(color: colors.neutral600),
-                    ),
-                  Gap(20.h),
-                  // Date picker
-                  GestureDetector(
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: ctx,
-                        initialDate: selectedDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 90)),
-                      );
-                      if (picked != null) {
-                        setModalState(() => selectedDate = picked);
-                      }
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(14.w),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: colors.neutral300),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.calendar_today_rounded, size: 18.sp, color: colors.primary500),
-                          Gap(10.w),
-                          Text(
-                            '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}',
-                            style: fonts.paragraphP2Regular,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Gap(12.h),
-                  // Time picker
-                  GestureDetector(
-                    onTap: () async {
-                      final picked = await showTimePicker(
-                        context: ctx,
-                        initialTime: selectedTime,
-                      );
-                      if (picked != null) {
-                        setModalState(() => selectedTime = picked);
-                      }
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(14.w),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: colors.neutral300),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.access_time_rounded, size: 18.sp, color: colors.primary500),
-                          Gap(10.w),
-                          Text(
-                            '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}:00',
-                            style: fonts.paragraphP2Regular,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Gap(24.h),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: isLoading
-                          ? null
-                          : () async {
-                              setModalState(() => isLoading = true);
-                              try {
-                                final repo = context.read<BookingBloc>().bookingRepo;
-                                final dateStr =
-                                    '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}';
-                                final timeStr =
-                                    '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}:00';
-                                final resp = await repo.recallBooking(
-                                  serviceId: data.serviceId,
-                                  recallMasterId: data.masterId,
-                                  scheduledDate: dateStr,
-                                  scheduledTimeStart: timeStr,
-                                  latitude: data.latitude,
-                                  longitude: data.longitude,
-                                  address: data.address,
-                                );
-                                if (ctx.mounted) Navigator.pop(ctx);
-                                if (resp.data != null && resp.data['success'] == true) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text("recall_success".tr()),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
-                                  }
-                                }
-                              } catch (e) {
-                                setModalState(() => isLoading = false);
-                              }
-                            },
-                      icon: isLoading
-                          ? SizedBox(width: 18.w, height: 18.h, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : Icon(Icons.replay_rounded, color: Colors.white, size: 20.sp),
-                      label: Text(
-                        "recall_booking".tr(),
-                        style: fonts.paragraphP2SemiBold.copyWith(color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.primary500,
-                        padding: EdgeInsets.symmetric(vertical: 14.h),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+    final service = ServiceData(
+      id: data.serviceId as String?,
+      title: data.serviceTitle as String?,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<BookingBloc>(),
+          child: BookingPage(
+            service: service,
+            isRecall: true,
+            recallMasterId: data.masterId as String?,
+            recallMasterName:
+                '${data.master?.firstName ?? ''} ${data.master?.lastName ?? ''}'.trim(),
+          ),
+        ),
+      ),
     );
   }
 

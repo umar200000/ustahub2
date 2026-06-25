@@ -16,8 +16,17 @@ import 'map_selection_page.dart';
 
 class BookingPage extends StatefulWidget {
   final ServiceData service;
+  final bool isRecall;
+  final String? recallMasterId;
+  final String? recallMasterName;
 
-  const BookingPage({super.key, required this.service});
+  const BookingPage({
+    super.key,
+    required this.service,
+    this.isRecall = false,
+    this.recallMasterId,
+    this.recallMasterName,
+  });
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -456,6 +465,8 @@ class _BookingPageState extends State<BookingPage> {
                                       totalPrice: double.tryParse(
                                         widget.service.basePrice ?? "",
                                       ),
+                                      isRecall: widget.isRecall,
+                                      recallMasterId: widget.recallMasterId,
                                     ),
                                   );
                                 },
