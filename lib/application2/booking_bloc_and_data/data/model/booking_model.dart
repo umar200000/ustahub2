@@ -398,17 +398,29 @@ class BookingMaster {
   };
 }
 
+class ReviewImageItem {
+  final String? imageUrl;
+  ReviewImageItem({this.imageUrl});
+  factory ReviewImageItem.fromJson(Map<String, dynamic> json) =>
+      ReviewImageItem(imageUrl: json["image_url"]);
+}
+
 class Review {
   final int? rating;
   final String? comment;
   final String? createdAt;
+  final List<ReviewImageItem> images;
 
-  Review({this.rating, this.comment, this.createdAt});
+  Review({this.rating, this.comment, this.createdAt, this.images = const []});
 
   factory Review.fromJson(Map<String, dynamic> json) => Review(
     rating: json["rating"],
     comment: json["comment"],
     createdAt: json["created_at"],
+    images: json["images"] == null
+        ? []
+        : List<ReviewImageItem>.from(
+            (json["images"] as List).map((x) => ReviewImageItem.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {

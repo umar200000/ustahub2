@@ -324,6 +324,54 @@ class _OrdersPageState extends State<OrdersPage> {
     );
   }
 
+  void _showFullScreenImages(BuildContext context, List<String> urls, int initial) {
+    final controller = PageController(initialPage: initial.clamp(0, urls.length - 1));
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          children: [
+            PageView.builder(
+              controller: controller,
+              itemCount: urls.length,
+              itemBuilder: (_, i) => InteractiveViewer(
+                child: Center(
+                  child: Image.network(
+                    urls[i],
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.broken_image,
+                      color: Colors.white,
+                      size: 64,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 12,
+              right: 12,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, color: Colors.white, size: 20),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showReviewSheet(
     BuildContext context,
     CustomColorSet colors,
@@ -1107,17 +1155,51 @@ class _OrdersPageState extends State<OrdersPage> {
                                           }),
                                         ),
                                         if (data.review?.comment != null &&
-                                            data
-                                                .review!
-                                                .comment!
-                                                .isNotEmpty) ...[
+                                            data.review!.comment!.isNotEmpty) ...[
                                           Gap(8.h),
                                           Text(
                                             data.review!.comment!,
                                             style: fonts.paragraphP2Regular
-                                                .copyWith(
-                                                  color: colors.neutral700,
-                                                ),
+                                                .copyWith(color: colors.neutral700),
+                                          ),
+                                        ],
+                                        if (data.review != null &&
+                                            data.review!.images.isNotEmpty) ...[
+                                          Gap(10.h),
+                                          SizedBox(
+                                            height: 80.h,
+                                            child: ListView.builder(
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: data.review!.images.length,
+                                              itemBuilder: (context, i) {
+                                                final img = data.review!.images[i];
+                                                if (img.imageUrl == null || img.imageUrl!.isEmpty) {
+                                                  return const SizedBox.shrink();
+                                                }
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    final urls = data.review!.images
+                                                        .where((x) => x.imageUrl != null && x.imageUrl!.isNotEmpty)
+                                                        .map((x) => x.imageUrl!)
+                                                        .toList();
+                                                    _showFullScreenImages(context, urls, i);
+                                                  },
+                                                  child: Container(
+                                                    width: 72.w,
+                                                    height: 72.h,
+                                                    margin: EdgeInsets.only(right: 8.w),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(10.r),
+                                                      color: colors.neutral100,
+                                                      image: DecorationImage(
+                                                        image: NetworkImage(img.imageUrl!),
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
                                           ),
                                         ],
                                       ],
