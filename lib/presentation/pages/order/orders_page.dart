@@ -91,7 +91,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 MediaQuery.of(ctx).viewInsets.bottom + 24.h,
               ),
               decoration: BoxDecoration(
-                color: colors.white,
+                color: colors.shade0,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
               ),
               child: Column(
@@ -115,7 +115,7 @@ class _OrdersPageState extends State<OrdersPage> {
                       Gap(8.w),
                       Text(
                         "recall_booking".tr(),
-                        style: fonts.headingH3Bold.copyWith(color: colors.neutral900),
+                        style: fonts.headingH3Bold.copyWith(color: colors.neutral800),
                       ),
                     ],
                   ),
