@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 
 import '../../../../infrastructure2/init/injection.dart';
@@ -5,14 +7,52 @@ import '../../../../infrastructure2/init/injection.dart';
 class BookingRepo {
   final _dio = sl<Dio>();
 
+  /// Uploads a single review image via multipart/form-data.
+  /// Returns the uploaded media's ID on success, or null on any failure
+  /// (the caller simply skips failed uploads instead of blocking the review).
+  Future<String?> uploadReviewImage(File imageFile) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: imageFile.path.split('/').last,
+        ),
+        'folder': 'review_images',
+      });
+      final response = await _dio.post(
+        'api/v1/uploads/images/',
+        data: formData,
+      );
+      if (response.data != null &&
+          response.data['success'] == true &&
+          response.data['data'] != null) {
+        return response.data['data']['id'] as String?;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<Response> setReview({
     required String bookingId,
     required int rating,
     required String comment,
+    List<String> mediaIds = const [],
   }) async {
+    // Build the base payload; only attach media_ids when there are uploads
+    // so the request body stays clean for text-only reviews.
+    final Map<String, dynamic> data = {
+      "booking_id": bookingId,
+      "rating": rating,
+      "comment": comment,
+    };
+    if (mediaIds.isNotEmpty) {
+      data["media_ids"] = mediaIds;
+    }
     final response = await _dio.post(
       "api/v1/client/reviews/",
-      data: {"booking_id": bookingId, "rating": rating, "comment": comment},
+      data: data,
     );
     return response;
   }

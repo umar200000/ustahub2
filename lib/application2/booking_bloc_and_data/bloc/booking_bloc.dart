@@ -15,6 +15,10 @@ part 'booking_state.dart';
 class BookingBloc extends Bloc<BookingEvent, BookingState> {
   final BookingRepo _bookingRepo = BookingRepo();
 
+  // Public accessor so the UI layer can upload review images directly
+  // (e.g. from the review bottom sheet) before dispatching SetReviewEvent.
+  BookingRepo get bookingRepo => _bookingRepo;
+
   BookingBloc() : super(const BookingState()) {
     on<CreateBookingEvent>((event, emit) async {
       emit(state.copyWith(status: Status2.loading));
@@ -467,6 +471,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           bookingId: event.bookingId,
           rating: event.rating,
           comment: event.comment,
+          mediaIds: event.mediaIds,
         );
 
         if (response.statusCode == 200 || response.statusCode == 201) {

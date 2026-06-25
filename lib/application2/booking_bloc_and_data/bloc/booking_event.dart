@@ -94,13 +94,16 @@ class SetReviewEvent extends BookingEvent {
   final String bookingId;
   final int rating;
   final String comment;
+  // List of uploaded media IDs (returned by the image upload endpoint).
+  final List<String> mediaIds;
 
   const SetReviewEvent({
     required this.bookingId,
     required this.rating,
     required this.comment,
+    this.mediaIds = const [],
   });
 
   @override
-  List<Object?> get props => [bookingId, rating, comment];
+  List<Object?> get props => [bookingId, rating, comment, mediaIds];
 }

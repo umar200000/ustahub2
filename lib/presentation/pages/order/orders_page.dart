@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -328,6 +331,10 @@ class _OrdersPageState extends State<OrdersPage> {
   ) {
     double tempRating = 0;
     final TextEditingController reviewController = TextEditingController();
+    // Locally selected images (not yet uploaded). Capped at 6 by the picker.
+    final List<XFile> selectedImages = [];
+    // True while images are being uploaded to the backend, used to lock the UI.
+    bool isUploadingImages = false;
 
     showModalBottomSheet(
       context: context,
@@ -356,6 +363,24 @@ class _OrdersPageState extends State<OrdersPage> {
           builder: (context, state) {
             return StatefulBuilder(
               builder: (context, setModalState) {
+                // The sheet is "loading" either while the review request is in
+                // flight OR while images are still uploading.
+                final isLoading = state.reviewStatus == Status2.loading ||
+                    isUploadingImages;
+
+                // Opens the gallery multi-picker, limited to the remaining slots.
+                Future<void> pickImages() async {
+                  final picker = ImagePicker();
+                  final remaining = 6 - selectedImages.length;
+                  if (remaining <= 0) return;
+                  final picked = await picker.pickMultiImage(limit: remaining);
+                  if (picked.isNotEmpty) {
+                    setModalState(() {
+                      selectedImages.addAll(picked.take(remaining));
+                    });
+                  }
+                }
+
                 return Container(
                   padding: EdgeInsets.only(
                     left: 20.w,
@@ -369,125 +394,264 @@ class _OrdersPageState extends State<OrdersPage> {
                       top: Radius.circular(24.r),
                     ),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 40.w,
-                        height: 4.h,
-                        decoration: BoxDecoration(
-                          color: colors.neutral300,
-                          borderRadius: BorderRadius.circular(2.r),
-                        ),
-                      ),
-                      Gap(24.h),
-                      Text("leave_review".tr(), style: fonts.paragraphP1Bold),
-                      Gap(16.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(5, (index) {
-                          return IconButton(
-                            onPressed: state.reviewStatus == Status2.loading
-                                ? null
-                                : () {
-                                    setModalState(() {
-                                      tempRating = index + 1.0;
-                                    });
-                                  },
-                            icon: Icon(
-                              index < tempRating
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber,
-                              size: 36.sp,
-                            ),
-                          );
-                        }),
-                      ),
-                      Gap(16.h),
-                      TextField(
-                        controller: reviewController,
-                        maxLines: 4,
-                        enabled: state.reviewStatus != Status2.loading,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "write_your_opinion".tr(),
-                          hintStyle: fonts.paragraphP2Regular.copyWith(
-                            color: colors.neutral500,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 40.w,
+                          height: 4.h,
+                          decoration: BoxDecoration(
+                            color: colors.neutral300,
+                            borderRadius: BorderRadius.circular(2.r),
                           ),
-                          filled: true,
-                          fillColor: colors.shade0,
-                          contentPadding: EdgeInsets.all(16.w),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                            borderSide: BorderSide(
+                        ),
+                        Gap(24.h),
+                        Text("leave_review".tr(), style: fonts.paragraphP1Bold),
+                        Gap(16.h),
+                        // Star rating
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(5, (index) {
+                            return IconButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      setModalState(() {
+                                        tempRating = index + 1.0;
+                                      });
+                                    },
+                              icon: Icon(
+                                index < tempRating
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: Colors.amber,
+                                size: 36.sp,
+                              ),
+                            );
+                          }),
+                        ),
+                        Gap(16.h),
+                        // Comment field
+                        TextField(
+                          controller: reviewController,
+                          maxLines: 3,
+                          enabled: !isLoading,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "write_your_opinion".tr(),
+                            hintStyle: fonts.paragraphP2Regular.copyWith(
                               color: colors.neutral500,
-                              width: 1.5,
                             ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                            borderSide: BorderSide(
-                              color: colors.primary500,
-                              width: 1.5,
+                            filled: true,
+                            fillColor: colors.shade0,
+                            contentPadding: EdgeInsets.all(16.w),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                              borderSide: BorderSide(
+                                color: colors.neutral500,
+                                width: 1.5,
+                              ),
                             ),
-                          ),
-                          disabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                            borderSide: BorderSide(
-                              color: colors.neutral300,
-                              width: 1.5,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                              borderSide: BorderSide(
+                                color: colors.primary500,
+                                width: 1.5,
+                              ),
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                              borderSide: BorderSide(
+                                color: colors.neutral300,
+                                width: 1.5,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Gap(24.h),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50.h,
-                        child: ElevatedButton(
-                          onPressed:
-                              (tempRating == 0 ||
-                                  state.reviewStatus == Status2.loading)
-                              ? null
-                              : () {
-                                  context.read<BookingBloc>().add(
-                                    SetReviewEvent(
-                                      bookingId: widget.bookingId,
-                                      rating: tempRating.toInt(),
-                                      comment: reviewController.text,
-                                    ),
-                                  );
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primary500,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
+                        Gap(16.h),
+                        // Photo section header with counter
+                        Row(
+                          children: [
+                            Text(
+                              "photos".tr(),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: colors.neutral700,
+                              ),
                             ),
-                          ),
-                          child: state.reviewStatus == Status2.loading
-                              ? SizedBox(
-                                  width: 24.w,
-                                  height: 24.w,
-                                  child: const CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  "send".tr(),
-                                  style: fonts.paragraphP2SemiBold.copyWith(
-                                    color: Colors.white,
+                            Gap(4.w),
+                            Text(
+                              "(${selectedImages.length}/6)",
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: colors.neutral500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gap(8.h),
+                        SizedBox(
+                          height: 90.h,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              // Add photo button (only while under the 6 limit)
+                              if (selectedImages.length < 6)
+                                GestureDetector(
+                                  onTap: isLoading ? null : pickImages,
+                                  child: Container(
+                                    width: 80.w,
+                                    height: 80.h,
+                                    margin: EdgeInsets.only(right: 8.w),
+                                    decoration: BoxDecoration(
+                                      color: colors.neutral100,
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      border: Border.all(
+                                        color: colors.primary500,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.add_photo_alternate_outlined,
+                                          color: colors.primary500,
+                                          size: 28.sp,
+                                        ),
+                                        Gap(4.h),
+                                        Text(
+                                          "add_photo".tr(),
+                                          style: TextStyle(
+                                            fontSize: 10.sp,
+                                            color: colors.primary500,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
+                              // Selected image thumbnails with remove buttons
+                              ...selectedImages.asMap().entries.map((entry) {
+                                final idx = entry.key;
+                                final img = entry.value;
+                                return Stack(
+                                  children: [
+                                    Container(
+                                      width: 80.w,
+                                      height: 80.h,
+                                      margin: EdgeInsets.only(right: 8.w),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(12.r),
+                                        image: DecorationImage(
+                                          image: FileImage(File(img.path)),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 2,
+                                      right: 10,
+                                      child: GestureDetector(
+                                        onTap: isLoading
+                                            ? null
+                                            : () {
+                                                setModalState(() {
+                                                  selectedImages.removeAt(idx);
+                                                });
+                                              },
+                                        child: Container(
+                                          width: 20.w,
+                                          height: 20.w,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.black54,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 13.sp,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }),
+                            ],
+                          ),
                         ),
-                      ),
-                      Gap(MediaQuery.of(context).padding.bottom),
-                    ],
+                        Gap(24.h),
+                        // Submit button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50.h,
+                          child: ElevatedButton(
+                            onPressed: (tempRating == 0 || isLoading)
+                                ? null
+                                : () async {
+                                    setModalState(
+                                      () => isUploadingImages = true,
+                                    );
+                                    // Upload selected images first; collect IDs.
+                                    final mediaIds = <String>[];
+                                    final repo =
+                                        context.read<BookingBloc>().bookingRepo;
+                                    for (final img in selectedImages) {
+                                      final id = await repo.uploadReviewImage(
+                                        File(img.path),
+                                      );
+                                      if (id != null) mediaIds.add(id);
+                                    }
+                                    setModalState(
+                                      () => isUploadingImages = false,
+                                    );
+                                    if (context.mounted) {
+                                      context.read<BookingBloc>().add(
+                                        SetReviewEvent(
+                                          bookingId: widget.bookingId,
+                                          rating: tempRating.toInt(),
+                                          comment: reviewController.text,
+                                          mediaIds: mediaIds,
+                                        ),
+                                      );
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.primary500,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                            ),
+                            child: isLoading
+                                ? SizedBox(
+                                    width: 24.w,
+                                    height: 24.w,
+                                    child: const CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    "send".tr(),
+                                    style: fonts.paragraphP2SemiBold.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        Gap(MediaQuery.of(context).padding.bottom),
+                      ],
+                    ),
                   ),
                 );
               },
