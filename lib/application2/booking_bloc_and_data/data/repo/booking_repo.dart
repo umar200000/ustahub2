@@ -111,6 +111,35 @@ class BookingRepo {
     return response;
   }
 
+  /// Recall — avval ishlagan ustani qayta chaqirish (token olinmaydi).
+  Future<Response> recallBooking({
+    required String serviceId,
+    required String recallMasterId,
+    required String scheduledDate,
+    required String scheduledTimeStart,
+    double? latitude,
+    double? longitude,
+    String? address,
+    String? userComment,
+  }) async {
+    final response = await _dio.post(
+      "api/v1/client/bookings/",
+      data: {
+        "service_id": serviceId,
+        "scheduled_date": scheduledDate,
+        "scheduled_time_start": scheduledTimeStart,
+        "is_recall": true,
+        "recall_master_id": recallMasterId,
+        if (latitude != null) "latitude": latitude,
+        if (longitude != null) "longitude": longitude,
+        if (address != null && address.isNotEmpty) "address": address,
+        if (userComment != null && userComment.isNotEmpty)
+          "user_comment": userComment,
+      },
+    );
+    return response;
+  }
+
   /// request_based (masofaviy) xizmat uchun — vaqt/joy/to'lov so'ralmaydi.
   /// Bugungi sana va joriy vaqt avtomatik qo'yiladi.
   Future<Response> quickBooking({required String serviceId}) async {
