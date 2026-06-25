@@ -10,6 +10,8 @@ class SearchState extends Equatable {
   final String? selectedProvinceName;
   final String? selectedDistrictId;
   final String? selectedDistrictName;
+  final String? selectedCategoryId;
+  final String? selectedCategoryName;
 
   const SearchState({
     this.status = Status2.initial,
@@ -21,10 +23,14 @@ class SearchState extends Equatable {
     this.selectedProvinceName,
     this.selectedDistrictId,
     this.selectedDistrictName,
+    this.selectedCategoryId,
+    this.selectedCategoryName,
   });
 
   bool get hasFilter =>
-      selectedProvinceId != null || selectedDistrictId != null;
+      selectedProvinceId != null ||
+      selectedDistrictId != null ||
+      selectedCategoryId != null;
 
   SearchState copyWith({
     Status2? status,
@@ -36,8 +42,11 @@ class SearchState extends Equatable {
     String? selectedProvinceName,
     String? selectedDistrictId,
     String? selectedDistrictName,
+    String? selectedCategoryId,
+    String? selectedCategoryName,
     bool clearProvince = false,
     bool clearDistrict = false,
+    bool clearCategory = false,
   }) {
     return SearchState(
       status: status ?? this.status,
@@ -53,6 +62,10 @@ class SearchState extends Equatable {
           clearDistrict ? null : selectedDistrictId ?? this.selectedDistrictId,
       selectedDistrictName:
           clearDistrict ? null : selectedDistrictName ?? this.selectedDistrictName,
+      selectedCategoryId:
+          clearCategory ? null : selectedCategoryId ?? this.selectedCategoryId,
+      selectedCategoryName:
+          clearCategory ? null : selectedCategoryName ?? this.selectedCategoryName,
     );
   }
 
@@ -67,5 +80,7 @@ class SearchState extends Equatable {
     selectedProvinceName,
     selectedDistrictId,
     selectedDistrictName,
+    selectedCategoryId,
+    selectedCategoryName,
   ];
 }

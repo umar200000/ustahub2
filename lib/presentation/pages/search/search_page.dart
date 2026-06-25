@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -237,6 +238,23 @@ class _SearchPageState extends State<SearchPage> {
               onRemove: () => sl<SearchBloc>().add(SearchFilterEvent(
                 provinceId: state.selectedProvinceId,
                 provinceName: state.selectedProvinceName,
+                categoryId: state.selectedCategoryId,
+                categoryName: state.selectedCategoryName,
+              )),
+              colors: colors,
+            ),
+          ],
+          if (state.selectedCategoryName != null) ...[
+            SizedBox(width: 8.w),
+            _filterChip(
+              label: state.selectedCategoryName!,
+              icon: Icons.category_rounded,
+              // Removing category keeps the province/district selection intact.
+              onRemove: () => sl<SearchBloc>().add(SearchFilterEvent(
+                provinceId: state.selectedProvinceId,
+                provinceName: state.selectedProvinceName,
+                districtId: state.selectedDistrictId,
+                districtName: state.selectedDistrictName,
               )),
               colors: colors,
             ),
@@ -294,6 +312,8 @@ class _SearchPageState extends State<SearchPage> {
           initialProvinceName: state.selectedProvinceName,
           initialDistrictId: state.selectedDistrictId,
           initialDistrictName: state.selectedDistrictName,
+          initialCategoryId: state.selectedCategoryId,
+          initialCategoryName: state.selectedCategoryName,
         ),
       ),
     );
@@ -514,12 +534,16 @@ class _SearchFilterSheet extends StatefulWidget {
   final String? initialProvinceName;
   final String? initialDistrictId;
   final String? initialDistrictName;
+  final String? initialCategoryId;
+  final String? initialCategoryName;
 
   const _SearchFilterSheet({
     this.initialProvinceId,
     this.initialProvinceName,
     this.initialDistrictId,
     this.initialDistrictName,
+    this.initialCategoryId,
+    this.initialCategoryName,
   });
 
   @override
@@ -531,13 +555,17 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
 
   List<ExpressProvinceModel> _provinces = [];
   List<ExpressDistrictModel> _districts = [];
+  List<ExpressCategoryModel> _categories = [];
   bool _loadingProvinces = true;
   bool _loadingDistricts = false;
+  bool _loadingCategories = true;
 
   String? _selectedProvinceId;
   String? _selectedProvinceName;
   String? _selectedDistrictId;
   String? _selectedDistrictName;
+  String? _selectedCategoryId;
+  String? _selectedCategoryName;
 
   @override
   void initState() {
@@ -546,8 +574,29 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
     _selectedProvinceName = widget.initialProvinceName;
     _selectedDistrictId = widget.initialDistrictId;
     _selectedDistrictName = widget.initialDistrictName;
+    _selectedCategoryId = widget.initialCategoryId;
+    _selectedCategoryName = widget.initialCategoryName;
     _loadProvinces();
+    _loadCategories();
     if (_selectedProvinceId != null) _loadDistricts(_selectedProvinceId!);
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final dio = sl<Dio>();
+      final response = await dio.get('api/v1/client/services/categories');
+      final body = response.data;
+      if (body is Map && body['data'] is List) {
+        final list = (body['data'] as List)
+            .map((e) => ExpressCategoryModel.fromJson(e))
+            .toList();
+        if (mounted) setState(() { _categories = list; _loadingCategories = false; });
+      } else {
+        if (mounted) setState(() => _loadingCategories = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingCategories = false);
+    }
   }
 
   // O'zbekiston region_id (barqaror — o'zgarmaydi)
@@ -614,6 +663,15 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                   style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
               TextButton(
                 onPressed: () {
+                  setState(() {
+                    _selectedProvinceId = null;
+                    _selectedProvinceName = null;
+                    _selectedDistrictId = null;
+                    _selectedDistrictName = null;
+                    _selectedCategoryId = null;
+                    _selectedCategoryName = null;
+                    _districts = [];
+                  });
                   sl<SearchBloc>().add(const SearchFilterEvent());
                   Navigator.pop(context);
                 },
@@ -693,6 +751,40 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                     });
                   },
                 ),
+          SizedBox(height: 16.h),
+          Text('category'.tr(),
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600,
+                  color: const Color(0xFF555555))),
+          SizedBox(height: 8.h),
+          _loadingCategories
+              ? const Center(child: CircularProgressIndicator())
+              : DropdownButtonFormField<String>(
+                  value: _selectedCategoryId,
+                  hint: Text('select_category'.tr()),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color(0xFFF5F5F5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+                  ),
+                  isExpanded: true,
+                  items: _categories.map((c) => DropdownMenuItem(
+                    value: c.id,
+                    child: Text(c.name(lang), overflow: TextOverflow.ellipsis),
+                  )).toList(),
+                  onChanged: (val) {
+                    if (val == null) return;
+                    final cat = _categories.firstWhere((c) => c.id == val);
+                    setState(() {
+                      _selectedCategoryId = val;
+                      _selectedCategoryName = cat.name(lang);
+                    });
+                  },
+                ),
           SizedBox(height: 24.h),
           SizedBox(
             width: double.infinity,
@@ -703,6 +795,8 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                   provinceName: _selectedProvinceName,
                   districtId: _selectedDistrictId,
                   districtName: _selectedDistrictName,
+                  categoryId: _selectedCategoryId,
+                  categoryName: _selectedCategoryName,
                 ));
                 Navigator.pop(context);
               },

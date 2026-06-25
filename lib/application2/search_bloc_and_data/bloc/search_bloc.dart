@@ -32,8 +32,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       selectedProvinceName: event.provinceName,
       selectedDistrictId: event.districtId,
       selectedDistrictName: event.districtName,
+      selectedCategoryId: event.categoryId,
+      selectedCategoryName: event.categoryName,
       clearProvince: event.provinceId == null,
       clearDistrict: event.districtId == null,
+      clearCategory: event.categoryId == null,
       items: [],
       hasReachedMax: false,
       status: Status2.initial,
@@ -45,6 +48,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         isNewSearch: true,
         provinceId: event.provinceId,
         districtId: event.districtId,
+        categoryId: event.categoryId,
       ));
     }
   }
@@ -64,6 +68,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     final provinceId = event.provinceId ?? state.selectedProvinceId;
     final districtId = event.districtId ?? state.selectedDistrictId;
+    final categoryId = event.categoryId ?? state.selectedCategoryId;
 
     // Yangi qidiruv bo'lsa, holatni boshlang'ichga qaytaramiz
     if (event.isNewSearch || event.query != state.query) {
@@ -86,6 +91,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         limit: 20,
         provinceId: provinceId,
         districtId: districtId,
+        categoryId: categoryId,
       );
 
       if (response.statusCode == 200) {

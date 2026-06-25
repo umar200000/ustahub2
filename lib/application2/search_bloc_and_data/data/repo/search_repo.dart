@@ -11,6 +11,7 @@ class SearchRepo {
     int limit = 20,
     String? provinceId,
     String? districtId,
+    String? categoryId,
   }) async {
     final params = <String, dynamic>{
       "search": query,
@@ -19,6 +20,7 @@ class SearchRepo {
     };
     if (provinceId != null) params["province_id"] = provinceId;
     if (districtId != null) params["district_id"] = districtId;
+    if (categoryId != null) params["category_id"] = categoryId;
     final response = await _dio.get(
       "api/v1/client/services/",
       queryParameters: params,
