@@ -79,6 +79,7 @@ class FavoriteServiceData {
   final String? currencySymbol;
   final bool? isFavorite;
   final String? favoritedAt;
+  final double? averageRating;
 
   FavoriteServiceData({
     this.id,
@@ -97,6 +98,7 @@ class FavoriteServiceData {
     this.currencySymbol,
     this.isFavorite = true,
     this.favoritedAt,
+    this.averageRating,
   });
 
   factory FavoriteServiceData.fromJson(Map<String, dynamic> json) =>
@@ -115,6 +117,7 @@ class FavoriteServiceData {
         provinceName: json["province_name"],
         currencyCode: json["currency_code"],
         currencySymbol: json["currency_symbol"],
+        averageRating: (json["average_rating"] as num?)?.toDouble(),
         isFavorite: _parseFavBool(json["is_favorite"]) ?? true,
         favoritedAt: json["favorited_at"],
       );
