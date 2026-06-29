@@ -15,6 +15,9 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:ustahub/infrastructure/services/notification_provider.dart';
 import 'package:ustahub/presentation/pages/notification_page/notification_page.dart';
+import 'package:ustahub/presentation/pages/chat/chat_page.dart';
+import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
+import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/utils/firebase_options.dart';
 
 class NotificationService {
@@ -314,8 +317,13 @@ class NotificationService {
         );
       }
 
-      // NotificationPage'ga o'tish
-      _navigateToNotificationPage();
+      // chat_message bo'lsa — ChatPage ga o'tish
+      final type = message.data['type']?.toString();
+      if (type == 'chat_message') {
+        _navigateToChatPage(message.data);
+      } else {
+        _navigateToNotificationPage();
+      }
     });
   }
 
@@ -726,6 +734,27 @@ class NotificationService {
     Navigator.of(_context).push(
       MaterialPageRoute(
         builder: (_) => const NotificationPage(),
+      ),
+    );
+  }
+
+  void _navigateToChatPage(Map<String, dynamic> data) {
+    final bookingId = data['booking_id']?.toString() ?? '';
+    final masterId = data['master_id']?.toString() ?? '';
+    final masterName = data['sender_name']?.toString() ?? '';
+    if (bookingId.isEmpty || masterId.isEmpty) return;
+
+    final userId = sl<SharedPrefService>().getUserProfile()?.id ?? '';
+
+    Navigator.of(_context).push(
+      MaterialPageRoute(
+        builder: (_) => ChatPage(
+          bookingId: bookingId,
+          userId: userId,
+          masterId: masterId,
+          masterName: masterName,
+          isActive: true,
+        ),
       ),
     );
   }
