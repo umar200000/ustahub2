@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -183,6 +184,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     },
                   ),
+                ),
+                SizedBox(height: 8.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: _TokenBalanceCard(colors: colors, fonts: fonts),
                 ),
                 SizedBox(height: 8.h),
                 BlocBuilder<RegisterBloc, RegisterState>(
@@ -795,6 +801,115 @@ class _SettingsCard extends StatelessWidget {
         ],
       ),
       child: Column(children: children),
+    );
+  }
+}
+
+class _TokenBalanceCard extends StatefulWidget {
+  final CustomColorSet colors;
+  final FontSet fonts;
+
+  const _TokenBalanceCard({required this.colors, required this.fonts});
+
+  @override
+  State<_TokenBalanceCard> createState() => _TokenBalanceCardState();
+}
+
+class _TokenBalanceCardState extends State<_TokenBalanceCard> {
+  int? _balance;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBalance();
+  }
+
+  Future<void> _loadBalance() async {
+    try {
+      final dio = sl<Dio>();
+      final response = await dio.get("api/v1/client/tokens/balance/");
+      if (response.statusCode == 200) {
+        final balance = response.data?['data']?['balance'] as int? ?? 0;
+        if (mounted) setState(() { _balance = balance; _loading = false; });
+      } else {
+        if (mounted) setState(() { _loading = false; });
+      }
+    } catch (_) {
+      if (mounted) setState(() { _loading = false; });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF6366F1),
+            const Color(0xFF8B5CF6),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44.w,
+            height: 44.w,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.toll_rounded, color: Colors.white, size: 24.sp),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'token_balance'.tr(),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                _loading
+                    ? SizedBox(
+                        width: 60.w,
+                        height: 14.h,
+                        child: LinearProgressIndicator(
+                          color: Colors.white,
+                          backgroundColor: Colors.white.withValues(alpha: 0.3),
+                        ),
+                      )
+                    : Text(
+                        '${_balance ?? 0} ${'token'.tr()}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

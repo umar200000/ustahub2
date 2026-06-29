@@ -644,6 +644,10 @@
   "pay_by_card_desc": "Оплата привязанной картой",
   "pay_by_cash": "Наличные",
   "pay_by_cash_desc": "Оплата наличными после услуги",
+  "pay_by_token": "Токенами",
+  "pay_by_token_desc": "Оплата из баланса токенов",
+  "token_balance": "Баланс токенов",
+  "token": "токен",
   "service_name": "Название услуги",
   "amount_to_pay": "Сумма к оплате",
   "sum": "сум",
@@ -789,5 +793,8 @@
   "district": "Район",
   "select_province": "Выберите область",
   "select_district": "Выберите район",
-  "select_province_first": "Сначала выберите область"
+  "select_province_first": "Сначала выберите область",
+  "chat_closed": "Чат закрыт",
+  "chat_closed_desc": "Чат закрыт после завершения заказа",
+  "type_message": "Введите сообщение..."
 }

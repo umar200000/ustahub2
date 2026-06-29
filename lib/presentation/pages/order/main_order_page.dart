@@ -52,10 +52,13 @@ class _MainOrderPageState extends State<MainOrderPage> {
       userId,
     );
     _bookingWsSub = BookingSocketService().events.listen((event) {
-      if (event['type'] == 'booking_status_update' && mounted) {
-        context.read<BookingBloc>().add(
-          const GetBookingsListEvent(isRefresh: true),
-        );
+      if (!mounted) return;
+      final type = event['type'];
+      if (type == 'booking_status_update') {
+        context.read<BookingBloc>().add(const GetBookingsListEvent(isRefresh: true));
+      } else if (type == 'status' && event['status'] == 'connected') {
+        // Reconnect bo'lganda missed eventlarni ushlab olish uchun refresh
+        context.read<BookingBloc>().add(const GetBookingsListEvent(isRefresh: true));
       }
     });
   }

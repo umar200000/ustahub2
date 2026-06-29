@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ustahub/application2/booking_bloc_and_data/service/booking_socket_service.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/infrastructure2/init/injection.dart';
 
@@ -37,6 +38,10 @@ class DioInterceptor extends Interceptor {
           if ((response.statusCode == 200 || response.statusCode == 201) &&
               response.data['success'] == true) {
             sl<RegisterBloc>().add(GetTokenEvent(data: response.data));
+
+            // WS ulanishlarini yangi token bilan darhol tiklash
+            BookingSocketService().notifyTokenRefreshed();
+
             final newData = response.data['data'];
 
             // Asl so'rovni yangi token bilan qayta yuboramiz

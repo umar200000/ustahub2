@@ -292,6 +292,10 @@
   "pay_by_card_desc": "Pay with linked card",
   "pay_by_cash": "Cash",
   "pay_by_cash_desc": "Pay cash after service",
+  "pay_by_token": "Pay with Tokens",
+  "pay_by_token_desc": "Deduct from your token balance",
+  "token_balance": "Token Balance",
+  "token": "token",
   "service_name": "Service Name",
   "amount_to_pay": "Amount to Pay",
   "sum": "UZS",
@@ -441,5 +445,9 @@
   "district": "District",
   "select_province": "Select province",
   "select_district": "Select district",
-  "select_province_first": "Select province first"
+  "select_province_first": "Select province first",
+  "chat": "Chat",
+  "chat_closed": "Chat closed",
+  "chat_closed_desc": "Chat closed after booking completion",
+  "type_message": "Type a message..."
 }

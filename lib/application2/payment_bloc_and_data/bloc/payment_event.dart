@@ -60,3 +60,16 @@ class ApplyPaymentEvent extends PaymentEvent {
 class ResetPaymentFlowEvent extends PaymentEvent {
   const ResetPaymentFlowEvent();
 }
+
+class GetTokenBalanceEvent extends PaymentEvent {
+  const GetTokenBalanceEvent();
+}
+
+class PayWithTokensEvent extends PaymentEvent {
+  final String bookingId;
+
+  const PayWithTokensEvent({required this.bookingId});
+
+  @override
+  List<Object?> get props => [bookingId];
+}

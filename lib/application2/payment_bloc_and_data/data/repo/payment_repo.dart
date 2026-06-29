@@ -43,4 +43,15 @@ class PaymentRepo {
       "api/v1/client/payments/$paymentId/atmos/apply/",
     );
   }
+
+  Future<Response> getTokenBalance() async {
+    return await _dio.get("api/v1/client/tokens/balance/");
+  }
+
+  Future<Response> payBookingWithTokens({required String bookingId}) async {
+    return await _dio.post(
+      "api/v1/client/tokens/pay-booking/",
+      data: {"booking_id": bookingId},
+    );
+  }
 }

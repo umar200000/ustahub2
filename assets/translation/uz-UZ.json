@@ -621,6 +621,10 @@
   "pay_by_card_desc": "Ulangan kartadan to'lash",
   "pay_by_cash": "Naqd pul",
   "pay_by_cash_desc": "Xizmatdan so'ng naqd to'lash",
+  "pay_by_token": "Token orqali",
+  "pay_by_token_desc": "Token balansingizdan to'lash",
+  "token_balance": "Token balansi",
+  "token": "token",
   "service_name": "Xizmat nomi",
   "amount_to_pay": "To'lov summasi",
   "sum": "so'm",
@@ -766,5 +770,8 @@
   "district": "Tuman",
   "select_province": "Viloyatni tanlang",
   "select_district": "Tumanni tanlang",
-  "select_province_first": "Avval viloyatni tanlang"
+  "select_province_first": "Avval viloyatni tanlang",
+  "chat_closed": "Chat yopilgan",
+  "chat_closed_desc": "Buyurtma yakunlangach chat o'chirildi",
+  "type_message": "Xabar yozing..."
 }

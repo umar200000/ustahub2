@@ -21,6 +21,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PreApplyPaymentEvent>(_onPreApply);
     on<ApplyPaymentEvent>(_onApply);
     on<ResetPaymentFlowEvent>(_onResetFlow);
+    on<GetTokenBalanceEvent>(_onGetTokenBalance);
+    on<PayWithTokensEvent>(_onPayWithTokens);
   }
 
   void _onResetFlow(ResetPaymentFlowEvent event, Emitter<PaymentState> emit) {
@@ -328,6 +330,73 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           errorMessage: extractErrorMessage(e),
         ),
       );
+    }
+  }
+
+  Future<void> _onGetTokenBalance(
+    GetTokenBalanceEvent event,
+    Emitter<PaymentState> emit,
+  ) async {
+    emit(state.copyWith(tokenBalanceStatus: Status2.loading));
+    try {
+      final response = await _paymentRepo.getTokenBalance();
+      if (response.statusCode == 200) {
+        final balance = response.data?['data']?['balance'] as int? ?? 0;
+        emit(state.copyWith(
+          tokenBalanceStatus: Status2.success,
+          tokenBalance: balance,
+        ));
+      } else {
+        emit(state.copyWith(
+          tokenBalanceStatus: Status2.error,
+          errorMessage: extractFromResponseData(response.data),
+        ));
+      }
+    } on DioException catch (e) {
+      emit(state.copyWith(
+        tokenBalanceStatus: Status2.error,
+        errorMessage: extractErrorMessage(e),
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        tokenBalanceStatus: Status2.error,
+        errorMessage: extractErrorMessage(e),
+      ));
+    }
+  }
+
+  Future<void> _onPayWithTokens(
+    PayWithTokensEvent event,
+    Emitter<PaymentState> emit,
+  ) async {
+    emit(state.copyWith(tokenPayStatus: Status2.loading));
+    try {
+      final response = await _paymentRepo.payBookingWithTokens(
+        bookingId: event.bookingId,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final newBalance = response.data?['data']?['new_balance'] as int? ?? 0;
+        emit(state.copyWith(
+          tokenPayStatus: Status2.success,
+          tokenBalance: newBalance,
+          successMessage: "Token orqali to'lov amalga oshirildi",
+        ));
+      } else {
+        emit(state.copyWith(
+          tokenPayStatus: Status2.error,
+          errorMessage: extractFromResponseData(response.data),
+        ));
+      }
+    } on DioException catch (e) {
+      emit(state.copyWith(
+        tokenPayStatus: Status2.error,
+        errorMessage: extractErrorMessage(e),
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        tokenPayStatus: Status2.error,
+        errorMessage: extractErrorMessage(e),
+      ));
     }
   }
 }
