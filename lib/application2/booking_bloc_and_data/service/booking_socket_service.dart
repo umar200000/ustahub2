@@ -38,13 +38,17 @@ class BookingSocketService {
     _userId = userId;
     _closedByUser = false;
     _retry = 0;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
+    if (_channel != null) return; // already connected
     await _doConnect();
   }
 
   Future<void> _doConnect() async {
     if (_tokenProvider == null || _userId == null || _closedByUser) return;
+    // Guard: stale timer must not tear down an active connection
+    if (_channel != null) return;
 
-    // Fresh token read on every connect attempt
     final token = _tokenProvider!();
     if (token.isEmpty) {
       debugPrint('[BookingWS-Client] No token, skipping connect');
@@ -55,10 +59,14 @@ class BookingSocketService {
     final roomId = 'client_$_userId';
     final uri = Uri.parse('$_wsBase/$roomId?token=$token');
 
+    WebSocketChannel? channel;
     try {
-      final channel = WebSocketChannel.connect(uri);
+      channel = WebSocketChannel.connect(uri);
       _channel = channel;
       await channel.ready;
+      // Connected — kill any stale reconnect timer so it cannot disrupt this connection
+      _reconnectTimer?.cancel();
+      _reconnectTimer = null;
       _retry = 0;
       debugPrint('[BookingWS-Client] Connected to $roomId');
     } catch (e) {
@@ -69,7 +77,7 @@ class BookingSocketService {
     }
 
     _sub?.cancel();
-    _sub = _channel!.stream.listen(
+    _sub = channel.stream.listen(
       (data) {
         try {
           final msg = jsonDecode(data as String) as Map<String, dynamic>;
