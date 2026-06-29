@@ -155,7 +155,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                   item.categoryName ?? 'specialist'.tr(),
                               provinceName: item.provinceName,
                               distance: 0.0,
-                              rating: 5.0,
+                              rating: item.averageRating ?? 0.0,
                               reviewCount: 0,
                               duration: 'unknown'.tr(),
                               priceFrom: resolvedPrice,

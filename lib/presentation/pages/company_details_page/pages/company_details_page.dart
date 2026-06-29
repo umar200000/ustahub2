@@ -322,7 +322,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                               ? category
                               : "specialist".tr(),
                           distance: 0.0,
-                          rating: 5.0,
+                          rating: service.averageRating ?? 0.0,
                           reviewCount: 0,
                           duration: "unknown".tr(),
                           priceFrom:

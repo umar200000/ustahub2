@@ -73,6 +73,7 @@ class ServicesModel {
   final String? provinceName;
   final String? providerName;
   final bool? isFavorite;
+  final double? averageRating;
   /// 'on_site' | 'request_based'
   final String? categoryType;
 
@@ -98,6 +99,7 @@ class ServicesModel {
     this.currencySymbol,
     this.provinceName,
     this.isFavorite,
+    this.averageRating,
     this.categoryType,
   });
 
@@ -123,6 +125,7 @@ class ServicesModel {
     provinceName: json["province_name"],
     providerName: json["provider_name"],
     isFavorite: _parseBool(json["is_favorite"]),
+    averageRating: (json["average_rating"] as num?)?.toDouble(),
     categoryType: json["category_type"]?.toString(),
   );
 
