@@ -236,7 +236,7 @@ class _HomePageState extends State<HomePage> {
                                           profession: resolvedProfession,
                                           provinceName: service.provinceName,
                                           distance: 0.0,
-                                          rating: service.averageRating ?? 0.0,
+                                          rating: service.averageRating ?? 5.0,
                                           reviewCount: 0,
                                           duration: "unknown".tr(),
                                           priceFrom: resolvedPrice,
