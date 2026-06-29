@@ -187,6 +187,7 @@ class _BookingPageState extends State<BookingPage> {
                   builder: (context) => PaymentPage(
                     bookingId: bookingId,
                     serviceName: widget.service.title ?? "",
+                    price: state.bookingModel?.data?.totalPrice ?? 0,
                   ),
                 ),
               );

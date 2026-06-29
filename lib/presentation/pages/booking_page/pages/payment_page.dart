@@ -18,22 +18,23 @@ import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 class PaymentPage extends StatefulWidget {
   final String bookingId;
   final String serviceName;
+  final double price;
 
   const PaymentPage({
     super.key,
     required this.bookingId,
     required this.serviceName,
+    this.price = 0,
   });
 
   @override
   State<PaymentPage> createState() => _PaymentPageState();
 }
 
-enum PaymentMethod { card, cash }
+enum PaymentMethod { card, cash, token }
 
 class _PaymentPageState extends State<PaymentPage> {
   PaymentMethod _selectedMethod = PaymentMethod.card;
-  static const int _price = 50000;
   String? _selectedCardId;
 
   @override
@@ -42,6 +43,7 @@ class _PaymentPageState extends State<PaymentPage> {
     context.read<CardBloc>().add(const GetCardsEvent());
     // Eski oqim natijalarini tozalaymiz (status, paymentData, preApply, apply, retry)
     context.read<PaymentBloc>().add(const ResetPaymentFlowEvent());
+    context.read<PaymentBloc>().add(const GetTokenBalanceEvent());
   }
 
   String _formatPrice(int price) {
@@ -64,6 +66,10 @@ class _PaymentPageState extends State<PaymentPage> {
           paymentProvider: "atmos",
           cardId: _selectedCardId,
         ),
+      );
+    } else if (_selectedMethod == PaymentMethod.token) {
+      context.read<PaymentBloc>().add(
+        PayWithTokensEvent(bookingId: widget.bookingId),
       );
     } else {
       // Cash — to'g'ridan-to'g'ri success
@@ -139,8 +145,32 @@ class _PaymentPageState extends State<PaymentPage> {
             centerTitle: true,
           ),
           body: BlocConsumer<PaymentBloc, PaymentState>(
-            listenWhen: (prev, curr) => prev.status != curr.status,
+            listenWhen: (prev, curr) =>
+                prev.status != curr.status ||
+                prev.tokenPayStatus != curr.tokenPayStatus,
             listener: (context, state) {
+              if (state.tokenPayStatus == Status2.success) {
+                context.read<BookingBloc>().add(
+                  const GetBookingsListEvent(isRefresh: true),
+                );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const BookingSuccessPage(),
+                  ),
+                );
+                return;
+              }
+              if (state.tokenPayStatus == Status2.error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage ?? "error".tr()),
+                    backgroundColor: Colors.red,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                return;
+              }
               if (state.status == Status2.success) {
                 if (_selectedMethod == PaymentMethod.cash) {
                   // Cash — to'g'ridan-to'g'ri success
@@ -242,7 +272,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                             .copyWith(color: colors.neutral500),
                                       ),
                                       Text(
-                                        "${_formatPrice(_price)} ${"sum".tr()}",
+                                        "${_formatPrice(widget.price.toInt())} ${"sum".tr()}",
                                         style: fonts.paragraphP1Bold.copyWith(
                                           color: colors.primary500,
                                           fontSize: 20.sp,
@@ -294,6 +324,30 @@ class _PaymentPageState extends State<PaymentPage> {
                               },
                               colors: colors,
                               fonts: fonts,
+                            ),
+                            Gap(12.h),
+
+                            // Token option
+                            BlocBuilder<PaymentBloc, PaymentState>(
+                              buildWhen: (prev, curr) =>
+                                  prev.tokenBalance != curr.tokenBalance ||
+                                  prev.tokenBalanceStatus != curr.tokenBalanceStatus,
+                              builder: (context, tokenState) {
+                                final balance = tokenState.tokenBalance ?? 0;
+                                return _buildPaymentOption(
+                                  icon: Icons.toll_rounded,
+                                  title: "pay_by_token".tr(),
+                                  subtitle: "${"token_balance".tr()}: $balance ${"token".tr()}",
+                                  isSelected: _selectedMethod == PaymentMethod.token,
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedMethod = PaymentMethod.token;
+                                    });
+                                  },
+                                  colors: colors,
+                                  fonts: fonts,
+                                );
+                              },
                             ),
                             Gap(20.h),
 
@@ -497,10 +551,12 @@ class _PaymentPageState extends State<PaymentPage> {
                         builder: (context, cardState) {
                           final canPay =
                               _selectedMethod == PaymentMethod.cash ||
+                              _selectedMethod == PaymentMethod.token ||
                               (cardState.cards.isNotEmpty &&
                                   _selectedCardId != null);
                           final isLoading =
-                              paymentState.status == Status2.loading;
+                              paymentState.status == Status2.loading ||
+                              paymentState.tokenPayStatus == Status2.loading;
 
                           return GestureDetector(
                             onTap: canPay && !isLoading ? _onPay : null,
@@ -535,7 +591,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                         ),
                                       )
                                     : Text(
-                                        "${"pay".tr()} ${_formatPrice(_price)} ${"sum".tr()}",
+                                        "${"pay".tr()} ${_formatPrice(widget.price.toInt())} ${"sum".tr()}",
                                         style: fonts.paragraphP1Bold.copyWith(
                                           color: Colors.white,
                                         ),

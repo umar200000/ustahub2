@@ -9,6 +9,8 @@ import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
+import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
+import 'package:ustahub/presentation/pages/chat/chat_page.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
@@ -1095,6 +1097,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                         builder: (_) => PaymentPage(
                                           bookingId: widget.bookingId,
                                           serviceName: data.serviceTitle ?? "",
+                                          price: data.totalPrice ?? 0,
                                         ),
                                       ),
                                     );
@@ -1238,6 +1241,53 @@ class _OrdersPageState extends State<OrdersPage> {
                                   ),
                                 );
                               },
+                            ),
+
+                          // Chat Button (for bookings with assigned master in active states)
+                          if (['pending', 'active', 'in_progress', 'processed'].contains(
+                                data.status?.toLowerCase(),
+                              ) &&
+                              data.masterId != null)
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: () {
+                                    final userId = context.read<RegisterBloc>().state.userProfile?.id ?? '';
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ChatPage(
+                                          bookingId: widget.bookingId,
+                                          userId: userId,
+                                          masterId: data.masterId!,
+                                          masterName: '${data.master?.firstName ?? ''} ${data.master?.lastName ?? ''}'.trim(),
+                                          isActive: !['completed', 'canceled', 'cancelled'].contains(data.status?.toLowerCase()),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.chat_bubble_outline_rounded,
+                                    color: colors.primary500,
+                                    size: 20.sp,
+                                  ),
+                                  label: Text(
+                                    "chat".tr(),
+                                    style: fonts.paragraphP2SemiBold.copyWith(
+                                      color: colors.primary500,
+                                    ),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(color: colors.primary500),
+                                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
 
                           // Recall Button (for completed/processed with assigned master)
