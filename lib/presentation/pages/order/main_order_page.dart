@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/data/model/booking_model_list.dart';
+import 'package:ustahub/application2/booking_bloc_and_data/service/booking_socket_service.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
+import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
+import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/presentation/components/custom_toggle.dart';
 import 'package:ustahub/presentation/components/shimmer_widgets.dart';
 import 'package:ustahub/presentation/components/universal_appbar.dart';
@@ -24,6 +29,7 @@ class MainOrderPage extends StatefulWidget {
 class _MainOrderPageState extends State<MainOrderPage> {
   OrderTab selectedTab = OrderTab.active;
   final _scrollController = ScrollController();
+  StreamSubscription<Map<String, dynamic>>? _bookingWsSub;
 
   @override
   void initState() {
@@ -32,10 +38,28 @@ class _MainOrderPageState extends State<MainOrderPage> {
       const GetBookingsListEvent(isRefresh: true),
     );
     _scrollController.addListener(_onScroll);
+    _connectBookingWs();
+  }
+
+  void _connectBookingWs() {
+    final prefs = sl<SharedPrefService>();
+    final token = prefs.getTokenModel()?.accessToken ?? '';
+    final userId = prefs.getUserProfile()?.id ?? '';
+    if (token.isEmpty || userId.isEmpty) return;
+
+    BookingSocketService().connect(token, userId);
+    _bookingWsSub = BookingSocketService().events.listen((event) {
+      if (event['type'] == 'booking_status_update' && mounted) {
+        context.read<BookingBloc>().add(
+          const GetBookingsListEvent(isRefresh: true),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _bookingWsSub?.cancel();
     _scrollController.dispose();
     super.dispose();
   }

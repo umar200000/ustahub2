@@ -1,7 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +13,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
+import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
+import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/presentation/pages/chat/chat_page.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/presentation/components/shimmer_widgets.dart';
@@ -30,12 +35,53 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersPageState extends State<OrdersPage> {
+  WebSocketChannel? _wsChannel;
+  StreamSubscription? _wsSub;
+
   @override
   void initState() {
     super.initState();
     context.read<BookingBloc>().add(
       GetBookingDetailsEvent(id: widget.bookingId),
     );
+    _connectBookingWs();
+  }
+
+  @override
+  void dispose() {
+    _wsSub?.cancel();
+    _wsChannel?.sink.close();
+    super.dispose();
+  }
+
+  void _connectBookingWs() {
+    final token =
+        sl<SharedPrefService>().getTokenModel()?.accessToken ?? '';
+    if (token.isEmpty) return;
+
+    final uri = Uri.parse(
+      'ws://3.64.241.75:8000/api/v1/ws/bookings/booking_${widget.bookingId}?token=$token',
+    );
+    try {
+      _wsChannel = WebSocketChannel.connect(uri);
+      _wsSub = _wsChannel!.stream.listen(
+        (data) {
+          try {
+            final msg = jsonDecode(data as String) as Map<String, dynamic>;
+            if (msg['type'] == 'booking_status_update' && mounted) {
+              context.read<BookingBloc>().add(
+                GetBookingDetailsEvent(id: widget.bookingId),
+              );
+            }
+          } catch (_) {}
+        },
+        onError: (_) {},
+        onDone: () {},
+        cancelOnError: false,
+      );
+    } catch (e) {
+      debugPrint('[OrdersPageWS] Connect failed: $e');
+    }
   }
 
   bool _canCancelBooking(String? scheduledDate, String? scheduledTimeStart) {
