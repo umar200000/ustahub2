@@ -43,11 +43,14 @@ class _MainOrderPageState extends State<MainOrderPage> {
 
   void _connectBookingWs() {
     final prefs = sl<SharedPrefService>();
-    final token = prefs.getTokenModel()?.accessToken ?? '';
     final userId = prefs.getUserProfile()?.id ?? '';
-    if (token.isEmpty || userId.isEmpty) return;
+    if (userId.isEmpty) return;
 
-    BookingSocketService().connect(token, userId);
+    // tokenProvider — har reconnect'da fresh token qaytaradi
+    BookingSocketService().connect(
+      () => prefs.getTokenModel()?.accessToken ?? '',
+      userId,
+    );
     _bookingWsSub = BookingSocketService().events.listen((event) {
       if (event['type'] == 'booking_status_update' && mounted) {
         context.read<BookingBloc>().add(

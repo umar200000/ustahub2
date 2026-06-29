@@ -7,6 +7,9 @@ import 'package:web_socket_channel/status.dart' as ws_status;
 
 /// Client app uchun 24/7 booking WebSocket ulanish.
 /// Buyurtma status o'zgarishlari real-time keladi.
+///
+/// tokenProvider — har reconnect'da yangi token qaytaradi
+/// (SharedPrefService.getTokenModel()?.accessToken yo'lini uzatish kerak).
 class BookingSocketService {
   static final BookingSocketService _instance = BookingSocketService._internal();
   factory BookingSocketService() => _instance;
@@ -19,7 +22,9 @@ class BookingSocketService {
   Timer? _reconnectTimer;
   int _retry = 0;
   bool _closedByUser = false;
-  String? _accessToken;
+
+  // Callback — har ulanishda fresh token qaytaradi
+  String Function()? _tokenProvider;
   String? _userId;
 
   final _events = StreamController<Map<String, dynamic>>.broadcast();
@@ -27,9 +32,9 @@ class BookingSocketService {
 
   bool get isConnected => _channel != null;
 
-  Future<void> connect(String accessToken, String userId) async {
-    if (_accessToken == accessToken && _userId == userId && isConnected) return;
-    _accessToken = accessToken;
+  /// [tokenProvider] — har reconnect'da chaqiriladi va fresh token qaytaradi.
+  Future<void> connect(String Function() tokenProvider, String userId) async {
+    _tokenProvider = tokenProvider;
     _userId = userId;
     _closedByUser = false;
     _retry = 0;
@@ -37,10 +42,18 @@ class BookingSocketService {
   }
 
   Future<void> _doConnect() async {
-    if (_accessToken == null || _userId == null || _closedByUser) return;
+    if (_tokenProvider == null || _userId == null || _closedByUser) return;
+
+    // Fresh token read on every connect attempt
+    final token = _tokenProvider!();
+    if (token.isEmpty) {
+      debugPrint('[BookingWS-Client] No token, skipping connect');
+      _scheduleReconnect();
+      return;
+    }
 
     final roomId = 'client_$_userId';
-    final uri = Uri.parse('$_wsBase/$roomId?token=$_accessToken');
+    final uri = Uri.parse('$_wsBase/$roomId?token=$token');
 
     try {
       final channel = WebSocketChannel.connect(uri);
@@ -100,14 +113,5 @@ class BookingSocketService {
     _channel?.sink.close(ws_status.normalClosure);
     _channel = null;
     debugPrint('[BookingWS-Client] Disconnected by user');
-  }
-
-  void updateToken(String newToken) {
-    if (_accessToken == newToken) return;
-    _accessToken = newToken;
-    disconnect();
-    _closedByUser = false;
-    _retry = 0;
-    _doConnect();
   }
 }
