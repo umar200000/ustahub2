@@ -407,15 +407,6 @@ class _ChatPageState extends State<ChatPage> {
               crossAxisAlignment:
                   isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
-                if (!isMe)
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 4.h, left: 4.w),
-                    child: Text(
-                      msg.senderName,
-                      style: fonts.paragraphP3SemiBold
-                          .copyWith(color: colors.neutral600),
-                    ),
-                  ),
                 Container(
                   padding: EdgeInsets.symmetric(
                       horizontal: 12.w, vertical: 8.h),
