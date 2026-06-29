@@ -133,7 +133,7 @@ class _MainPageState extends State<MainPage>
               : 'web';
       await dio.post(
         'api/v1/client/device/create/',
-        data: {'firebase_token': token, 'platform': platform},
+        data: {'device_token': token, 'device_type': platform},
       );
       debugPrint('FCM token backendga yuborildi');
     } catch (e) {
