@@ -15,8 +15,9 @@ import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
 class CompanyDetailsPage extends StatefulWidget {
   final String providerId;
+  final String? masterId;
 
-  const CompanyDetailsPage({super.key, required this.providerId});
+  const CompanyDetailsPage({super.key, required this.providerId, this.masterId});
 
   @override
   State<CompanyDetailsPage> createState() => _CompanyDetailsPageState();
@@ -33,7 +34,10 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
       GetProviderDetailsEvent(providerId: widget.providerId),
     );
     context.read<CompanyBloc>().add(
-      GetProviderServicesEvent(providerId: widget.providerId),
+      GetProviderServicesEvent(
+        providerId: widget.providerId,
+        masterId: widget.masterId,
+      ),
     );
   }
 
@@ -43,6 +47,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
       context.read<CompanyBloc>().add(
         GetProviderServicesEvent(
           providerId: widget.providerId,
+          masterId: widget.masterId,
           isFetchMore: true,
         ),
       );
@@ -333,6 +338,8 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                           isFavorite: false,
                           onFavorite: () {},
                           provinceName: service.provinceName,
+                          isRemote: service.isRemote,
+                          isExpress: service.isExpress,
                         );
                       },
                     ),

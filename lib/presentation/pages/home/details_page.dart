@@ -776,8 +776,10 @@ class _DetailsPageState extends State<DetailsPage>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      CompanyDetailsPage(providerId: data.providerId!),
+                  builder: (context) => CompanyDetailsPage(
+                    providerId: data.providerId!,
+                    masterId: data.provider == null ? data.masterId : null,
+                  ),
                 ),
               );
             }

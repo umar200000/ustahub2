@@ -17,12 +17,15 @@ class CompanyRepo {
 
   Future<Response> getProviderServices(
     String providerId, {
+    String? masterId,
     int skip = 0,
     int limit = 20,
   }) async {
+    final params = <String, dynamic>{"skip": skip, "limit": limit};
+    if (masterId != null) params["master_id"] = masterId;
     final response = await _dio.get(
       "api/v1/client/services/provider/$providerId/",
-      queryParameters: {"skip": skip, "limit": limit},
+      queryParameters: params,
     );
     return response;
   }

@@ -76,8 +76,11 @@ class ServicesModel {
   final double? averageRating;
   /// 'on_site' | 'request_based'
   final String? categoryType;
+  /// 'standard' | 'express'
+  final String? serviceType;
 
   bool get isRemote => categoryType == 'request_based';
+  bool get isExpress => serviceType == 'express';
 
   ServicesModel({
     this.providerName,
@@ -101,6 +104,7 @@ class ServicesModel {
     this.isFavorite,
     this.averageRating,
     this.categoryType,
+    this.serviceType,
   });
 
   factory ServicesModel.fromJson(Map<String, dynamic> json) => ServicesModel(
@@ -127,6 +131,7 @@ class ServicesModel {
     isFavorite: _parseBool(json["is_favorite"]),
     averageRating: (json["average_rating"] as num?)?.toDouble(),
     categoryType: json["category_type"]?.toString(),
+    serviceType: json["service_type"]?.toString(),
   );
 
   Map<String, dynamic> toJson() => {

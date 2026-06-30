@@ -123,6 +123,7 @@ class CompanyBloc extends Bloc<CompanyEvent, CompanyState> {
       try {
         final response = await _companyRepo.getProviderServices(
           event.providerId,
+          masterId: event.masterId,
           skip: state.skip,
           limit: 20,
         );

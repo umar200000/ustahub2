@@ -21,10 +21,12 @@ class GetProviderDetailsEvent extends CompanyEvent {
 class GetProviderServicesEvent extends CompanyEvent {
   final String providerId;
   final bool isFetchMore;
+  final String? masterId;
 
   const GetProviderServicesEvent({
     required this.providerId,
     this.isFetchMore = false,
+    this.masterId,
   });
 
   @override
