@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
@@ -179,6 +181,44 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     on<LogoutEvent>((event, emit) async {
       _prefService.clear();
       emit(const RegisterState());
+    });
+
+    on<UploadAvatarEvent>((event, emit) async {
+      emit(state.copyWith(statusAvatar: Status2.loading));
+      try {
+        final uploadRes = await _registerRepo.uploadImage(event.image);
+        if (uploadRes['success'] != true) {
+          emit(state.copyWith(
+            statusAvatar: Status2.error,
+            errorMessageAvatar: extractFromResponseData(uploadRes),
+          ));
+          return;
+        }
+        final mediaId = uploadRes['data']['id']?.toString() ?? '';
+
+        final avatarRes = await _registerRepo.updateAvatar(mediaId);
+        if (avatarRes['success'] == true) {
+          final newAvatarUrl = avatarRes['data']?['avatar_url']?.toString();
+          final updatedUser = state.userProfile?.copyWith(avatarUrl: newAvatarUrl);
+          if (updatedUser != null) {
+            await _prefService.setUserProfile(updatedUser);
+          }
+          emit(state.copyWith(
+            statusAvatar: Status2.success,
+            userProfile: updatedUser,
+          ));
+        } else {
+          emit(state.copyWith(
+            statusAvatar: Status2.error,
+            errorMessageAvatar: extractFromResponseData(avatarRes),
+          ));
+        }
+      } on DioException catch (e) {
+        emit(state.copyWith(
+          statusAvatar: Status2.error,
+          errorMessageAvatar: extractErrorMessage(e),
+        ));
+      }
     });
 
     on<UpdateUserProfile>((event, emit) async {
