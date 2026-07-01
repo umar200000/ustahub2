@@ -774,5 +774,7 @@
   "select_province_first": "Avval viloyatni tanlang",
   "chat_closed": "Chat yopilgan",
   "chat_closed_desc": "Buyurtma yakunlangach chat o'chirildi",
-  "type_message": "Xabar yozing..."
+  "type_message": "Xabar yozing...",
+  "days_ago": "kun oldin",
+  "day_ago": "kun oldin"
 }
