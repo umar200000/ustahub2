@@ -65,7 +65,6 @@ class RegisterRepo {
       'api/v1/uploads/images/',
       data: formData,
       options: Options(
-        contentType: 'multipart/form-data',
         sendTimeout: const Duration(seconds: 60),
         receiveTimeout: const Duration(seconds: 60),
       ),
