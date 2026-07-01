@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -687,14 +688,44 @@ class _ProfileHero extends StatelessWidget {
                         ),
                       ],
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      initial,
-                      style: TextStyle(
-                        color: colors.primary500,
-                        fontSize: 28.sp,
-                        fontWeight: FontWeight.w800,
-                      ),
+                    child: ClipOval(
+                      child: user?.avatarUrl != null
+                          ? CachedNetworkImage(
+                              imageUrl: user!.avatarUrl!,
+                              fit: BoxFit.cover,
+                              width: 68.w,
+                              height: 68.w,
+                              placeholder: (_, __) => Center(
+                                child: Text(
+                                  initial,
+                                  style: TextStyle(
+                                    color: colors.primary500,
+                                    fontSize: 28.sp,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (_, __, ___) => Center(
+                                child: Text(
+                                  initial,
+                                  style: TextStyle(
+                                    color: colors.primary500,
+                                    fontSize: 28.sp,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Center(
+                              child: Text(
+                                initial,
+                                style: TextStyle(
+                                  color: colors.primary500,
+                                  fontSize: 28.sp,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
                     ),
                   ),
                   SizedBox(width: 14.w),
