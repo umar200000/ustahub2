@@ -61,7 +61,15 @@ class RegisterRepo {
     final formData = FormData.fromMap({
       'file': await MultipartFile.fromFile(imageFile.path),
     });
-    final response = await _dio.post('api/v1/uploads/images/', data: formData);
+    final response = await _dio.post(
+      'api/v1/uploads/images/',
+      data: formData,
+      options: Options(
+        contentType: 'multipart/form-data',
+        sendTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+      ),
+    );
     return response.data;
   }
 
