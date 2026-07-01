@@ -65,16 +65,18 @@ class _UserInformationPageState extends State<UserInformationPage> {
             ListTile(
               leading: const Icon(Icons.photo_library_rounded),
               title: const Text('Galereyadan tanlash'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(ctx);
+                await Future.delayed(const Duration(milliseconds: 300));
                 _pickImage(ImageSource.gallery);
               },
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded),
               title: const Text('Kamera'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(ctx);
+                await Future.delayed(const Duration(milliseconds: 300));
                 _pickImage(ImageSource.camera);
               },
             ),
