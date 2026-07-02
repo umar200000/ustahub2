@@ -15,7 +15,8 @@ class ServicesData {
           .map((x) => ServicesModel.fromJson(x as Map<String, dynamic>))
           .toList();
     } else if (rawData is Map<String, dynamic>) {
-      final rawItems = rawData["items"];
+      // GET /services/ → "items", POST /services/search/ → "results"
+      final rawItems = rawData["items"] ?? rawData["results"];
       if (rawItems is List) {
         items = rawItems
             .map((x) => ServicesModel.fromJson(x as Map<String, dynamic>))
