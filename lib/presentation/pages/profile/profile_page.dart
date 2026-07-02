@@ -426,19 +426,34 @@ class _ProfilePageState extends State<ProfilePage> {
                     colors: colors,
                   ),
                 ),
-                SizedBox(height: 12.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: _DeleteAccountButton(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const DeleteAccountPage(),
-                        ),
-                      );
-                    },
-                    colors: colors,
+                SizedBox(height: 4.h),
+                Theme(
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.symmetric(horizontal: 16.w),
+                    childrenPadding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
+                    title: Text(
+                      'Qo\'shimcha',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: colors.neutral500,
+                      ),
+                    ),
+                    iconColor: colors.neutral500,
+                    collapsedIconColor: colors.neutral500,
+                    children: [
+                      _DeleteAccountButton(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DeleteAccountPage(),
+                            ),
+                          );
+                        },
+                        colors: colors,
+                      ),
+                    ],
                   ),
                 ),
               ],
