@@ -122,6 +122,51 @@ class _PinPutAutofillWidgetState extends State<PinPutAutofillWidget>
               listenForCode();
             },
           ),
+          BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.phoneStatus != current.phoneStatus &&
+                current.phoneStatus == Status2.error,
+            listener: (context, state) {
+              final message = state.errorMessage ?? "Xatolik yuz berdi";
+              final isLimit = message.contains("5 marta") ||
+                  message.contains("5 раз") ||
+                  message.contains("5 times");
+              if (isLimit) {
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    title: const Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text(
+                          "Kunlik limit",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    content: Text(message),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(message),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+          ),
           BlocListener<AuthPinPutBloc, AuthPinPutState>(
             listenWhen: (previous, current) =>
                 previous.status != current.status &&

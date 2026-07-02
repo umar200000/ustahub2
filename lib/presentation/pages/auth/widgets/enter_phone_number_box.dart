@@ -47,12 +47,45 @@ class _EnterPhoneNumberBoxState extends State<EnterPhoneNumberBox> {
           if (state.phoneStatus == Status2.success) {
             showPinPutWidget(context);
           } else if (state.phoneStatus == Status2.error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage ?? "Xatolik"),
-                backgroundColor: Colors.red,
-              ),
-            );
+            final message = state.errorMessage ?? "Xatolik";
+            final isLimit = message.contains("5 marta") ||
+                message.contains("5 раз") ||
+                message.contains("5 times");
+            if (isLimit) {
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  title: Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          color: Colors.red),
+                      const SizedBox(width: 8),
+                      const Text(
+                        "Kunlik limit",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  content: Text(message),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("OK"),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           }
         },
         child: ThemeWrapper(
