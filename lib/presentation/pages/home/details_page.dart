@@ -18,6 +18,7 @@ import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 import '../../../application2/booking_bloc_and_data/data/repo/booking_repo.dart';
 import '../../../application2/details_service/data/model/details_model.dart';
 import '../company_details_page/pages/company_details_page.dart';
+import '../master_services/master_services_page.dart';
 
 class DetailsPage extends StatefulWidget {
   const DetailsPage({super.key, required this.serviceId, this.providerName});
@@ -396,9 +397,84 @@ class _DetailsPageState extends State<DetailsPage>
     CustomColorSet colors,
     FontSet fonts,
   ) {
-    final providerName =
-        data.provider?.name ?? widget.providerName ?? "unknown_provider".tr();
-    final providerLogo = data.provider?.logoUrl;
+    final isSoloMaster = data.provider == null && data.masterId != null;
+    final displayName = isSoloMaster
+        ? (data.masterName ?? widget.providerName ?? 'specialist'.tr())
+        : (data.provider?.name ?? widget.providerName ?? 'unknown_provider'.tr());
+    final avatarUrl =
+        isSoloMaster ? data.masterAvatarUrl : data.provider?.logoUrl;
+    final initial = displayName.isNotEmpty
+        ? displayName.substring(0, 1).toUpperCase()
+        : 'M';
+
+    final avatarWidget = Container(
+      width: 36.r,
+      height: 36.r,
+      decoration: BoxDecoration(
+        color: colors.blue500,
+        shape: BoxShape.circle,
+        image: avatarUrl != null
+            ? DecorationImage(
+                image: NetworkImage(avatarUrl),
+                fit: BoxFit.cover,
+              )
+            : null,
+      ),
+      alignment: Alignment.center,
+      child: avatarUrl == null
+          ? Text(
+              initial,
+              style: TextStyle(
+                color: colors.shade0,
+                fontWeight: FontWeight.w700,
+                fontSize: 14.sp,
+              ),
+            )
+          : null,
+    );
+
+    final nameRow = Row(
+      children: [
+        avatarWidget,
+        Gap(10.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: colors.neutral800,
+                      ),
+                    ),
+                  ),
+                  Gap(4.w),
+                  Icon(
+                    Icons.verified_rounded,
+                    size: 15.sp,
+                    color: colors.blue500,
+                  ),
+                ],
+              ),
+              Text(
+                'specialist'.tr(),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: colors.neutral500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -416,72 +492,23 @@ class _DetailsPageState extends State<DetailsPage>
             ),
           ),
           Gap(12.h),
-          Row(
-            children: [
-              Container(
-                width: 36.r,
-                height: 36.r,
-                decoration: BoxDecoration(
-                  color: colors.blue500,
-                  shape: BoxShape.circle,
-                  image: providerLogo != null
-                      ? DecorationImage(
-                          image: NetworkImage(providerLogo),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                alignment: Alignment.center,
-                child: providerLogo == null
-                    ? Text(
-                        providerName.substring(0, 1).toUpperCase(),
-                        style: TextStyle(
-                          color: colors.shade0,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14.sp,
+          isSoloMaster
+              ? GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MasterServicesPage(
+                          masterId: data.masterId!,
+                          masterName: data.masterName ?? widget.providerName,
+                          masterAvatarUrl: data.masterAvatarUrl,
                         ),
-                      )
-                    : null,
-              ),
-              Gap(10.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            providerName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w700,
-                              color: colors.neutral800,
-                            ),
-                          ),
-                        ),
-                        Gap(4.w),
-                        Icon(
-                          Icons.verified_rounded,
-                          size: 15.sp,
-                          color: colors.blue500,
-                        ),
-                      ],
-                    ),
-                    Text(
-                      'specialist'.tr(),
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: colors.neutral500,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+                    );
+                  },
+                  child: nameRow,
+                )
+              : nameRow,
         ],
       ),
     );
@@ -767,9 +794,10 @@ class _DetailsPageState extends State<DetailsPage>
             ),
           ),
 
+        if (data.provider != null) ...[
         Gap(24.h),
 
-        // Provider Card
+        // Provider Card (only for provider employees, not solo masters)
         GestureDetector(
           onTap: () {
             if (data.providerId != null) {
@@ -900,6 +928,7 @@ class _DetailsPageState extends State<DetailsPage>
             ),
           ),
         ),
+        ], // end if (data.provider != null)
       ],
     );
   }
