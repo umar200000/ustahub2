@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,9 +20,26 @@ class UpdateRequiredPage extends StatelessWidget {
 
   Future<void> _launchStore() async {
     if (storeUrl == null || storeUrl!.isEmpty) return;
-    final uri = Uri.parse(storeUrl!);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    // iOS: itms-apps:// → App Store ilovasi (Safari emas)
+    // Android: market:// → Play Store ilovasi
+    Uri nativeUri;
+    if (Platform.isIOS) {
+      nativeUri = Uri.parse(storeUrl!.replaceFirst('https://', 'itms-apps://'));
+    } else {
+      final id = Uri.parse(storeUrl!).queryParameters['id'];
+      nativeUri = id != null
+          ? Uri.parse('market://details?id=$id')
+          : Uri.parse(storeUrl!);
+    }
+
+    if (await canLaunchUrl(nativeUri)) {
+      await launchUrl(nativeUri, mode: LaunchMode.externalApplication);
+    } else {
+      final fallback = Uri.parse(storeUrl!);
+      if (await canLaunchUrl(fallback)) {
+        await launchUrl(fallback, mode: LaunchMode.externalApplication);
+      }
     }
   }
 
