@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/notification_provider.dart';
@@ -21,7 +20,7 @@ class HomeAppBar extends StatefulWidget {
   State<HomeAppBar> createState() => _HomeAppBarState();
 }
 
-class _HomeAppBarState extends State<HomeAppBar> {
+class _HomeAppBarState extends State<HomeAppBar> with WidgetsBindingObserver {
   bool _locationEnabled = false;
   String _locationText = 'Joylashuv aniqlanmoqda...';
   bool _loading = true;
@@ -29,24 +28,43 @@ class _HomeAppBarState extends State<HomeAppBar> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkLocation();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // Re-check when user returns from Settings or permission dialog
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkLocation();
+    }
+  }
+
   Future<void> _checkLocation() async {
+    if (!mounted) return;
+    setState(() => _loading = true);
+
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       if (mounted) {
         setState(() {
           _locationEnabled = false;
-          _locationText = 'Joylashuv o\'chirilgan';
+          _locationText = 'GPS o\'chirilgan';
           _loading = false;
         });
       }
       return;
     }
 
-    final status = await Permission.locationWhenInUse.status;
-    if (!status.isGranted) {
+    final permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
       if (mounted) {
         setState(() {
           _locationEnabled = false;
@@ -57,11 +75,12 @@ class _HomeAppBarState extends State<HomeAppBar> {
       return;
     }
 
+    // Permission granted — get current position
     try {
       final pos = await Geolocator.getCurrentPosition(
         locationSettings:
             const LocationSettings(accuracy: LocationAccuracy.low),
-      );
+      ).timeout(const Duration(seconds: 8));
       final address = await _reverseGeocode(pos.latitude, pos.longitude);
       if (mounted) {
         setState(() {
@@ -92,7 +111,8 @@ class _HomeAppBarState extends State<HomeAppBar> {
         } else if (p.locality != null && p.locality!.isNotEmpty) {
           parts.add(p.locality!);
         }
-        if (p.administrativeArea != null && p.administrativeArea!.isNotEmpty) {
+        if (p.administrativeArea != null &&
+            p.administrativeArea!.isNotEmpty) {
           parts.add(p.administrativeArea!);
         }
         return parts.isNotEmpty ? parts.join(', ') : 'Joylashuv aniqlandi';
@@ -103,22 +123,86 @@ class _HomeAppBarState extends State<HomeAppBar> {
 
   Future<void> _requestLocation() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
     if (!serviceEnabled) {
-      await Geolocator.openLocationSettings();
+      // GPS o'chirilgan — dialog orqali yoqishni taklif qil
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          title: Row(
+            children: [
+              const Icon(Icons.location_off_rounded, color: Colors.orange),
+              SizedBox(width: 8.w),
+              const Text('GPS o\'chirilgan'),
+            ],
+          ),
+          content: const Text(
+            'Yaqin atrofdagi xizmatlarni ko\'rish uchun qurilmangizda GPS ni yoqing.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Bekor qilish'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                Geolocator.openLocationSettings();
+              },
+              child: const Text('GPS yoqish'),
+            ),
+          ],
+        ),
+      );
       return;
     }
 
-    final status = await Permission.locationWhenInUse.request();
-    if (status.isGranted) {
-      if (mounted) {
-        setState(() {
-          _loading = true;
-          _locationText = 'Joylashuv aniqlanmoqda...';
-        });
-      }
+    final permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.deniedForever) {
+      // Muddatsiz rad etilgan — sozlamalarni ochish
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          title: Row(
+            children: [
+              const Icon(Icons.location_disabled, color: Colors.red),
+              SizedBox(width: 8.w),
+              const Text('Ruxsat yo\'q'),
+            ],
+          ),
+          content: const Text(
+            'Joylashuv ruxsati rad etilgan. Ilovalar sozlamalaridan ruxsat bering.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Bekor qilish'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                Geolocator.openAppSettings();
+              },
+              child: const Text('Sozlamalar'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // So'rash mumkin
+    final result = await Geolocator.requestPermission();
+    if (result == LocationPermission.whileInUse ||
+        result == LocationPermission.always) {
       await _checkLocation();
-    } else if (status.isPermanentlyDenied) {
-      await openAppSettings();
     }
   }
 
@@ -143,7 +227,8 @@ class _HomeAppBarState extends State<HomeAppBar> {
           child: SafeArea(
             bottom: false,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              padding:
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Row(
                 children: [
                   // User info section
@@ -162,9 +247,11 @@ class _HomeAppBarState extends State<HomeAppBar> {
                               height: 44.w,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: colors.blue500.withValues(alpha: 0.1),
+                                color:
+                                    colors.blue500.withValues(alpha: 0.1),
                                 border: Border.all(
-                                  color: colors.blue500.withValues(alpha: 0.3),
+                                  color:
+                                      colors.blue500.withValues(alpha: 0.3),
                                   width: 2,
                                 ),
                               ),
@@ -181,7 +268,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
                               ),
                             ),
                             SizedBox(width: 12.w),
-                            // Name and location indicator
+                            // Name and location
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,7 +283,6 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   SizedBox(height: 2.h),
-                                  // Tappable location row — tap to enable when off
                                   AnimationButtonEffect(
                                     onTap: _locationEnabled
                                         ? null
@@ -214,7 +300,6 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                             ),
                                           )
                                         else ...[
-                                          // Status dot
                                           Container(
                                             width: 7.w,
                                             height: 7.w,
@@ -251,7 +336,8 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                        if (!_locationEnabled && !_loading) ...[
+                                        if (!_locationEnabled &&
+                                            !_loading) ...[
                                           SizedBox(width: 2.w),
                                           Icon(
                                             Icons.chevron_right,
