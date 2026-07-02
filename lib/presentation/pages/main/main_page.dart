@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:ustahub/application2/favorite_bloc_and_data/bloc/favorite_bloc.dart';
+import 'package:ustahub/core/services/version_check_service.dart';
 import 'package:ustahub/infrastructure/services/notification_provider.dart';
 import 'package:ustahub/infrastructure/services/notification_service.dart';
 import 'package:ustahub/infrastructure2/init/injection.dart';
@@ -17,6 +18,7 @@ import 'package:ustahub/presentation/pages/home/home_page.dart';
 import 'package:ustahub/presentation/pages/order/main_order_page.dart';
 import 'package:ustahub/presentation/pages/profile/profile_page.dart';
 import 'package:ustahub/presentation/pages/search/search_page.dart';
+import 'package:ustahub/presentation/pages/update/update_required_page.dart';
 import 'package:ustahub/presentation/styles/theme.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 
@@ -44,8 +46,24 @@ class _MainPageState extends State<MainPage>
     super.initState();
     _initializeNavBar();
     _initializeNotifications();
+    _checkVersion();
     // Favorites ni yuklash — faqat MainPage ochilganda (user login bo'lganda)
     context.read<FavoriteBloc>().add(const GetFavoritesEvent());
+  }
+
+  Future<void> _checkVersion() async {
+    final result = await VersionCheckService().check();
+    if (result.needsUpdate && mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => UpdateRequiredPage(
+            isForceUpdate: result.isForceUpdate,
+            storeUrl: result.storeUrl,
+            releaseNotes: result.releaseNotes,
+          ),
+        ),
+      );
+    }
   }
 
   void _initializeNavBar() {
