@@ -9,7 +9,14 @@ abstract class ServiceEvent extends Equatable {
 
 class GetServicesEvent extends ServiceEvent {
   final bool isFetchMore;
-  const GetServicesEvent({this.isFetchMore = false});
+  final double? latitude;
+  final double? longitude;
+
+  const GetServicesEvent({
+    this.isFetchMore = false,
+    this.latitude,
+    this.longitude,
+  });
 
   @override
   List<Object> get props => [isFetchMore];

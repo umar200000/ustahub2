@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ustahub/core/services/location_service.dart';
 import 'package:ustahub/presentation/pages/express/express_landing_page.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
@@ -34,6 +35,22 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _scrollController.addListener(_onScroll);
     _loadInitialData();
+    _loadServicesWithLocation();
+  }
+
+  /// Silently fetches the user's location in the background.
+  /// If location is obtained, refreshes the service list sorted by distance.
+  void _loadServicesWithLocation() {
+    LocationService().getCurrentLocation().then((position) {
+      if (position != null && mounted) {
+        context.read<ServiceBloc>().add(
+              GetServicesEvent(
+                latitude: position.latitude,
+                longitude: position.longitude,
+              ),
+            );
+      }
+    });
   }
 
   @override
