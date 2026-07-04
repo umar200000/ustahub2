@@ -12,13 +12,11 @@ import 'package:ustahub/presentation/pages/core/app_widget.dart';
 import 'package:ustahub/infrastructure/services/log_service.dart';
 import 'package:timezone/data/latest_all.dart' as tzd;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:firebase_core/firebase_core.dart';
 import 'package:ustahub/infrastructure/services/notification_provider.dart';
 import 'package:ustahub/presentation/pages/notification_page/notification_page.dart';
 import 'package:ustahub/presentation/pages/chat/chat_page.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/infrastructure2/init/injection.dart';
-import 'package:ustahub/utils/firebase_options.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -51,16 +49,6 @@ class NotificationService {
   Future<String?> getToken() async {
     try {
       debugPrint("=== Starting FCM token retrieval ===");
-
-      if (Firebase.apps.isEmpty) {
-        debugPrint("Initializing Firebase...");
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions().getOptions(),
-        );
-        debugPrint("Firebase initialized successfully");
-      } else {
-        debugPrint("Firebase already initialized");
-      }
 
       if (Platform.isIOS) {
         debugPrint("iOS platform detected - requesting permissions...");
@@ -258,28 +246,28 @@ class NotificationService {
         debugPrint('✅ Notification added to provider');
       }
 
-      // Foreground'da local notification ko'rsatish
-      if (message.notification != null) {
+      // Foreground'da local notification ko'rsatish (Android only).
+      // iOS uses setForegroundNotificationPresentationOptions so FCM shows
+      // the notification natively with sound — no local notification needed.
+      if (message.notification != null && Platform.isAndroid) {
         try {
-          if (Platform.isAndroid) {
-            final androidImplementation = _flutterLocalNotificationsPlugin
-                .resolvePlatformSpecificImplementation<
-                  AndroidFlutterLocalNotificationsPlugin
-                >();
+          final androidImplementation = _flutterLocalNotificationsPlugin
+              .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin
+              >();
 
-            if (androidImplementation != null) {
-              await androidImplementation.createNotificationChannel(
-                const AndroidNotificationChannel(
-                  'sazu_market_notifications',
-                  'SaZu Market Notifications',
-                  description:
-                      'Notifications for orders, updates, and important messages',
-                  importance: Importance.high,
-                  playSound: true,
-                  enableVibration: true,
-                ),
-              );
-            }
+          if (androidImplementation != null) {
+            await androidImplementation.createNotificationChannel(
+              const AndroidNotificationChannel(
+                'sazu_market_notifications',
+                'SaZu Market Notifications',
+                description:
+                    'Notifications for orders, updates, and important messages',
+                importance: Importance.high,
+                playSound: true,
+                enableVibration: true,
+              ),
+            );
           }
 
           final notificationId =
