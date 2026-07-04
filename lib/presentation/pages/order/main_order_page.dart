@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,10 +28,12 @@ class MainOrderPage extends StatefulWidget {
   State<MainOrderPage> createState() => _MainOrderPageState();
 }
 
-class _MainOrderPageState extends State<MainOrderPage> {
+class _MainOrderPageState extends State<MainOrderPage>
+    with WidgetsBindingObserver {
   OrderTab selectedTab = OrderTab.active;
   final _scrollController = ScrollController();
   StreamSubscription<Map<String, dynamic>>? _bookingWsSub;
+  StreamSubscription<RemoteMessage>? _fcmSub;
   final _chatRepo = ChatRepo();
   Map<String, int> _bookingUnreadCounts = {};
 
@@ -41,8 +44,19 @@ class _MainOrderPageState extends State<MainOrderPage> {
       const GetBookingsListEvent(isRefresh: true),
     );
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addObserver(this);
+    _fcmSub = FirebaseMessaging.onMessage.listen((msg) {
+      if (msg.data['type'] == 'chat_message' && mounted) {
+        _loadConversationUnreads();
+      }
+    });
     _connectBookingWs();
     _loadConversationUnreads();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _loadConversationUnreads();
   }
 
   Future<void> _loadConversationUnreads() async {
@@ -74,6 +88,8 @@ class _MainOrderPageState extends State<MainOrderPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _fcmSub?.cancel();
     _bookingWsSub?.cancel();
     _scrollController.dispose();
     super.dispose();
@@ -520,11 +536,12 @@ class _MainOrderPageState extends State<MainOrderPage> {
                 ],
               ),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     AppRoutes.orders(serviceId: bookingUuid),
                   );
+                  if (mounted) _loadConversationUnreads();
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(
