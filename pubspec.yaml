@@ -54,7 +54,6 @@ dependencies:
   shimmer: ^3.0.0
   dio: ^5.9.0
   firebase_analytics: ^12.1.0
-  facebook_app_events: ^0.24.0
   hive_flutter: ^1.1.0
   firebase_messaging: ^16.1.0
   flutter_timezone: ^5.0.1
@@ -101,6 +100,8 @@ flutter:
     - assets/animations/
     - assets/icons/
     - assets/fonts/
+  config:
+    enable-swift-package-manager: false
 
 flutter_launcher_icons:
   android: true

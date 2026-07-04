@@ -64,7 +64,6 @@ class DefaultFirebaseOptions {
     databaseURL: 'https://fir-app-93058-default-rtdb.firebaseio.com',
     storageBucket: 'fir-app-93058.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBznjzMWbmbMMuCJIk1sAw6SerPwER7UrM',
     appId: '1:67442890500:ios:865b5885ba391a4165a251',
@@ -74,5 +73,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'fir-app-93058.firebasestorage.app',
     iosBundleId: 'net.ustahub.client',
   );
-
 }
