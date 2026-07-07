@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:ustahub/application2/express_bloc_and_data/bloc/express_bloc.dart';
 import 'package:ustahub/application2/express_bloc_and_data/data/model/express_model.dart';
 import 'package:ustahub/presentation/styles/style.dart';
@@ -50,17 +49,30 @@ class _ExpressLandingPageState extends State<ExpressLandingPage> {
 
   Future<void> _checkLocationAndLoad() async {
     setState(() => _locationLoading = true);
-    final status = await Permission.locationWhenInUse.status;
-    if (status.isGranted) {
-      await _getLocation();
-    } else {
-      final result = await Permission.locationWhenInUse.request();
-      if (result.isGranted) {
-        await _getLocation();
-      } else if (result.isPermanentlyDenied) {
-        await openAppSettings();
-      }
+
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (mounted) setState(() => _locationLoading = false);
+      return;
     }
+
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      await Geolocator.openAppSettings();
+      if (mounted) setState(() => _locationLoading = false);
+      return;
+    }
+
+    if (permission == LocationPermission.denied) {
+      if (mounted) setState(() => _locationLoading = false);
+      return;
+    }
+
+    await _getLocation();
     if (mounted) setState(() => _locationLoading = false);
   }
 

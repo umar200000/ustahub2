@@ -101,7 +101,7 @@ Future<void> main() async {
         path: 'assets/translation',
         fallbackLocale: const Locale('uz', 'UZ'),
         startLocale: defaultLocale,
-        useOnlyLangCode: false,
+        useOnlyLangCode: true,
         useFallbackTranslations: true,
         assetLoader: const RootBundleAssetLoader(),
         child: MultiBlocProvider(

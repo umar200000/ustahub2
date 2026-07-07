@@ -12,6 +12,7 @@ import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
+import 'package:ustahub/application2/chat/chat_repo.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/infrastructure2/init/injection.dart';
@@ -37,6 +38,8 @@ class OrdersPage extends StatefulWidget {
 class _OrdersPageState extends State<OrdersPage> {
   WebSocketChannel? _wsChannel;
   StreamSubscription? _wsSub;
+  final _chatRepo = ChatRepo();
+  int _chatUnreadCount = 0;
 
   @override
   void initState() {
@@ -45,6 +48,16 @@ class _OrdersPageState extends State<OrdersPage> {
       GetBookingDetailsEvent(id: widget.bookingId),
     );
     _connectBookingWs();
+    _loadChatUnreadCount();
+  }
+
+  Future<void> _loadChatUnreadCount() async {
+    final counts = await _chatRepo.getConversationUnreadCounts();
+    if (mounted) {
+      setState(() {
+        _chatUnreadCount = counts[widget.bookingId] ?? 0;
+      });
+    }
   }
 
   @override
@@ -1294,46 +1307,76 @@ class _OrdersPageState extends State<OrdersPage> {
                                 data.status?.toLowerCase(),
                               ) &&
                               data.masterId != null)
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 16.h),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    final userId = context.read<RegisterBloc>().state.userProfile?.id ?? '';
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => ChatPage(
-                                          bookingId: widget.bookingId,
-                                          userId: userId,
-                                          masterId: data.masterId!,
-                                          masterName: '${data.master?.firstName ?? ''} ${data.master?.lastName ?? ''}'.trim(),
-                                          isActive: !['completed', 'canceled', 'cancelled'].contains(data.status?.toLowerCase()),
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(bottom: 16.h),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () async {
+                                        final userId = context.read<RegisterBloc>().state.userProfile?.id ?? '';
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => ChatPage(
+                                              bookingId: widget.bookingId,
+                                              userId: userId,
+                                              masterId: data.masterId!,
+                                              masterName: '${data.master?.firstName ?? ''} ${data.master?.lastName ?? ''}'.trim(),
+                                              isActive: !['completed', 'canceled', 'cancelled'].contains(data.status?.toLowerCase()),
+                                            ),
+                                          ),
+                                        );
+                                        if (mounted) {
+                                          setState(() => _chatUnreadCount = 0);
+                                          _loadChatUnreadCount();
+                                        }
+                                      },
+                                      icon: Icon(
+                                        Icons.chat_bubble_outline_rounded,
+                                        color: colors.primary500,
+                                        size: 20.sp,
+                                      ),
+                                      label: Text(
+                                        "chat".tr(),
+                                        style: fonts.paragraphP2SemiBold.copyWith(
+                                          color: colors.primary500,
                                         ),
                                       ),
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.chat_bubble_outline_rounded,
-                                    color: colors.primary500,
-                                    size: 20.sp,
-                                  ),
-                                  label: Text(
-                                    "chat".tr(),
-                                    style: fonts.paragraphP2SemiBold.copyWith(
-                                      color: colors.primary500,
-                                    ),
-                                  ),
-                                  style: OutlinedButton.styleFrom(
-                                    side: BorderSide(color: colors.primary500),
-                                    padding: EdgeInsets.symmetric(vertical: 12.h),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12.r),
+                                      style: OutlinedButton.styleFrom(
+                                        side: BorderSide(color: colors.primary500),
+                                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12.r),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                                if (_chatUnreadCount > 0)
+                                  Positioned(
+                                    right: 10.w,
+                                    top: -8.h,
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(10.r),
+                                        border: Border.all(color: Colors.white, width: 1.5),
+                                      ),
+                                      child: Text(
+                                        '$_chatUnreadCount',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
 
                           // Recall Button (for completed/processed with assigned master)

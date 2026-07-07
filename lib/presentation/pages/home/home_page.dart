@@ -2,6 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:ustahub/core/services/location_service.dart';
 import 'package:ustahub/presentation/pages/express/express_landing_page.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
@@ -34,6 +36,69 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _scrollController.addListener(_onScroll);
     _loadInitialData();
+    // Request location proactively after first frame so the UI is visible first
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _requestAndLoadLocation();
+    });
+  }
+
+  /// Proactively requests location and loads services sorted by distance.
+  /// Shows a dialog if GPS is off so user can enable it.
+  Future<void> _requestAndLoadLocation() async {
+    if (!mounted) return;
+
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // GPS o'chirilgan — dialog ko'rsat
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.location_off_rounded, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('GPS o\'chirilgan'),
+            ],
+          ),
+          content: const Text(
+            'Yaqin atrofdagi xizmatlarni ko\'rish uchun GPS ni yoqing.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Keyinroq'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                Geolocator.openLocationSettings();
+              },
+              child: const Text('GPS yoqish'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // GPS on — get location (LocationService handles permission request internally)
+    _loadServicesWithLocation();
+  }
+
+  /// Gets location and reloads services sorted by distance.
+  Future<void> _loadServicesWithLocation() async {
+    final position = await LocationService().getCurrentLocation();
+    if (position != null && mounted) {
+      context.read<ServiceBloc>().add(
+            GetServicesEvent(
+              latitude: position.latitude,
+              longitude: position.longitude,
+            ),
+          );
+    }
   }
 
   @override
@@ -100,10 +165,23 @@ class _HomePageState extends State<HomePage> {
                   color: colors.primary500,
                   backgroundColor: colors.shade0,
                   onRefresh: () async {
-                    _loadInitialData(forceRefresh: true);
-                    context
-                        .read<FavoriteBloc>()
-                        .add(const GetFavoritesEvent());
+                    // Reload banners + categories
+                    context.read<BannerBloc>().add(GetBannersEvent());
+                    context.read<CategoryBloc>().add(GetCategoriesEvent());
+                    context.read<FavoriteBloc>().add(const GetFavoritesEvent());
+                    // Reload services — reuse stored lat/lng, or try fresh
+                    final storedLat =
+                        context.read<ServiceBloc>().state.latitude;
+                    final storedLng =
+                        context.read<ServiceBloc>().state.longitude;
+                    if (storedLat != null && storedLng != null) {
+                      context.read<ServiceBloc>().add(GetServicesEvent(
+                            latitude: storedLat,
+                            longitude: storedLng,
+                          ));
+                    } else {
+                      await _loadServicesWithLocation();
+                    }
                   },
                   child: ListView(
                     controller: _scrollController,

@@ -10,6 +10,8 @@ class RegisterState extends Equatable {
   final String? errorMessageUser;
   final String? successMessageUser;
   final UserProfile? userProfile;
+  final Status2 statusAvatar;
+  final String? errorMessageAvatar;
 
   const RegisterState({
     this.tokenModel,
@@ -21,6 +23,8 @@ class RegisterState extends Equatable {
     this.errorMessageUser,
     this.successMessageUser,
     this.userProfile,
+    this.statusAvatar = Status2.initial,
+    this.errorMessageAvatar,
   });
 
   RegisterState copyWith({
@@ -33,6 +37,8 @@ class RegisterState extends Equatable {
     String? errorMessageUser,
     String? successMessageUser,
     UserProfile? userProfile,
+    Status2? statusAvatar,
+    String? errorMessageAvatar,
   }) {
     return RegisterState(
       userProfile: userProfile ?? this.userProfile,
@@ -44,6 +50,8 @@ class RegisterState extends Equatable {
       errorMessage: errorMessage ?? this.errorMessage,
       successMessage: successMessage ?? this.successMessage,
       registrationModel: registrationModel ?? this.registrationModel,
+      statusAvatar: statusAvatar ?? this.statusAvatar,
+      errorMessageAvatar: errorMessageAvatar ?? this.errorMessageAvatar,
     );
   }
 
@@ -58,5 +66,7 @@ class RegisterState extends Equatable {
     errorMessage,
     successMessage,
     registrationModel,
+    statusAvatar,
+    errorMessageAvatar,
   ];
 }

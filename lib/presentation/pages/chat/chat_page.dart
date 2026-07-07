@@ -99,6 +99,7 @@ class _ChatPageState extends State<ChatPage> {
       }
 
       await _loadHistory(convId);
+      _repo.markConversationAsRead(convId);
 
       if (apiIsActive) {
         await _connectWebSocket(convId);

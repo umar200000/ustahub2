@@ -437,22 +437,18 @@ class _ReviewCard extends StatelessWidget {
   String _formatDate(String? dateStr) {
     if (dateStr == null) return '';
     try {
-      final date = DateTime.parse(dateStr);
+      final date = DateTime.parse(dateStr).toLocal();
       final now = DateTime.now();
       final diff = now.difference(date);
 
-      if (diff.inDays == 0) return 'today'.tr();
-      if (diff.inDays == 1) return 'yesterday'.tr();
-      if (diff.inDays < 7) return '${diff.inDays} ${"days_ago".tr()}';
-      if (diff.inDays < 30) {
-        final weeks = (diff.inDays / 7).floor();
-        return '$weeks ${"weeks_ago".tr()}';
+      if (diff.inDays < 7) {
+        if (diff.inDays == 0) return 'today'.tr();
+        final label = diff.inDays == 1 ? 'day_ago'.tr() : 'days_ago'.tr();
+        return '${diff.inDays} $label';
       }
-      if (diff.inDays < 365) {
-        final months = (diff.inDays / 30).floor();
-        return '$months ${"months_ago".tr()}';
-      }
-      return '${date.day}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+      final d = date.day.toString().padLeft(2, '0');
+      final m = date.month.toString().padLeft(2, '0');
+      return '$d.$m.${date.year}';
     } catch (_) {
       return '';
     }

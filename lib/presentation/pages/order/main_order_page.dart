@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/bloc/booking_bloc.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/data/model/booking_model_list.dart';
 import 'package:ustahub/application2/booking_bloc_and_data/service/booking_socket_service.dart';
+import 'package:ustahub/application2/chat/chat_repo.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/infrastructure2/init/injection.dart';
@@ -26,10 +28,14 @@ class MainOrderPage extends StatefulWidget {
   State<MainOrderPage> createState() => _MainOrderPageState();
 }
 
-class _MainOrderPageState extends State<MainOrderPage> {
+class _MainOrderPageState extends State<MainOrderPage>
+    with WidgetsBindingObserver {
   OrderTab selectedTab = OrderTab.active;
   final _scrollController = ScrollController();
   StreamSubscription<Map<String, dynamic>>? _bookingWsSub;
+  StreamSubscription<RemoteMessage>? _fcmSub;
+  final _chatRepo = ChatRepo();
+  Map<String, int> _bookingUnreadCounts = {};
 
   @override
   void initState() {
@@ -38,7 +44,24 @@ class _MainOrderPageState extends State<MainOrderPage> {
       const GetBookingsListEvent(isRefresh: true),
     );
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addObserver(this);
+    _fcmSub = FirebaseMessaging.onMessage.listen((msg) {
+      if (msg.data['type'] == 'chat_message' && mounted) {
+        _loadConversationUnreads();
+      }
+    });
     _connectBookingWs();
+    _loadConversationUnreads();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _loadConversationUnreads();
+  }
+
+  Future<void> _loadConversationUnreads() async {
+    final counts = await _chatRepo.getConversationUnreadCounts();
+    if (mounted) setState(() => _bookingUnreadCounts = counts);
   }
 
   void _connectBookingWs() {
@@ -65,6 +88,8 @@ class _MainOrderPageState extends State<MainOrderPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _fcmSub?.cancel();
     _bookingWsSub?.cancel();
     _scrollController.dispose();
     super.dispose();
@@ -228,6 +253,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
           colors: colors,
           fonts: fonts,
           isActive: selectedTab == OrderTab.active,
+          chatUnreadCount: _bookingUnreadCounts[order.id ?? ''] ?? 0,
         );
       },
     );
@@ -361,6 +387,7 @@ class _MainOrderPageState extends State<MainOrderPage> {
     required CustomColorSet colors,
     required FontSet fonts,
     required bool isActive,
+    int chatUnreadCount = 0,
   }) {
     String formattedTime = time;
     if (time.contains(':')) {
@@ -370,11 +397,17 @@ class _MainOrderPageState extends State<MainOrderPage> {
       }
     }
 
-    return Container(
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+      Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: colors.shade0,
         borderRadius: BorderRadius.circular(12.r),
+        border: chatUnreadCount > 0
+            ? Border.all(color: const Color(0xFFEF4444), width: 1.5)
+            : null,
         boxShadow: const [
           BoxShadow(
             offset: Offset(0, 2),
@@ -503,11 +536,12 @@ class _MainOrderPageState extends State<MainOrderPage> {
                 ],
               ),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     AppRoutes.orders(serviceId: bookingUuid),
                   );
+                  if (mounted) _loadConversationUnreads();
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(
@@ -528,6 +562,29 @@ class _MainOrderPageState extends State<MainOrderPage> {
           ),
         ],
       ),
+    ),
+    if (chatUnreadCount > 0)
+      Positioned(
+        right: 12.w,
+        top: -8.h,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEF4444),
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(color: Colors.white, width: 1.5),
+          ),
+          child: Text(
+            '$chatUnreadCount',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    ],
     );
   }
 }

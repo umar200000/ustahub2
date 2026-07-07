@@ -51,14 +51,19 @@ class AppInit {
     final hiveInit = Hive.initFlutter();
 
     try {
-      // Initialize Firebase first - many services depend on it
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions().getOptions(),
-        );
-        debugPrint("Firebase initialized successfully");
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions().getOptions(),
+      );
+      debugPrint("Firebase initialized successfully");
+    } on FirebaseException catch (e) {
+      if (e.code != 'duplicate-app') {
+        debugPrint("Firebase initialization error: $e");
       }
+    } catch (e) {
+      debugPrint("Firebase initialization error: $e");
+    }
 
+    try {
       // Enable FCM auto-initialization
       await FirebaseMessaging.instance.setAutoInitEnabled(true);
 
@@ -66,8 +71,18 @@ class AppInit {
       FirebaseMessaging.onBackgroundMessage(
         _firebaseMessagingBackgroundHandler,
       );
+
+      // iOS: show notification with sound+badge while app is in foreground
+      if (Platform.isIOS) {
+        await FirebaseMessaging.instance
+            .setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
     } catch (e) {
-      debugPrint("Firebase initialization error: $e");
+      debugPrint("Firebase setup error: $e");
     }
 
     // Initialize LogService

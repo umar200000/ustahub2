@@ -15,7 +15,8 @@ class ServicesData {
           .map((x) => ServicesModel.fromJson(x as Map<String, dynamic>))
           .toList();
     } else if (rawData is Map<String, dynamic>) {
-      final rawItems = rawData["items"];
+      // GET /services/ → "items", POST /services/search/ → "results"
+      final rawItems = rawData["items"] ?? rawData["results"];
       if (rawItems is List) {
         items = rawItems
             .map((x) => ServicesModel.fromJson(x as Map<String, dynamic>))
@@ -76,8 +77,11 @@ class ServicesModel {
   final double? averageRating;
   /// 'on_site' | 'request_based'
   final String? categoryType;
+  /// 'standard' | 'express'
+  final String? serviceType;
 
   bool get isRemote => categoryType == 'request_based';
+  bool get isExpress => serviceType == 'express';
 
   ServicesModel({
     this.providerName,
@@ -101,6 +105,7 @@ class ServicesModel {
     this.isFavorite,
     this.averageRating,
     this.categoryType,
+    this.serviceType,
   });
 
   factory ServicesModel.fromJson(Map<String, dynamic> json) => ServicesModel(
@@ -127,6 +132,7 @@ class ServicesModel {
     isFavorite: _parseBool(json["is_favorite"]),
     averageRating: (json["average_rating"] as num?)?.toDouble(),
     categoryType: json["category_type"]?.toString(),
+    serviceType: json["service_type"]?.toString(),
   );
 
   Map<String, dynamic> toJson() => {

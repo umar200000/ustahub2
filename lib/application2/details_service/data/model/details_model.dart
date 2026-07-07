@@ -40,6 +40,10 @@ class ServiceData {
   final String? currencyCode;
   final String? currencySymbol;
   final String? provinceName;
+  /// For solo master services — the master's UUID
+  final String? masterId;
+  final String? masterName;
+  final String? masterAvatarUrl;
 
   ServiceData({
     this.id,
@@ -59,6 +63,9 @@ class ServiceData {
     this.currencyCode,
     this.currencySymbol,
     this.provinceName,
+    this.masterId,
+    this.masterName,
+    this.masterAvatarUrl,
   });
 
   factory ServiceData.fromJson(Map<String, dynamic> json) => ServiceData(
@@ -87,6 +94,9 @@ class ServiceData {
     currencyCode: json["currency_code"],
     currencySymbol: json["currency_symbol"],
     provinceName: json["province_name"],
+    masterId: json["master_id"],
+    masterName: json["master_name"],
+    masterAvatarUrl: json["master_avatar_url"],
   );
 
   Map<String, dynamic> toJson() => {

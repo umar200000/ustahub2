@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 
 import '../../../../infrastructure2/init/injection.dart';
@@ -52,6 +54,29 @@ class RegisterRepo {
       data: {"first_name": firstName, "last_name": lastName, "email": email},
     );
 
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> uploadImage(File imageFile) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(imageFile.path),
+    });
+    final response = await _dio.post(
+      'api/v1/uploads/images/',
+      data: formData,
+      options: Options(
+        sendTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+      ),
+    );
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> updateAvatar(String mediaId) async {
+    final response = await _dio.post(
+      'api/v1/client/auth/profile/avatar/',
+      data: {'avatar_media_id': mediaId},
+    );
     return response.data;
   }
 }

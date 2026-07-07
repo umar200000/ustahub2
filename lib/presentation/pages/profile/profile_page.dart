@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -425,19 +426,34 @@ class _ProfilePageState extends State<ProfilePage> {
                     colors: colors,
                   ),
                 ),
-                SizedBox(height: 12.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: _DeleteAccountButton(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const DeleteAccountPage(),
-                        ),
-                      );
-                    },
-                    colors: colors,
+                SizedBox(height: 4.h),
+                Theme(
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.symmetric(horizontal: 16.w),
+                    childrenPadding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
+                    title: Text(
+                      'Qo\'shimcha',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: colors.neutral500,
+                      ),
+                    ),
+                    iconColor: colors.neutral500,
+                    collapsedIconColor: colors.neutral500,
+                    children: [
+                      _DeleteAccountButton(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DeleteAccountPage(),
+                            ),
+                          );
+                        },
+                        colors: colors,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -687,14 +703,44 @@ class _ProfileHero extends StatelessWidget {
                         ),
                       ],
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      initial,
-                      style: TextStyle(
-                        color: colors.primary500,
-                        fontSize: 28.sp,
-                        fontWeight: FontWeight.w800,
-                      ),
+                    child: ClipOval(
+                      child: user?.avatarUrl != null
+                          ? CachedNetworkImage(
+                              imageUrl: user!.avatarUrl!,
+                              fit: BoxFit.cover,
+                              width: 68.w,
+                              height: 68.w,
+                              placeholder: (_, __) => Center(
+                                child: Text(
+                                  initial,
+                                  style: TextStyle(
+                                    color: colors.primary500,
+                                    fontSize: 28.sp,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (_, __, ___) => Center(
+                                child: Text(
+                                  initial,
+                                  style: TextStyle(
+                                    color: colors.primary500,
+                                    fontSize: 28.sp,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Center(
+                              child: Text(
+                                initial,
+                                style: TextStyle(
+                                  color: colors.primary500,
+                                  fontSize: 28.sp,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
                     ),
                   ),
                   SizedBox(width: 14.w),

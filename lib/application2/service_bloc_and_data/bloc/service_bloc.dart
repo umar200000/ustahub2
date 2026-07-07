@@ -43,10 +43,25 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
         return;
       }
 
+      // Determine which lat/lng to use:
+      // - On initial load: use coords from the event (supplied by home page after location fetch)
+      // - On fetchMore: reuse the coords already stored in state
+      double? lat;
+      double? lng;
+
       if (!event.isFetchMore) {
-        emit(state.copyWith(status: Status2.loading, isLastPage: false));
+        lat = event.latitude;
+        lng = event.longitude;
+        emit(state.copyWith(
+          status: Status2.loading,
+          isLastPage: false,
+          latitude: lat,
+          longitude: lng,
+        ));
       } else {
         // Fetch more bo'lganda faqat statusni loading qilamiz (state.copyWith ichida)
+        lat = state.latitude;
+        lng = state.longitude;
         emit(state.copyWith(status: Status2.loading));
       }
 
@@ -60,6 +75,8 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
         final response = await _serviceRepo.getServices(
           skip: currentLength,
           limit: limit,
+          latitude: lat,
+          longitude: lng,
         );
 
         if (response.statusCode == 200) {

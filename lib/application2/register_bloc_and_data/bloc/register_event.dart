@@ -68,3 +68,10 @@ class UpdateUserProfile extends RegisterEvent {
   @override
   List<Object?> get props => [firstName, lastName, gmail];
 }
+
+class UploadAvatarEvent extends RegisterEvent {
+  final File image;
+  const UploadAvatarEvent(this.image);
+  @override
+  List<Object?> get props => [image];
+}

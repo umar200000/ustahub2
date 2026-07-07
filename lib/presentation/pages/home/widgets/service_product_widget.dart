@@ -25,6 +25,8 @@ class ServiceProviderCard extends StatelessWidget {
   final String? provinceName;
   /// true → request_based (masofaviy xizmat)
   final bool isRemote;
+  /// true → express service (tezkor)
+  final bool isExpress;
 
   const ServiceProviderCard({
     super.key,
@@ -43,6 +45,7 @@ class ServiceProviderCard extends StatelessWidget {
     this.isFavorite = false,
     this.provinceName,
     this.isRemote = false,
+    this.isExpress = false,
   });
 
   @override
@@ -176,6 +179,35 @@ class ServiceProviderCard extends StatelessWidget {
                         SizedBox(width: 4.w),
                         Text(
                           'express_remote_label'.tr(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (isExpress) ...[
+                  if (provinceName != null && provinceName!.isNotEmpty ||
+                      isRemote)
+                    SizedBox(width: 6.w),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF7A00).withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.bolt_rounded,
+                            size: 13.sp, color: Colors.white),
+                        SizedBox(width: 4.w),
+                        Text(
+                          'tezkor'.tr(),
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 11.sp,

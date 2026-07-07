@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
 import 'package:ustahub/infrastructure/services/enum_status/status_enum.dart';
 import 'package:ustahub/infrastructure/services/toast/toast_service.dart';
@@ -47,6 +51,46 @@ class _UserInformationPageState extends State<UserInformationPage> {
     emailController.dispose();
     phoneController.dispose();
     super.dispose();
+  }
+
+  void _showImageSourceSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded),
+              title: const Text('Galereyadan tanlash'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                await Future.delayed(const Duration(milliseconds: 300));
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_rounded),
+              title: const Text('Kamera'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                await Future.delayed(const Duration(milliseconds: 300));
+                _pickImage(ImageSource.camera);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: source, imageQuality: 85);
+    if (picked == null) return;
+    bloc.add(UploadAvatarEvent(File(picked.path)));
   }
 
   void _saveChanges() {
@@ -96,26 +140,44 @@ class _UserInformationPageState extends State<UserInformationPage> {
       builder: (context, colors, fonts, icons, controller) {
         return BlocProvider.value(
           value: bloc,
-          child: BlocConsumer<RegisterBloc, RegisterState>(
+          child: BlocListener<RegisterBloc, RegisterState>(
+            listenWhen: (prev, curr) => prev.statusAvatar != curr.statusAvatar,
             listener: (context, state) {
-              if (state.statusUser == Status2.success) {
+              if (state.statusAvatar == Status2.success) {
                 ToastService.success(
                   context: context,
                   title: "Muvaffaqiyatli",
-                  description: "Ma'lumotlar saqlandi!",
+                  description: "Rasm yangilandi!",
                 );
-                Navigator.pop(context);
               }
-              if (state.statusUser == Status2.error) {
+              if (state.statusAvatar == Status2.error) {
                 ToastService.error(
                   context: context,
                   title: "Xatolik",
-                  description:
-                      state.errorMessage ?? "Kutilmagan xato yuz berdi",
+                  description: state.errorMessageAvatar ?? "Rasm yuklanmadi",
                 );
               }
             },
-            builder: (context, state) {
+            child: BlocConsumer<RegisterBloc, RegisterState>(
+              listener: (context, state) {
+                if (state.statusUser == Status2.success) {
+                  ToastService.success(
+                    context: context,
+                    title: "Muvaffaqiyatli",
+                    description: "Ma'lumotlar saqlandi!",
+                  );
+                  Navigator.pop(context);
+                }
+                if (state.statusUser == Status2.error) {
+                  ToastService.error(
+                    context: context,
+                    title: "Xatolik",
+                    description:
+                        state.errorMessage ?? "Kutilmagan xato yuz berdi",
+                  );
+                }
+              },
+              builder: (context, state) {
               return Scaffold(
                 backgroundColor: const Color(0xFFF8F9FB),
                 appBar: AppBar(
@@ -164,21 +226,86 @@ class _UserInformationPageState extends State<UserInformationPage> {
                               ),
                               child: Column(
                                 children: [
-                                  Container(
-                                    width: 100.w,
-                                    height: 100.w,
-                                    decoration: BoxDecoration(
-                                      color: colors.blue500.withOpacity(0.1),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: colors.blue500.withOpacity(0.2),
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.person_rounded,
-                                      size: 55.sp,
-                                      color: colors.blue500,
+                                  GestureDetector(
+                                    onTap: state.statusAvatar == Status2.loading
+                                        ? null
+                                        : _showImageSourceSheet,
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          width: 100.w,
+                                          height: 100.w,
+                                          decoration: BoxDecoration(
+                                            color: colors.blue500.withOpacity(0.1),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: colors.blue500.withOpacity(0.2),
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: ClipOval(
+                                            child: state.userProfile?.avatarUrl != null
+                                                ? CachedNetworkImage(
+                                                    imageUrl: state.userProfile!.avatarUrl!,
+                                                    fit: BoxFit.cover,
+                                                    placeholder: (_, __) => Icon(
+                                                      Icons.person_rounded,
+                                                      size: 55.sp,
+                                                      color: colors.blue500,
+                                                    ),
+                                                    errorWidget: (_, __, ___) => Icon(
+                                                      Icons.person_rounded,
+                                                      size: 55.sp,
+                                                      color: colors.blue500,
+                                                    ),
+                                                  )
+                                                : Icon(
+                                                    Icons.person_rounded,
+                                                    size: 55.sp,
+                                                    color: colors.blue500,
+                                                  ),
+                                          ),
+                                        ),
+                                        if (state.statusAvatar == Status2.loading)
+                                          Positioned.fill(
+                                            child: Container(
+                                              decoration: const BoxDecoration(
+                                                color: Colors.black38,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Center(
+                                                child: SizedBox(
+                                                  width: 24.w,
+                                                  height: 24.w,
+                                                  child: const CircularProgressIndicator(
+                                                    color: Colors.white,
+                                                    strokeWidth: 2.5,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        Positioned(
+                                          bottom: 0,
+                                          right: 0,
+                                          child: Container(
+                                            padding: EdgeInsets.all(5.r),
+                                            decoration: BoxDecoration(
+                                              color: colors.blue500,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: Icon(
+                                              Icons.camera_alt_rounded,
+                                              color: Colors.white,
+                                              size: 13.sp,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   SizedBox(height: 12.h),
@@ -315,6 +442,7 @@ class _UserInformationPageState extends State<UserInformationPage> {
                 ),
               );
             },
+            ),
           ),
         );
       },
