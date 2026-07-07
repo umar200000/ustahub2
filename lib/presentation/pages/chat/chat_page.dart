@@ -5,11 +5,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:ustahub/application2/chat/chat_repo.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class _ChatMessage {
   final String id;
@@ -126,7 +125,8 @@ class _ChatPageState extends State<ChatPage> {
       final msgs = items.map((item) {
         // REST response uses sender_user_id; WS uses sender.user_type
         final senderUserId = item['sender_user_id']?.toString();
-        final isMe = (senderUserId != null &&
+        final isMe =
+            (senderUserId != null &&
                 senderUserId.isNotEmpty &&
                 senderUserId == widget.userId) ||
             (item['sender'] as Map<String, dynamic>?)?['user_type'] == 'client';
@@ -154,7 +154,8 @@ class _ChatPageState extends State<ChatPage> {
     if (token.isEmpty) return;
 
     final uri = Uri.parse(
-        'ws://3.64.241.75:8000/api/v1/ws/chat/$convId?token=$token');
+      'ws://3.64.241.75:8000/api/v1/ws/chat/$convId?token=$token',
+    );
     debugPrint('[Chat] Connecting WS: $uri');
 
     try {
@@ -195,7 +196,8 @@ class _ChatPageState extends State<ChatPage> {
       if (type == 'message') {
         final inner = msg['message'] as Map<String, dynamic>? ?? {};
         final sender = inner['sender'] as Map<String, dynamic>? ?? {};
-        final isMe = sender['user_type'] == 'client' ||
+        final isMe =
+            sender['user_type'] == 'client' ||
             sender['user_id'] == widget.userId;
         final name = (sender['name'] as String?) ?? widget.masterName;
 
@@ -224,11 +226,13 @@ class _ChatPageState extends State<ChatPage> {
     if (_channel != null) {
       setState(() => _sending = true);
       try {
-        _channel!.sink.add(jsonEncode({
-          "type": "message",
-          "content": text,
-          "message_type": "text",
-        }));
+        _channel!.sink.add(
+          jsonEncode({
+            "type": "message",
+            "content": text,
+            "message_type": "text",
+          }),
+        );
         _textController.clear();
       } catch (e) {
         debugPrint('[Chat] WS send error: $e');
@@ -245,8 +249,7 @@ class _ChatPageState extends State<ChatPage> {
     if (_conversationId == null) return;
     setState(() => _sending = true);
     try {
-      await _repo.sendMessage(
-          conversationId: _conversationId!, content: text);
+      await _repo.sendMessage(conversationId: _conversationId!, content: text);
       _textController.clear();
       await _loadHistory(_conversationId!);
       _scrollToBottom();
@@ -289,21 +292,28 @@ class _ChatPageState extends State<ChatPage> {
             elevation: 0,
             leading: IconButton(
               onPressed: () => Navigator.pop(ctx),
-              icon: Icon(Icons.arrow_back_ios_rounded,
-                  color: colors.neutral800, size: 20.sp),
+              icon: Icon(
+                Icons.arrow_back_ios_rounded,
+                color: colors.neutral800,
+                size: 20.sp,
+              ),
             ),
             title: Row(
               children: [
-                Icon(Icons.chat_bubble_rounded,
-                    color: colors.primary500, size: 20.sp),
+                Icon(
+                  Icons.chat_bubble_rounded,
+                  color: colors.primary500,
+                  size: 20.sp,
+                ),
                 Gap(8.w),
                 Expanded(
                   child: Text(
                     widget.masterName.isNotEmpty
                         ? widget.masterName
                         : 'chat'.tr(),
-                    style: fonts.paragraphP2SemiBold
-                        .copyWith(color: colors.neutral800),
+                    style: fonts.paragraphP2SemiBold.copyWith(
+                      color: colors.neutral800,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -321,12 +331,17 @@ class _ChatPageState extends State<ChatPage> {
                       Container(
                         width: double.infinity,
                         padding: EdgeInsets.symmetric(
-                            horizontal: 16.w, vertical: 10.h),
+                          horizontal: 16.w,
+                          vertical: 10.h,
+                        ),
                         color: colors.neutral100,
                         child: Row(
                           children: [
-                            Icon(Icons.lock_rounded,
-                                color: colors.neutral500, size: 16.sp),
+                            Icon(
+                              Icons.lock_rounded,
+                              color: colors.neutral500,
+                              size: 16.sp,
+                            ),
                             Gap(8.w),
                             Expanded(
                               child: Column(
@@ -335,12 +350,14 @@ class _ChatPageState extends State<ChatPage> {
                                   Text(
                                     'chat_closed'.tr(),
                                     style: fonts.paragraphP3SemiBold.copyWith(
-                                        color: colors.neutral700),
+                                      color: colors.neutral700,
+                                    ),
                                   ),
                                   Text(
                                     'chat_closed_desc'.tr(),
                                     style: fonts.paragraphP3Regular.copyWith(
-                                        color: colors.neutral500),
+                                      color: colors.neutral500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -355,25 +372,30 @@ class _ChatPageState extends State<ChatPage> {
                           ? Center(
                               child: Text(
                                 'chat'.tr(),
-                                style: fonts.paragraphP2Regular
-                                    .copyWith(color: colors.neutral400),
+                                style: fonts.paragraphP2Regular.copyWith(
+                                  color: colors.neutral400,
+                                ),
                               ),
                             )
                           : ListView.builder(
                               controller: _scrollController,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 16.w, vertical: 12.h),
+                                horizontal: 16.w,
+                                vertical: 12.h,
+                              ),
                               itemCount: _messages.length,
                               itemBuilder: (context, index) {
                                 return _buildMessageBubble(
-                                    _messages[index], colors, fonts);
+                                  _messages[index],
+                                  colors,
+                                  fonts,
+                                );
                               },
                             ),
                     ),
 
                     // Input area (only if active)
-                    if (_isActive)
-                      _buildInputArea(colors, fonts),
+                    if (_isActive) _buildInputArea(colors, fonts),
                   ],
                 ),
         );
@@ -381,35 +403,41 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildMessageBubble(
-      _ChatMessage msg, dynamic colors, dynamic fonts) {
+  Widget _buildMessageBubble(_ChatMessage msg, dynamic colors, dynamic fonts) {
     final isMe = msg.isMe;
     final timeStr = _formatTime(msg.sentAt);
 
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h),
       child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) ...[
             CircleAvatar(
               radius: 16.r,
               backgroundColor: colors.neutral200,
-              child: Icon(Icons.person_rounded,
-                  color: colors.neutral500, size: 16.sp),
+              child: Icon(
+                Icons.person_rounded,
+                color: colors.neutral500,
+                size: 16.sp,
+              ),
             ),
             Gap(8.w),
           ],
           Flexible(
             child: Column(
-              crossAxisAlignment:
-                  isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: isMe
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Container(
                   padding: EdgeInsets.symmetric(
-                      horizontal: 12.w, vertical: 8.h),
+                    horizontal: 12.w,
+                    vertical: 8.h,
+                  ),
                   decoration: BoxDecoration(
                     color: isMe ? colors.primary500 : colors.shade0,
                     borderRadius: BorderRadius.only(
@@ -486,18 +514,22 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 child: TextField(
                   controller: _textController,
-                  style: fonts.paragraphP2Regular
-                      .copyWith(color: colors.neutral800),
+                  style: fonts.paragraphP2Regular.copyWith(
+                    color: colors.neutral800,
+                  ),
                   maxLines: 4,
                   minLines: 1,
                   textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     hintText: 'type_message'.tr(),
-                    hintStyle: fonts.paragraphP2Regular
-                        .copyWith(color: colors.neutral400),
+                    hintStyle: fonts.paragraphP2Regular.copyWith(
+                      color: colors.neutral400,
+                    ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16.w, vertical: 10.h),
+                      horizontal: 16.w,
+                      vertical: 10.h,
+                    ),
                   ),
                   onSubmitted: (_) => _sendMessage(),
                 ),

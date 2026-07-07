@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "-p", "3456", "landing"],
       "port": 3456
+    },
+    {
+      "name": "neo-admin",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d D:\\projects\\neo_play_superadmin && npm run dev -- --port 5174"],
+      "port": 5174
     }
   ]
 }
