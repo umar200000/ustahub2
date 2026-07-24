@@ -2,7 +2,7 @@ name: ustahub
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 0.1.1+8
+version: 0.3.0+11
 
 environment:
   sdk: ^3.10.3
