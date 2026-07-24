@@ -2,32 +2,29 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:clarity_flutter/clarity_flutter.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ustahub/application2/banner_bloc_and_data/bloc/banner_bloc.dart';
 import 'package:ustahub/application2/card_bloc_and_data/bloc/card_bloc.dart';
-import 'package:ustahub/application2/payment_bloc_and_data/bloc/payment_bloc.dart';
-import 'package:ustahub/application2/favorite_bloc_and_data/bloc/favorite_bloc.dart';
-import 'package:ustahub/application2/review_bloc_and_data/bloc/review_bloc.dart';
 import 'package:ustahub/application2/category_bloc_and_data/bloc/category_bloc.dart';
 import 'package:ustahub/application2/category_list_bloc_and_data/bloc/category_list_bloc.dart';
 import 'package:ustahub/application2/company_bloc_and_data/bloc/company_bloc.dart';
 import 'package:ustahub/application2/details_service/bloc/details_bloc.dart';
+import 'package:ustahub/application2/favorite_bloc_and_data/bloc/favorite_bloc.dart';
+import 'package:ustahub/application2/payment_bloc_and_data/bloc/payment_bloc.dart';
 import 'package:ustahub/application2/register_bloc_and_data/bloc/register_bloc.dart';
+import 'package:ustahub/application2/review_bloc_and_data/bloc/review_bloc.dart';
 import 'package:ustahub/application2/service_bloc_and_data/bloc/service_bloc.dart';
 import 'package:ustahub/infrastructure/services/analytics/analytics_service.dart';
 import 'package:ustahub/infrastructure/services/shared_perf/shared_pref_service.dart';
 import 'package:ustahub/presentation/pages/core/app_init.dart';
 import 'package:ustahub/presentation/pages/core/app_widget.dart';
-import 'package:ustahub/utils/app_config.dart';
-import 'package:ustahub/utils/constants.dart';
 import 'package:ustahub/utils/sms_helper.dart';
 
 import 'application2/booking_bloc_and_data/bloc/booking_bloc.dart';
-import 'infrastructure/services/device_info/device_info_service.dart';
-import 'package:dio/dio.dart';
 import 'core/services/support_service.dart';
 import 'infrastructure2/init/injection.dart';
 
@@ -43,13 +40,7 @@ Future<void> main() async {
     ]);
 
     // Firebase initialization is handled inside AppInit.create
-    final deviceInfo = await DeviceInfoService().getDeviceData();
-
-    AppConfig.create(
-      appName: Constants.appName,
-      baseUrl: Constants.baseUrlP,
-      primaryColor: Colors.yellow,
-    );
+    // final deviceInfo = await DeviceInfoService().getDeviceData();
 
     await AppInit.create;
 
