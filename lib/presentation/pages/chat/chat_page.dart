@@ -10,6 +10,8 @@ import 'package:ustahub/infrastructure2/init/injection.dart';
 import 'package:ustahub/presentation/styles/theme_wrapper.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../../../application2/chat/chat_repo.dart';
+
 class _ChatMessage {
   final String id;
   final String content;
